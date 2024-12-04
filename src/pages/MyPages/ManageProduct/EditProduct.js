@@ -25,6 +25,7 @@ import * as Yup from "yup";
 import { Link, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import MediaModel from "../MediaUpload/MediaModel";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -35,7 +36,9 @@ const EditProduct = () => {
   const [shortContent, setShortContent] = useState("");
   const [longContent, setLongContent] = useState("");
   const [uploadedImages, setUploadedImages] = useState([]);
-    
+  const [imageModel, setImageModel] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const [uploadedDataSheet, setUploadedDataSheet] = useState([]);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
   const [editData, setEditData] = useState(null);
@@ -45,8 +48,8 @@ const EditProduct = () => {
   useEffect(() => {
     if (viewData) {
       setEditData(viewData);
-      setShortContent(viewData?.shortDescription)
-      setLongContent(viewData?.longDescription)
+      setShortContent(viewData?.shortDescription);
+      setLongContent(viewData?.longDescription);
     }
   }, [viewData]);
 
@@ -113,12 +116,12 @@ const EditProduct = () => {
 
   const handleShortContentChange = (newContent) => {
     setShortContent(newContent);
-    console.log("setShortContent", newContent);
+    // console.log("setShortContent", newContent);
   };
 
   const handleLongContentChange = (newContent) => {
     setLongContent(newContent);
-    console.log("setLongContent", newContent);
+    // console.log("setLongContent", newContent);
   };
 
   const options = certificateData?.map((data) => ({
@@ -140,12 +143,15 @@ const EditProduct = () => {
     }
   };
 
-  const handleRemoveImage = (index) => {
-    const newImages = uploadedImages.filter((_, i) => i !== index);
-    setUploadedImages(newImages);
-    if (imageInputRef.current) {
-      imageInputRef.current.value = "";
-    }
+  const toggleModal = () => {
+    setImageModel(!imageModel);
+    setSelectedImage([]);
+  };
+
+  const handleUploadImage = (image) => {
+    setUploadedImages([...uploadedImages, image?.image]);
+    toggleModal();
+    setSelectedImage([]);
   };
 
   const handleDataSheetChange = (event) => {
@@ -214,7 +220,10 @@ const EditProduct = () => {
     <>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Product" breadcrumbItem={`Edit product - ${id}`} />
+          <Breadcrumbs
+            title="Product"
+            breadcrumbItem={`Edit product - ${id}`}
+          />
           <form onSubmit={formik.handleSubmit}>
             <div className="row">
               <div className="col-md-9 col-12">
@@ -698,19 +707,27 @@ const EditProduct = () => {
                     <h5 class="card-title">Product image</h5>
                   </div>
                   <div class="card-body">
-                    <div class="mb-3">
+                    <div>
                       <Input
                         name="images"
                         type="file"
                         accept="image/jpeg, image/png"
                         onChange={handleImageChange}
                         innerRef={imageInputRef}
+                        style={{ display: "none" }}
                         invalid={
                           formik.touched.images && formik.errors.images
                             ? true
                             : false
                         }
                       />
+                      <div className="custom-file-button" onClick={toggleModal}>
+                        <i
+                          class="bx bx-cloud-upload me-2"
+                          style={{ fontSize: "25px" }}
+                        ></i>
+                        Choose File
+                      </div>
                       {formik.touched.images && formik.errors.images ? (
                         <FormFeedback type="invalid" className="d-block">
                           {formik.errors.images}
@@ -730,8 +747,8 @@ const EditProduct = () => {
                                   data-dz-thumbnail=""
                                   height="80"
                                   className="avatar-sm rounded bg-light"
-                                  alt={image.name}
-                                  src={image.preview}
+                                  alt="img"
+                                  src={image}
                                 />
                               </Col>
                               <Col>
@@ -749,7 +766,12 @@ const EditProduct = () => {
                                 <button
                                   type="button"
                                   className="btn btn-danger btn-sm"
-                                  onClick={() => handleRemoveImage(index)}
+                                  onClick={() => {
+                                    const newImages = uploadedImages.filter(
+                                      (_, i) => i !== index
+                                    );
+                                    setUploadedImages(newImages);
+                                  }}
                                 >
                                   Delete
                                 </button>
@@ -766,7 +788,7 @@ const EditProduct = () => {
                     <h5 class="card-title">Upload Datasheet</h5>
                   </div>
                   <div class="card-body">
-                    <div class="mb-3">
+                    <div>
                       <Input
                         name="images"
                         type="file"
@@ -828,6 +850,15 @@ const EditProduct = () => {
               </Col>
             </Row>
           </form>
+
+          {/* Model for upload image */}
+          <MediaModel
+            imageModel={imageModel}
+            toggleModal={toggleModal}
+            handleUploadImage={handleUploadImage}
+            selectedImage={selectedImage}
+            setSelectedImage={setSelectedImage}
+          />
         </Container>
       </div>
     </>

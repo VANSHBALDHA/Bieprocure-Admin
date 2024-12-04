@@ -100,9 +100,9 @@ const ViewOrder = () => {
                           />
                         </td>
                         <td>Product Name 1</td>
-                        <td>$10.00</td>
+                        <td>₹10.00</td>
                         <td>2</td>
-                        <td>$20.00</td>
+                        <td>₹20.00</td>
                       </tr>
                       <tr>
                         <td>#102</td>
@@ -114,9 +114,9 @@ const ViewOrder = () => {
                           />
                         </td>
                         <td>Product Name 2</td>
-                        <td>$15.00</td>
+                        <td>₹15.00</td>
                         <td>1</td>
-                        <td>$15.00</td>
+                        <td>₹15.00</td>
                       </tr>
                     </tbody>
                   </table>

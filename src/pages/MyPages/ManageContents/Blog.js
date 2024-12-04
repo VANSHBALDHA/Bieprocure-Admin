@@ -23,14 +23,20 @@ import * as Yup from "yup";
 import { BlogData } from "../../../common/data/MyFackData";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import MediaModel from "../MediaUpload/MediaModel";
 
 const Blog = () => {
-  const fileInputRef = useRef(null);
+  const imageInputRef = useRef(null);
+
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isView, setIsView] = useState(false);
   const [addBlog, setAddBlog] = useState(null);
   const [viewBlog, setViewBlog] = useState(null);
+
+  const [uploadedImages, setUploadedImages] = useState(null);
+  const [imageModel, setImageModel] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const [shortContent, setShortContent] = useState("");
 
@@ -39,9 +45,30 @@ const Blog = () => {
     console.log("setShortContent", newContent);
   };
 
-  const [uploadedImages, setUploadedImages] = useState([]);
-
   const toggleModal = () => setModal(!modal);
+
+  const toggleImageModal = () => {
+    setImageModel(!imageModel);
+    setSelectedImage([]);
+  };
+
+  const handleUploadImage = (image) => {
+    if (image) {
+      setUploadedImages([image?.image]);
+    }
+    toggleImageModal();
+    setSelectedImage(null);
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const newImage = Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+      setUploadedImages([newImage]);
+    }
+  };
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -60,7 +87,13 @@ const Blog = () => {
       slug: Yup.string().required("Please add slug"),
       published_date: Yup.string().required("Please select date"),
       status: Yup.string().required("Please select the status"),
-      images: Yup.array().min(1, "Please upload at least one image"),
+      // images: Yup.array().min(1, "Please upload at least one image"),
+
+      images: Yup.mixed().test(
+        "fileSelected",
+        "Please select an image",
+        () => uploadedImages && uploadedImages.length > 0
+      ),
     }),
     onSubmit: (values) => {
       if (isEdit) {
@@ -156,24 +189,6 @@ const Blog = () => {
     ],
     []
   );
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const newImage = Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      });
-      setUploadedImages([newImage]);
-    }
-  };
-
-  const handleRemoveImage = (index) => {
-    const newImages = uploadedImages.filter((_, i) => i !== index);
-    setUploadedImages(newImages);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
 
   const quillModules = {
     toolbar: [
@@ -385,69 +400,60 @@ const Blog = () => {
                         name="images"
                         type="file"
                         accept="image/jpeg, image/png"
-                        innerRef={fileInputRef}
                         onChange={handleImageChange}
+                        innerRef={imageInputRef}
+                        style={{ display: "none" }}
                         invalid={
                           formik.touched.images && formik.errors.images
                             ? true
                             : false
                         }
                       />
-                      {formik.touched.images && formik.errors.images ? (
+                      <div
+                        className="custom-file-button"
+                        onClick={toggleImageModal}
+                      >
+                        <i
+                          class="bx bx-cloud-upload me-2"
+                          style={{ fontSize: "25px" }}
+                        ></i>
+                        Choose File
+                      </div>
+                      {formik.errors.images && formik.touched.images ? (
                         <FormFeedback type="invalid" className="d-block">
                           {formik.errors.images}
                         </FormFeedback>
                       ) : null}
                     </div>
                   </Col>
-                  {uploadedImages?.length > 0 && (
-                    <Col className="col-12">
-                      <div className="mb-3">
-                        <Label className="form-label">Uploaded Images</Label>
-                        <div className="image-preview-container">
-                          {uploadedImages.map((image, index) => (
-                            <Card
-                              className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete"
-                              key={index + "-file"}
+                  {uploadedImages && (
+                    <Card className="mt-1 mb-3 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
+                      <div className="p-2">
+                        <Row className="d-flex justify-content-between align-items-center">
+                          <Col className="col-auto">
+                            <img
+                              data-dz-thumbnail=""
+                              height="100"
+                              width="100"
+                              className="avatar-md rounded bg-light"
+                              alt="images"
+                              src={uploadedImages}
+                            />
+                          </Col>
+                          <Col className="col-auto">
+                            <button
+                              type="button"
+                              className="btn btn-danger btn-sm"
+                              onClick={() => {
+                                setUploadedImages(null);
+                              }}
                             >
-                              <div className="p-2">
-                                <Row className="align-items-center">
-                                  <Col className="col-auto">
-                                    <img
-                                      data-dz-thumbnail=""
-                                      height="80"
-                                      className="avatar-sm rounded bg-light"
-                                      alt={image.name}
-                                      src={image.preview}
-                                    />
-                                  </Col>
-                                  <Col>
-                                    <Link
-                                      to="#"
-                                      className="text-muted font-weight-bold"
-                                    >
-                                      {image.name}
-                                    </Link>
-                                    <p className="mb-0">
-                                      <strong>{image.formattedSize}</strong>
-                                    </p>
-                                  </Col>
-                                  <Col className="col-auto">
-                                    <button
-                                      type="button"
-                                      className="btn btn-danger btn-sm"
-                                      onClick={() => handleRemoveImage(index)}
-                                    >
-                                      Delete
-                                    </button>
-                                  </Col>
-                                </Row>
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
+                              Delete
+                            </button>
+                          </Col>
+                        </Row>
                       </div>
-                    </Col>
+                    </Card>
                   )}
                 </Row>
                 <Row>
@@ -580,6 +586,15 @@ const Blog = () => {
               </Row>
             </ModalBody>
           </Modal>
+
+          {/* Model For Upload Image */}
+          <MediaModel
+            imageModel={imageModel}
+            toggleModal={toggleImageModal}
+            handleUploadImage={handleUploadImage}
+            selectedImage={selectedImage}
+            setSelectedImage={setSelectedImage}
+          />
         </Container>
       </div>
     </>

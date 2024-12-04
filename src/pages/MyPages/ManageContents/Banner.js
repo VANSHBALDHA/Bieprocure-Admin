@@ -25,11 +25,40 @@ import {
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import MediaModel from "../MediaUpload/MediaModel";
 
 const Banner = () => {
-  const fileInputRef = useRef(null);
+  const imageInputRef = useRef(null);
+
   const [isEditMain, setEditMain] = useState(false);
   const [heroBannerData, setHeroBannerData] = useState(null);
+
+  const [uploadedImages, setUploadedImages] = useState(null);
+  const [imageModel, setImageModel] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const toggleImageModal = () => {
+    setImageModel(!imageModel);
+    setSelectedImage([]);
+  };
+
+  const handleUploadImage = (image) => {
+    if (image) {
+      setUploadedImages([image?.image]);
+    }
+    toggleImageModal();
+    setSelectedImage(null);
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const newImage = Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+      setUploadedImages([newImage]);
+    }
+  };
 
   const [isEditSide, setEditSide] = useState(false);
 
@@ -55,7 +84,12 @@ const Banner = () => {
     },
     validationSchema: Yup.object({
       mainBannerLink: Yup.string().required("Please enter the link"),
-      image: Yup.array().min(1, "Please upload at least one image"),
+      // image: Yup.array().min(1, "Please upload at least one image"),
+      image: Yup.mixed().test(
+        "fileSelected",
+        "Please select an image",
+        () => uploadedImages && uploadedImages.length > 0
+      ),
       status: Yup.string().required("Please select the status"),
     }),
     onSubmit: (values) => {
@@ -63,24 +97,6 @@ const Banner = () => {
       setEditMain(false);
     },
   });
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const newImage = Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      });
-      setMainImage([newImage]);
-    }
-  };
-
-  const handleRemoveImage = (index) => {
-    const newImages = mainImage.filter((_, i) => i !== index);
-    setMainImage(newImages);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
 
   document.title = "Banner Section | Bieprocure";
 
@@ -326,7 +342,7 @@ const Banner = () => {
                       ) : null}
                     </div>
                   </Col>
-                  <Col className="col-12">
+                  {/* <Col className="col-12">
                     <div className="mb-3">
                       <Label className="form-label">Banner Image</Label>
                       <Input
@@ -395,6 +411,68 @@ const Banner = () => {
                         </div>
                       </div>
                     </Col>
+                  )} */}
+                  <Col className="col-12">
+                    <div className="mb-3">
+                      <Label className="form-label">Banner Image</Label>
+                      <Input
+                        name="image"
+                        type="file"
+                        accept="image/jpeg, image/png"
+                        onChange={handleImageChange}
+                        innerRef={imageInputRef}
+                        style={{ display: "none" }}
+                        invalid={
+                          formik.touched.image && formik.errors.image
+                            ? true
+                            : false
+                        }
+                      />
+                      <div
+                        className="custom-file-button"
+                        onClick={toggleImageModal}
+                      >
+                        <i
+                          class="bx bx-cloud-upload me-2"
+                          style={{ fontSize: "25px" }}
+                        ></i>
+                        Choose File
+                      </div>
+                      {formik.errors.image && formik.touched.image ? (
+                        <FormFeedback type="invalid" className="d-block">
+                          {formik.errors.image}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                  </Col>
+                  {uploadedImages && (
+                    <Card className="mt-1 mb-3 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
+                      <div className="p-2">
+                        <Row className="d-flex justify-content-between align-items-center">
+                          <Col className="col-auto">
+                            <img
+                              data-dz-thumbnail=""
+                              height="100"
+                              width="100"
+                              className="avatar-md rounded bg-light"
+                              alt="images"
+                              src={uploadedImages}
+                            />
+                          </Col>
+                          <Col className="col-auto">
+                            <button
+                              type="button"
+                              className="btn btn-danger btn-sm"
+                              onClick={() => {
+                                setUploadedImages(null);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </Col>
+                        </Row>
+                      </div>
+                    </Card>
                   )}
                   <Col className="col-12">
                     <div className="mb-3">
@@ -469,7 +547,7 @@ const Banner = () => {
                       ) : null}
                     </div>
                   </Col>
-                  <Col className="col-12">
+                  {/* <Col className="col-12">
                     <div className="mb-3">
                       <Label className="form-label">Banner Image</Label>
                       <Input
@@ -538,6 +616,69 @@ const Banner = () => {
                         </div>
                       </div>
                     </Col>
+                  )} */}
+                  <Col className="col-12">
+                    fileInputRef
+                    <div className="mb-3">
+                      <Label className="form-label">Banner Image</Label>
+                      <Input
+                        name="image"
+                        type="file"
+                        accept="image/jpeg, image/png"
+                        onChange={handleImageChange}
+                        innerRef={imageInputRef}
+                        style={{ display: "none" }}
+                        invalid={
+                          formik.touched.image && formik.errors.image
+                            ? true
+                            : false
+                        }
+                      />
+                      <div
+                        className="custom-file-button"
+                        onClick={toggleImageModal}
+                      >
+                        <i
+                          class="bx bx-cloud-upload me-2"
+                          style={{ fontSize: "25px" }}
+                        ></i>
+                        Choose File
+                      </div>
+                      {formik.errors.image && formik.touched.image ? (
+                        <FormFeedback type="invalid" className="d-block">
+                          {formik.errors.image}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                  </Col>
+                  {uploadedImages && (
+                    <Card className="mt-1 mb-3 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
+                      <div className="p-2">
+                        <Row className="d-flex justify-content-between align-items-center">
+                          <Col className="col-auto">
+                            <img
+                              data-dz-thumbnail=""
+                              height="100"
+                              width="100"
+                              className="avatar-md rounded bg-light"
+                              alt="images"
+                              src={uploadedImages}
+                            />
+                          </Col>
+                          <Col className="col-auto">
+                            <button
+                              type="button"
+                              className="btn btn-danger btn-sm"
+                              onClick={() => {
+                                setUploadedImages(null);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </Col>
+                        </Row>
+                      </div>
+                    </Card>
                   )}
                   <Col className="col-12">
                     <div className="mb-3">
@@ -573,6 +714,15 @@ const Banner = () => {
               </form>
             </ModalBody>
           </Modal>
+
+          {/* Modal for select image */}
+          <MediaModel
+            imageModel={imageModel}
+            toggleModal={toggleImageModal}
+            handleUploadImage={handleUploadImage}
+            selectedImage={selectedImage}
+            setSelectedImage={setSelectedImage}
+          />
         </Container>
       </div>
     </>

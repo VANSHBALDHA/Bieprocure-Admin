@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import withRouter from "../../../components/Common/withRouter";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { brandData } from "../../../common/data/MyFackData";
@@ -22,14 +22,43 @@ import TableContainer from "../../../components/Common/TableContainer";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import MediaModel from "../MediaUpload/MediaModel";
 
 const Brand = () => {
+  const imageInputRef = useRef(null);
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentBrand, setCurrentBrand] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
+  const [uploadedImages, setUploadedImages] = useState(null);
+  const [imageModel, setImageModel] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const toggleModal = () => setModal(!modal);
+
+  const toggleImageModal = () => {
+    setImageModel(!imageModel);
+    setSelectedImage([]);
+  };
+
+  const handleUploadImage = (image) => {
+    if (image) {
+      setUploadedImages([image?.image]);
+    }
+    toggleImageModal();
+    setSelectedImage(null);
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const newImage = Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+      setUploadedImages([newImage]);
+    }
+  };
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -44,10 +73,11 @@ const Brand = () => {
       brandName: Yup.string().required("Please enter the brand short name"),
       brandFullName: Yup.string().required("Please enter the brand full name"),
       status: Yup.string().required("Please select the status"),
-      brandLogo: Yup.string().when("id", {
-        is: "",
-        then: Yup.string().required("Please provide the image URL"),
-      }),
+      brandLogo: Yup.mixed().test(
+        "fileSelected",
+        "Please select an image",
+        () => uploadedImages && uploadedImages.length > 0
+      ),
     }),
     onSubmit: (values) => {
       if (isEdit) {
@@ -252,28 +282,60 @@ const Brand = () => {
                         name="brandLogo"
                         type="file"
                         accept="image/jpeg, image/png"
-                        onChange={handleFileChange}
+                        onChange={handleImageChange}
+                        innerRef={imageInputRef}
+                        style={{ display: "none" }}
                         invalid={
                           formik.touched.brandLogo && formik.errors.brandLogo
                             ? true
                             : false
                         }
                       />
-                      {imagePreview && (
-                        <div className="mt-3">
-                          <img
-                            src={imagePreview}
-                            alt="Preview"
-                            className="img-fluid rounded"
-                            style={{ maxWidth: "100px", maxHeight: "100px" }}
-                          />
-                        </div>
-                      )}
-                      {formik.touched.brandLogo && formik.errors.brandLogo ? (
-                        <FormFeedback type="invalid">
+                      <div
+                        className="custom-file-button"
+                        onClick={toggleImageModal}
+                      >
+                        <i
+                          class="bx bx-cloud-upload me-2"
+                          style={{ fontSize: "25px" }}
+                        ></i>
+                        Choose File
+                      </div>
+                      {formik.errors.brandLogo && formik.touched.brandLogo ? (
+                        <FormFeedback type="invalid" className="d-block">
                           {formik.errors.brandLogo}
                         </FormFeedback>
                       ) : null}
+
+                      {uploadedImages && (
+                        <Card className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
+                          <div className="p-2">
+                            <Row className="d-flex justify-content-between align-items-center">
+                              <Col className="col-auto">
+                                <img
+                                  data-dz-thumbnail=""
+                                  height="100"
+                                  width="100"
+                                  className="avatar-md rounded bg-light"
+                                  alt="images"
+                                  src={uploadedImages}
+                                />
+                              </Col>
+                              <Col className="col-auto">
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-sm"
+                                  onClick={() => {
+                                    setUploadedImages(null);
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </Col>
+                            </Row>
+                          </div>
+                        </Card>
+                      )}
                     </div>
                   </Col>
                 </Row>
@@ -289,6 +351,15 @@ const Brand = () => {
               </form>
             </ModalBody>
           </Modal>
+
+          {/* Modal for select image */}
+          <MediaModel
+            imageModel={imageModel}
+            toggleModal={toggleImageModal}
+            handleUploadImage={handleUploadImage}
+            selectedImage={selectedImage}
+            setSelectedImage={setSelectedImage}
+          />
         </Container>
       </div>
     </>

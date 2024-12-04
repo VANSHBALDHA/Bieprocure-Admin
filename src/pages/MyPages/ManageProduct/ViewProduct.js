@@ -4,12 +4,59 @@ import { productsData } from "../../../common/data/MyFackData";
 import withRouter from "../../../components/Common/withRouter";
 import { Container } from "reactstrap";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const ViewProduct = () => {
   const { id } = useParams();
   document.title = `View product - ${id} | Bieprocure`;
 
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const images = [
+    "https://media.istockphoto.com/id/1302742624/photo/aerial-view-of-lake-tahoe-shoreline-with-mountains-and-turquoise-blue-waters.jpg?b=1&s=170667a&w=0&k=20&c=AiB8q6RRezpfRWizgJh1aLrzP9012ZNywdzzxMcG3SE=",
+    "https://images.unsplash.com/photo-1506057213367-028a17ec52e5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=60",
+    "https://images.unsplash.com/photo-1475776408506-9a5371e7a068?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MTN8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60",
+    "https://images.unsplash.com/photo-1518495973542-4542c06a5843?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MTR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60",
+    "https://media.istockphoto.com/id/1388623445/photo/bear-skin-state-trail-bridge.jpg?b=1&s=170667a&w=0&k=20&c=guB8b7svJuFkYd0L9SecXafAHn5eI2dZSBolrZlaA4s=",
+  ];
+
+  const handleThumbnailClick = (index) => {
+    setCurrentSlide(index);
+  };
+
   const [viewDatas, setViewDatas] = useState(null);
+
+  const styles = {
+    container: {
+      display: "flex",
+      alignItems: "center",
+      gap: "16px",
+    },
+    thumbnails: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px",
+    },
+    thumbnail: {
+      width: "80px",
+      height: "60px",
+      objectFit: "cover",
+      cursor: "pointer",
+      borderRadius: "4px",
+      border: "2px solid transparent",
+      transition: "border-color 0.3s",
+    },
+    carouselWrapper: {
+      flex: 1,
+      maxWidth: "700px",
+    },
+    carouselImage: {
+      width: "100%",
+      height: "350px",
+      objectFit: "cover",
+      borderRadius: "8px",
+    },
+  };
 
   const viewData = productsData?.find((product) => product?.productCode === id);
 
@@ -29,12 +76,42 @@ const ViewProduct = () => {
           />
           <div className="row">
             <div className="col-md-4 col-12">
-              <div className="p-2 border border-dashed rounded text-center">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKgdm33MwqIz0Zyq-BptQv-NDsKpBmucHS1Q&s"
-                  alt="Product"
-                  className="img-fluid"
-                />
+              <div style={styles.container}>
+                <div style={styles.thumbnails}>
+                  {images.map((src, index) => (
+                    <img
+                      key={index}
+                      src={src}
+                      alt={`Thumbnail ${index}`}
+                      style={{
+                        ...styles.thumbnail,
+                        borderColor:
+                          currentSlide === index ? "#007BFF" : "transparent",
+                      }}
+                      onClick={() => handleThumbnailClick(index)}
+                    />
+                  ))}
+                </div>
+
+                <div style={styles.carouselWrapper}>
+                  <Carousel
+                    autoPlay
+                    infiniteLoop
+                    showThumbs={false}
+                    selectedItem={currentSlide}
+                    onChange={(index) => setCurrentSlide(index)}
+                  >
+                    {images.map((src, index) => (
+                      <div key={index}>
+                        <img
+                          src={src}
+                          alt={`Slide ${index}`}
+                          style={styles.carouselImage}
+                        />
+                      </div>
+                    ))}
+                  </Carousel>
+                </div>
               </div>
             </div>
 

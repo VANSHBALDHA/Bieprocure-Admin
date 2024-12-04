@@ -3,3 +3,29 @@
   height: 50px;
   object-fit: cover;
 }
+
+.media-box {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 20px;
+}
+
+.media-box .img-media img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 7px;
+}
+
+.custom-file-button {
+  display: flex;
+  padding: 12px;
+  background-color: rgb(248, 249, 250);
+  border: 1px solid rgb(206, 212, 218);
+  border-radius: 4px;
+  color: rgb(73, 80, 87);
+  cursor: pointer;
+  align-items: center;
+}

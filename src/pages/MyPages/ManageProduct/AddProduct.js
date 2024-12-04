@@ -24,6 +24,7 @@ import * as Yup from "yup";
 import { Link } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import MediaModel from "../MediaUpload/MediaModel";
 
 const AddProduct = () => {
   document.title = "Add product | Bieprocure";
@@ -33,9 +34,12 @@ const AddProduct = () => {
   const [shortContent, setShortContent] = useState("");
   const [longContent, setLongContent] = useState("");
   const [uploadedImages, setUploadedImages] = useState([]);
+  const [imageModel, setImageModel] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const [uploadedDataSheet, setUploadedDataSheet] = useState([]);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
+
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -126,14 +130,6 @@ const AddProduct = () => {
     }
   };
 
-  const handleRemoveImage = (index) => {
-    const newImages = uploadedImages.filter((_, i) => i !== index);
-    setUploadedImages(newImages);
-    if (imageInputRef.current) {
-      imageInputRef.current.value = "";
-    }
-  };
-
   const handleDataSheetChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -153,6 +149,17 @@ const AddProduct = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const toggleModal = () => {
+    setImageModel(!imageModel);
+    setSelectedImage([]);
+  };
+
+  const handleUploadImage = (image) => {
+    setUploadedImages([...uploadedImages, image?.image]);
+    toggleModal();
+    setSelectedImage([]);
   };
 
   const quillModules = {
@@ -684,19 +691,27 @@ const AddProduct = () => {
                     <h5 class="card-title">Product image</h5>
                   </div>
                   <div class="card-body">
-                    <div class="mb-3">
+                    <div>
                       <Input
                         name="images"
                         type="file"
                         accept="image/jpeg, image/png"
                         onChange={handleImageChange}
                         innerRef={imageInputRef}
+                        style={{ display: "none" }}
                         invalid={
                           formik.touched.images && formik.errors.images
                             ? true
                             : false
                         }
                       />
+                      <div className="custom-file-button" onClick={toggleModal}>
+                        <i
+                          class="bx bx-cloud-upload me-2"
+                          style={{ fontSize: "25px" }}
+                        ></i>
+                        Choose File
+                      </div>
                       {formik.touched.images && formik.errors.images ? (
                         <FormFeedback type="invalid" className="d-block">
                           {formik.errors.images}
@@ -716,8 +731,8 @@ const AddProduct = () => {
                                   data-dz-thumbnail=""
                                   height="80"
                                   className="avatar-sm rounded bg-light"
-                                  alt={image.name}
-                                  src={image.preview}
+                                  alt="image"
+                                  src={image}
                                 />
                               </Col>
                               <Col>
@@ -735,7 +750,12 @@ const AddProduct = () => {
                                 <button
                                   type="button"
                                   className="btn btn-danger btn-sm"
-                                  onClick={() => handleRemoveImage(index)}
+                                  onClick={() => {
+                                    const newImages = uploadedImages.filter(
+                                      (_, i) => i !== index
+                                    );
+                                    setUploadedImages(newImages);
+                                  }}
                                 >
                                   Delete
                                 </button>
@@ -752,7 +772,7 @@ const AddProduct = () => {
                     <h5 class="card-title">Upload Datasheet</h5>
                   </div>
                   <div class="card-body">
-                    <div class="mb-3">
+                    <div>
                       <Input
                         name="images"
                         type="file"
@@ -814,6 +834,15 @@ const AddProduct = () => {
               </Col>
             </Row>
           </form>
+
+          {/* Model for upload image */}
+          <MediaModel
+            imageModel={imageModel}
+            toggleModal={toggleModal}
+            handleUploadImage={handleUploadImage}
+            selectedImage={selectedImage}
+            setSelectedImage={setSelectedImage}
+          />
         </Container>
       </div>
     </>

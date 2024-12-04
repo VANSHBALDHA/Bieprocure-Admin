@@ -24,15 +24,44 @@ import { Link, useNavigate } from "react-router-dom";
 import { cartProducts as initialCartProducts } from "../../../common/data/MyFackData";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import MediaModel from "../MediaUpload/MediaModel";
 
 const UserCartList = () => {
   const fileInputRef = useRef(null);
+  const imageInputRef = useRef(null);
   const navigate = useNavigate();
+
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [addProduct, setAddProduct] = useState(null);
   const [cartProducts, setCartProducts] = useState(initialCartProducts);
-  const [uploadedImages, setUploadedImages] = useState([]);
+
+  const [uploadedImages, setUploadedImages] = useState(null);
+  const [imageModel, setImageModel] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const toggleImageModal = () => {
+    setImageModel(!imageModel);
+    setSelectedImage([]);
+  };
+
+  const handleUploadImage = (image) => {
+    if (image) {
+      setUploadedImages([image?.image]);
+    }
+    toggleImageModal();
+    setSelectedImage(null);
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const newImage = Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+      setUploadedImages([newImage]);
+    }
+  };
 
   const [deleteModal, setDeleteModal] = useState(false);
   const [deleteProductId, setDeleteProductId] = useState(null);
@@ -78,7 +107,12 @@ const UserCartList = () => {
     validationSchema: Yup.object({
       product_name: Yup.string().required("Please enter product name"),
       product_code: Yup.string().required("Please enter product code"),
-      product_img: Yup.array().min(1, "Please upload at least one image"),
+      product_img: Yup.mixed().test(
+        "fileSelected",
+        "Please select an image",
+        () => uploadedImages && uploadedImages.length > 0
+      ),
+      // product_img: Yup.array().min(1, "Please upload at least one image"),
       price: Yup.number()
         .required("Please enter the product price")
         .positive("Must be a positive number"),
@@ -105,24 +139,6 @@ const UserCartList = () => {
       toggleModal();
     },
   });
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const newImage = Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      });
-      setUploadedImages([newImage]);
-    }
-  };
-
-  const handleRemoveImage = (index) => {
-    const newImages = uploadedImages.filter((_, i) => i !== index);
-    setUploadedImages(newImages);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
 
   return (
     <>
@@ -186,7 +202,8 @@ const UserCartList = () => {
                             <strong>Cart ID:</strong> #SKU123
                           </CardText>
                           <CardText>
-                            <strong>Order Status:</strong> <Badge>Pending</Badge>
+                            <strong>Order Status:</strong>{" "}
+                            <Badge>Pending</Badge>
                           </CardText>
                         </Col>
                       </Row>
@@ -539,7 +556,7 @@ const UserCartList = () => {
                   <Col className="col-8">
                     <div className="mb-3">
                       <Label className="form-label">Upload Product Image</Label>
-                      <Input
+                      {/* <Input
                         name="product_img"
                         type="file"
                         onChange={handleImageChange}
@@ -557,10 +574,40 @@ const UserCartList = () => {
                         <FormFeedback type="invalid" className="d-block">
                           {formik.errors.product_img}
                         </FormFeedback>
+                      ) : null} */}
+                      <Input
+                        name="product_img"
+                        type="file"
+                        accept="image/jpeg, image/png"
+                        onChange={handleImageChange}
+                        innerRef={imageInputRef}
+                        style={{ display: "none" }}
+                        invalid={
+                          formik.touched.product_img &&
+                          formik.errors.product_img
+                            ? true
+                            : false
+                        }
+                      />
+                      <div
+                        className="custom-file-button"
+                        onClick={toggleImageModal}
+                      >
+                        <i
+                          class="bx bx-cloud-upload me-2"
+                          style={{ fontSize: "25px" }}
+                        ></i>
+                        Choose File
+                      </div>
+                      {formik.errors.product_img &&
+                      formik.touched.product_img ? (
+                        <FormFeedback type="invalid" className="d-block">
+                          {formik.errors.product_img}
+                        </FormFeedback>
                       ) : null}
                     </div>
                   </Col>
-                  {uploadedImages?.length > 0 && (
+                  {/* {uploadedImages?.length > 0 && (
                     <Col className="col-12">
                       <div className="mb-3">
                         <Label className="form-label">Uploaded Images</Label>
@@ -608,6 +655,35 @@ const UserCartList = () => {
                         </div>
                       </div>
                     </Col>
+                  )} */}
+                  {uploadedImages && (
+                    <Card className="mt-1 mb-3 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
+                      <div className="p-2">
+                        <Row className="d-flex justify-content-between align-items-center">
+                          <Col className="col-auto">
+                            <img
+                              data-dz-thumbnail=""
+                              height="100"
+                              width="100"
+                              className="avatar-md rounded bg-light"
+                              alt="images"
+                              src={uploadedImages}
+                            />
+                          </Col>
+                          <Col className="col-auto">
+                            <button
+                              type="button"
+                              className="btn btn-danger btn-sm"
+                              onClick={() => {
+                                setUploadedImages(null);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </Col>
+                        </Row>
+                      </div>
+                    </Card>
                   )}
                 </Row>
                 <Row>
@@ -665,6 +741,15 @@ const UserCartList = () => {
               </ModalBody>
             </div>
           </Modal>
+
+          {/* Modal for select image */}
+          <MediaModel
+            imageModel={imageModel}
+            toggleModal={toggleImageModal}
+            handleUploadImage={handleUploadImage}
+            selectedImage={selectedImage}
+            setSelectedImage={setSelectedImage}
+          />
         </Container>
       </div>
     </>

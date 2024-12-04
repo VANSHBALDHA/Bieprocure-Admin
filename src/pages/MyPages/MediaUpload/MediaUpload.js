@@ -40,7 +40,13 @@ const MediaUpload = () => {
 
   const renderFilePreview = (file) => {
     if (file.fileType.startsWith("image/")) {
-      return <img src={file.file} alt={file.fileName} width="100" />;
+      return (
+        <img
+          src={file.file}
+          alt={file.fileName}
+          style={{ width: "70px", height: "70px", objectFit: "cover" }}
+        />
+      );
     } else if (file.fileType === "application/pdf") {
       return <i className="mdi mdi-file-pdf" style={{ fontSize: "24px" }} />;
     } else if (
@@ -55,7 +61,7 @@ const MediaUpload = () => {
 
   const handleDeleteFile = () => {
     setFiles(files.filter((file) => file.id !== fileToDelete));
-    toast.success("Delete Successfully!")
+    toast.success("Delete Successfully!");
     setDeleteModal(false);
   };
 
