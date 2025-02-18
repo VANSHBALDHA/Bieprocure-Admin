@@ -71,13 +71,11 @@ const Reserved = () => {
       productName: (currentProduct && currentProduct.productName) || "",
       quantity: (currentProduct && currentProduct.quantity) || "",
       price: (currentProduct && currentProduct.price) || "",
-      status: (currentProduct && currentProduct.status) || "active",
     },
     validationSchema: Yup.object({
       productName: Yup.string().required("Please enter the Product name"),
       quantity: Yup.string().required("Please add quantity"),
       price: Yup.string().required("Please add price"),
-      status: Yup.string().required("Please select the status"),
     }),
     onSubmit: (values) => {
       if (isEdit) {
@@ -172,18 +170,6 @@ const Reserved = () => {
         accessor: "price",
         filterable: true,
         Cell: ({ value }) => <div className="text-body fw-bold">₹ {value}</div>,
-      },
-      {
-        Header: "Status",
-        accessor: "status",
-        filterable: true,
-        Cell: ({ value }) => {
-          return (
-            <Badge color={value === "active" ? "success" : "danger"}>
-              {value.charAt(0).toUpperCase() + value.slice(1)}
-            </Badge>
-          );
-        },
       },
       {
         Header: "Transfer to display",
@@ -344,25 +330,6 @@ const Reserved = () => {
                       {formik.touched.price && formik.errors.price ? (
                         <FormFeedback type="invalid">
                           {formik.errors.price}
-                        </FormFeedback>
-                      ) : null}
-                    </div>
-                    <div className="mb-3">
-                      <Label className="form-label">Status</Label>
-                      <Input
-                        name="status"
-                        type="select"
-                        className="form-select"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.status || ""}
-                      >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </Input>
-                      {formik.touched.status && formik.errors.status ? (
-                        <FormFeedback type="invalid">
-                          {formik.errors.status}
                         </FormFeedback>
                       ) : null}
                     </div>

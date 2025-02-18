@@ -74,11 +74,10 @@ const Certificate = () => {
         "Please enter the certificate name"
       ),
       status: Yup.string().required("Please select the status"),
-      certificateImage: Yup.string().when(
-        "fileSelected",
-        "Please select an image",
-        () => uploadedImages && uploadedImages.length > 0
-      ),
+      certificateImage: Yup.string().when("fileSelected", {
+        is: true, // Condition when 'fileSelected' is true
+        then: Yup.string().required("Please select an image"),
+      }),
     }),
     onSubmit: (values) => {
       if (isEdit) {

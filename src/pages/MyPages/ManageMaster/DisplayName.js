@@ -26,7 +26,12 @@ import * as Yup from "yup";
 const DisplayName = () => {
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [editData, setEditData] = useState({ id: "", name: "", status: "" });
+  const [editData, setEditData] = useState({
+    id: "",
+    name: "",
+    icon: "",
+    status: "",
+  });
 
   const toggleModal = () => setModal(!modal);
 
@@ -41,10 +46,12 @@ const DisplayName = () => {
 
     initialValues: {
       name: editData.name || "",
+      icon: editData?.icon || "",
       status: editData.status || "active",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Please enter a display name"),
+      icon: Yup.mixed().required("Please select an icon"),
       status: Yup.string().required("Please select a status"),
     }),
     onSubmit: (values) => {
@@ -54,6 +61,26 @@ const DisplayName = () => {
 
       console.log("Updated Data:", updatedData);
       toggleModal();
+    },
+  });
+
+  const seoValidation = useFormik({
+    initialValues: {
+      metaTitle: "",
+      metaDescription: "",
+      metaKeywords: "",
+    },
+
+    validationSchema: Yup.object({
+      metaTitle: Yup.string().required("Meta title is required"),
+      metaDescription: Yup.string()
+        .required("Meta description is required")
+        .max(180, "Meta description cannot exceed 180 characters"),
+      metaKeywords: Yup.string().required("Meta keywords are required"),
+    }),
+
+    onSubmit: (values) => {
+      console.log("SEO Metadata Submitted:", values);
     },
   });
 
@@ -68,6 +95,15 @@ const DisplayName = () => {
         Header: "Name",
         accessor: "name",
         filterable: true,
+      },
+      {
+        Header: "Icon",
+        accessor: "icon",
+        disableFilters: true,
+        filterable: false,
+        Cell: ({ value }) => (
+          <img className="rounded-circle avatar-xs" src={value} alt="" />
+        ),
       },
       {
         Header: "Status",
@@ -113,6 +149,108 @@ const DisplayName = () => {
           title="Display Name"
           breadcrumbItem="Manage Display Name"
         />
+        <Row className="mb-2">
+          <Col lg="12">
+            <Card>
+              <CardBody>
+                <h5 className="mb-3">SEO Metadata</h5>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    seoValidation.handleSubmit();
+                  }}
+                >
+                  <Row>
+                    {/* Meta Title */}
+                    <Col md="4">
+                      <Label className="form-label">Meta Title</Label>
+                      <Input
+                        type="text"
+                        name="metaTitle"
+                        placeholder="Enter Meta Title"
+                        onChange={seoValidation.handleChange}
+                        onBlur={seoValidation.handleBlur}
+                        value={seoValidation.values.metaTitle}
+                        invalid={
+                          seoValidation.touched.metaTitle &&
+                          seoValidation.errors.metaTitle
+                            ? true
+                            : false
+                        }
+                      />
+                      {seoValidation.touched.metaTitle &&
+                      seoValidation.errors.metaTitle ? (
+                        <FormFeedback>
+                          {seoValidation.errors.metaTitle}
+                        </FormFeedback>
+                      ) : null}
+                    </Col>
+
+                    {/* Meta Description */}
+                    <Col md="4">
+                      <Label className="form-label">
+                        Meta Description (Max 180 Characters)
+                      </Label>
+                      <textarea
+                        name="metaDescription"
+                        placeholder="Enter Meta Description"
+                        className="form-control"
+                        rows="1"
+                        maxLength="180"
+                        onChange={seoValidation.handleChange}
+                        onBlur={seoValidation.handleBlur}
+                        value={seoValidation.values.metaDescription}
+                      />
+                      <div className="small text-muted">
+                        {seoValidation.values.metaDescription.length}/180
+                        characters
+                      </div>
+                      {seoValidation.touched.metaDescription &&
+                      seoValidation.errors.metaDescription ? (
+                        <div className="text-danger">
+                          {seoValidation.errors.metaDescription}
+                        </div>
+                      ) : null}
+                    </Col>
+
+                    {/* Meta Keywords */}
+                    <Col md="4">
+                      <Label className="form-label">Meta Keywords</Label>
+                      <Input
+                        type="text"
+                        name="metaKeywords"
+                        placeholder="Enter Meta Keywords (comma-separated)"
+                        onChange={seoValidation.handleChange}
+                        onBlur={seoValidation.handleBlur}
+                        value={seoValidation.values.metaKeywords}
+                        invalid={
+                          seoValidation.touched.metaKeywords &&
+                          seoValidation.errors.metaKeywords
+                            ? true
+                            : false
+                        }
+                      />
+                      {seoValidation.touched.metaKeywords &&
+                      seoValidation.errors.metaKeywords ? (
+                        <FormFeedback>
+                          {seoValidation.errors.metaKeywords}
+                        </FormFeedback>
+                      ) : null}
+                    </Col>
+                  </Row>
+
+                  {/* Save Button */}
+                  <div className="text-end mt-3">
+                    <Button type="submit" color="primary">
+                      Save SEO Metadata
+                    </Button>
+                  </div>
+                </form>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+
         <Row>
           <Col lg="12">
             <Card>
