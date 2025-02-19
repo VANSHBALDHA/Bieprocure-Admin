@@ -115,13 +115,13 @@ const MediaUpload = () => {
     [files]
   );
 
-  document.title = "Media Upload | Bieprocure";
+  document.title = "Media Gallery | Bieprocure";
 
   return (
     <>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Media" breadcrumbItem="Media Upload" />
+          <Breadcrumbs title="Media" breadcrumbItem="Media Gallery" />
           <Card>
             <CardBody>
               {files?.length === 0 ? (

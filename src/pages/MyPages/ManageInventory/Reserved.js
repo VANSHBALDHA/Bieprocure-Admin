@@ -213,6 +213,18 @@ const Reserved = () => {
           return (
             <div className="d-flex gap-3">
               <Link
+                to={`/manage-inventory/reserved/view-details/${row.original.id}`}
+                className="text-success"
+              >
+                <i
+                  className="mdi mdi-eye-outline font-size-18"
+                  id="viewtooltip"
+                ></i>
+                <UncontrolledTooltip placement="top" target="viewtooltip">
+                  View
+                </UncontrolledTooltip>
+              </Link>
+              <Link
                 to="#"
                 className="text-success"
                 onClick={() => handleEditClick(row.original)}
@@ -229,6 +241,8 @@ const Reserved = () => {
     ],
     []
   );
+
+  document.title = "Manage inventory - Reserved | Bieprocure"
 
   return (
     <>

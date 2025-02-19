@@ -66,7 +66,7 @@ const Brand = () => {
       id: (currentBrand && currentBrand.id) || "",
       brandName: (currentBrand && currentBrand.brandName) || "",
       brandFullName: (currentBrand && currentBrand.brandFullName) || "",
-      status: (currentBrand && currentBrand.status) || "active",
+      status: (currentBrand && currentBrand.status) || "",
       brandLogo: (currentBrand && currentBrand.brandLogo) || "",
     },
     validationSchema: Yup.object({
@@ -257,25 +257,7 @@ const Brand = () => {
                         </FormFeedback>
                       ) : null}
                     </div>
-                    <div className="mb-3">
-                      <Label className="form-label">Status</Label>
-                      <Input
-                        name="status"
-                        type="select"
-                        className="form-select"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.status || ""}
-                      >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </Input>
-                      {formik.touched.status && formik.errors.status ? (
-                        <FormFeedback type="invalid">
-                          {formik.errors.status}
-                        </FormFeedback>
-                      ) : null}
-                    </div>
+
                     <div className="mb-3">
                       <Label className="form-label">Brand Image</Label>
                       <Input
@@ -336,6 +318,31 @@ const Brand = () => {
                           </div>
                         </Card>
                       )}
+                    </div>
+                    <div className="mb-3">
+                      <Label className="form-label">Status</Label>
+                      <Input
+                        name="status"
+                        type="select"
+                        className="form-select"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.status || ""}
+                        invalid={
+                          formik.touched.status && formik.errors.status
+                            ? true
+                            : false
+                        }
+                      >
+                        <option value="">Select Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                      </Input>
+                      {formik.touched.status && formik.errors.status ? (
+                        <FormFeedback type="invalid">
+                          {formik.errors.status}
+                        </FormFeedback>
+                      ) : null}
                     </div>
                   </Col>
                 </Row>

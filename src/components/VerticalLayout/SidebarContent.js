@@ -198,7 +198,7 @@ const SidebarContent = (props) => {
             <li>
               <Link to="/media-upload">
                 <i class="bx bx-image-add"></i>
-                <span>{props.t("Media Upload")}</span>
+                <span>{props.t("Media Gallery")}</span>
               </Link>
             </li>
 
@@ -257,7 +257,21 @@ const SidebarContent = (props) => {
               </Link>
               <ul className="sub-menu">
                 <li>
-                  <Link to="/manage-request/cart">- {props.t("Cart")}</Link>
+                  <Link to="/#" className="has-arrow ">
+                    <span>{props.t("Cart")}</span>
+                  </Link>
+                  <ul className="sub-menu">
+                    <li>
+                      <Link to="/manage-request/cart/individual-customers">
+                        - {props.t("Individual Customers")}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/manage-request/cart/corporate-customers">
+                        - {props.t("Corporate Customers")}
+                      </Link>
+                    </li>
+                  </ul>
                 </li>
                 <li>
                   <Link to="/manage-request/quote">- {props.t("Quote")}</Link>
@@ -279,7 +293,6 @@ const SidebarContent = (props) => {
                 </li>
               </ul>
             </li>
-
             <li>
               <Link to="/manage-ticket">
                 <i class="bx bx-barcode"></i>
@@ -308,27 +321,22 @@ const SidebarContent = (props) => {
             </li>
 
             <li>
-              <Link to="/manage-user-orders">
+              <Link to="/#" className="has-arrow">
                 <i className="bx bxs-detail" />
                 <span>{props.t("Manage Orders")}</span>
               </Link>
-              {/* <ul className="sub-menu">
+              <ul className="sub-menu">
                 <li>
-                  <Link to="/manage-orders/order-list">
-                    - {props.t("Orders")}
+                  <Link to="/manage-orders/corporate-customer">
+                    - {props.t("Corporate")}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/manage-orders/payment">
-                    - {props.t("Payment")}
+                  <Link to="/manage-orders/individual-customer">
+                    - {props.t("Individual")}
                   </Link>
                 </li>
-                <li>
-                  <Link to="/manage-orders/order-tracking">
-                    - {props.t("Tracking")}
-                  </Link>
-                </li>
-              </ul> */}
+              </ul>
             </li>
 
             <li>

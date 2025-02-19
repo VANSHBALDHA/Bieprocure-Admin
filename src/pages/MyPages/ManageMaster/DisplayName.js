@@ -47,7 +47,7 @@ const DisplayName = () => {
     initialValues: {
       name: editData.name || "",
       icon: editData?.icon || "",
-      status: editData.status || "active",
+      status: editData.status || "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Please enter a display name"),
@@ -241,7 +241,7 @@ const DisplayName = () => {
 
                   {/* Save Button */}
                   <div className="text-end mt-3">
-                    <Button type="submit" color="primary">
+                    <Button type="submit" color="success">
                       Save SEO Metadata
                     </Button>
                   </div>
@@ -307,6 +307,29 @@ const DisplayName = () => {
                 ) : null}
               </div>
               <div className="mb-3">
+                <Label className="form-label">Select Icon</Label>
+                <Input
+                  name="icon"
+                  type="select"
+                  onChange={validation.handleChange}
+                  onBlur={validation.handleBlur}
+                  value={validation.values.icon || ""}
+                  invalid={
+                    validation.touched.icon && validation.errors.icon
+                      ? true
+                      : false
+                  }
+                >
+                  <option value="">Select Icon</option>
+                  <option value=""></option>
+                </Input>
+                {validation.touched.icon && validation.errors.icon ? (
+                  <FormFeedback type="invalid">
+                    {validation.errors.icon}
+                  </FormFeedback>
+                ) : null}
+              </div>
+              <div className="mb-3">
                 <Label className="form-label">Status</Label>
                 <Input
                   name="status"
@@ -320,6 +343,7 @@ const DisplayName = () => {
                       : false
                   }
                 >
+                  <option value="">Select Status</option>
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </Input>

@@ -69,7 +69,11 @@ const EditProduct = () => {
       sellingPrice: editData?.sellingPrice,
       mrp: editData?.sellingPrice,
       displayQuantity: editData?.displayQuantity,
+      CGST: editData?.CGST,
+      SGST: editData?.SGST,
+      IGST: editData?.IGST,
       status: editData?.status,
+      visibility: editData?.status,
       technicalDataSheets: uploadedDataSheet,
       images: uploadedImages,
     },
@@ -101,6 +105,22 @@ const EditProduct = () => {
       displayQuantity: Yup.number()
         .required("Please enter the display quantity")
         .positive("Must be a positive number"),
+      CGST: Yup.number()
+        .required("Please enter the CGST percentage")
+        .positive("Must be a positive number")
+        .min(0, "CGST must be at least 0%")
+        .max(100, "CGST cannot exceed 100%"),
+      SGST: Yup.number()
+        .required("Please enter the SGST percentage")
+        .positive("Must be a positive number")
+        .min(0, "SGST must be at least 0%")
+        .max(100, "SGST cannot exceed 100%"),
+      IGST: Yup.number()
+        .required("Please enter the IGST percentage")
+        .positive("Must be a positive number")
+        .min(0, "IGST must be at least 0%")
+        .max(100, "IGST cannot exceed 100%"),
+      visibility: Yup.string().required("Please select the visibility"),
       status: Yup.string().required("Please select the status"),
       images: Yup.array()
         .min(1, "Please upload at least one image")
@@ -586,6 +606,78 @@ const EditProduct = () => {
                           </FormFeedback>
                         ) : null}
                       </div>
+                      <div className="col-md-4 mb-3">
+                        <Label className="form-label" htmlFor="CGST">
+                          CGST Percentage (%)
+                        </Label>
+                        <Input
+                          id="CGST"
+                          name="CGST"
+                          type="number"
+                          placeholder="Enter CGST percentage (0-100%)"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.CGST}
+                          invalid={
+                            formik.touched.CGST && formik.errors.CGST
+                              ? true
+                              : false
+                          }
+                        />
+                        {formik.touched.CGST && formik.errors.CGST ? (
+                          <FormFeedback type="invalid">
+                            {formik.errors.CGST}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
+                      <div className="col-md-4 mb-3">
+                        <Label className="form-label" htmlFor="SGST">
+                          SGST Percentage (%)
+                        </Label>
+                        <Input
+                          id="SGST"
+                          name="SGST"
+                          type="number"
+                          placeholder="Enter SGST percentage (0-100%)"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.SGST}
+                          invalid={
+                            formik.touched.SGST && formik.errors.SGST
+                              ? true
+                              : false
+                          }
+                        />
+                        {formik.touched.SGST && formik.errors.SGST ? (
+                          <FormFeedback type="invalid">
+                            {formik.errors.SGST}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
+                      <div className="col-md-4 mb-3">
+                        <Label className="form-label" htmlFor="IGST">
+                          IGST Percentage (%)
+                        </Label>
+                        <Input
+                          id="IGST"
+                          name="IGST"
+                          type="number"
+                          placeholder="Enter IGST percentage (0-100%)"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.IGST}
+                          invalid={
+                            formik.touched.IGST && formik.errors.IGST
+                              ? true
+                              : false
+                          }
+                        />
+                        {formik.touched.IGST && formik.errors.IGST ? (
+                          <FormFeedback type="invalid">
+                            {formik.errors.IGST}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -633,6 +725,7 @@ const EditProduct = () => {
                             : false
                         }
                       >
+                        <option value="">Select Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                       </Input>
@@ -646,23 +739,24 @@ const EditProduct = () => {
                     <div>
                       <Label className="form-label">Visibility</Label>
                       <Input
-                        name="status"
+                        name="visibility"
                         type="select"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        value={formik.values.status}
+                        value={formik.values.visibility}
                         invalid={
-                          formik.touched.status && formik.errors.status
+                          formik.touched.visibility && formik.errors.visibility
                             ? true
                             : false
                         }
                       >
+                        <option value="">Select Visibility</option>
                         <option value="hidden">Hidden</option>
                         <option value="public">Public</option>
                       </Input>
-                      {formik.touched.status && formik.errors.status ? (
+                      {formik.touched.visibility && formik.errors.visibility ? (
                         <FormFeedback type="invalid">
-                          {formik.errors.status}
+                          {formik.errors.visibility}
                         </FormFeedback>
                       ) : null}
                     </div>
@@ -704,7 +798,7 @@ const EditProduct = () => {
                 </div>
                 <div class="card" style={{ border: "1px solid #e9ebec" }}>
                   <div class="card-header">
-                    <h5 class="card-title">Product image</h5>
+                    <h5 class="card-title">Feature Image</h5>
                   </div>
                   <div class="card-body">
                     <div>

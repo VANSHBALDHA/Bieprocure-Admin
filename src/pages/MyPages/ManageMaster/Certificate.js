@@ -65,7 +65,7 @@ const Certificate = () => {
       id: (currentCertificate && currentCertificate.id) || "",
       certificateName:
         (currentCertificate && currentCertificate.certificateName) || "",
-      status: (currentCertificate && currentCertificate.status) || "active",
+      status: (currentCertificate && currentCertificate.status) || "",
       certificateImage:
         (currentCertificate && currentCertificate.certificateImage) || "",
     },
@@ -74,10 +74,15 @@ const Certificate = () => {
         "Please enter the certificate name"
       ),
       status: Yup.string().required("Please select the status"),
-      certificateImage: Yup.string().when("fileSelected", {
-        is: true, // Condition when 'fileSelected' is true
-        then: Yup.string().required("Please select an image"),
-      }),
+      // certificateImage: Yup.string().when("fileSelected", {
+      //   is: true,
+      //   then: Yup.string().required("Please select an image"),
+      // }),
+      certificateImage: Yup.mixed().test(
+        "fileSelected",
+        "Please select an image",
+        () => uploadedImages && uploadedImages?.length > 0
+      ),
     }),
     onSubmit: (values) => {
       if (isEdit) {
@@ -86,6 +91,7 @@ const Certificate = () => {
         console.log("Adding new certificate:", values);
       }
       toggleModal();
+      formik.resetForm();
     },
   });
 
@@ -117,7 +123,9 @@ const Certificate = () => {
         disableFilters: true,
         filterable: false,
         Cell: ({ value }) => (
-          <img className="rounded-circle avatar-xs" src={value} alt="" />
+          <div className="text-center">
+            <img className="avatar-md" src={value} alt="" />
+          </div>
         ),
       },
       {
@@ -223,7 +231,13 @@ const Certificate = () => {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       value={formik.values.status || ""}
+                      invalid={
+                        formik.touched.status && formik.errors.status
+                          ? true
+                          : false
+                      }
                     >
+                      <option value="">Select Status</option>
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
                     </Input>

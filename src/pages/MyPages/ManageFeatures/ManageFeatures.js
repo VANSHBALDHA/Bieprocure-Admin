@@ -37,10 +37,12 @@ const ManageFeatures = () => {
     initialValues: {
       id: (addFeatures && addFeatures.id) || "",
       feature: (addFeatures && addFeatures.feature) || "",
-      status: (addFeatures && addFeatures.status) || "active",
+      isEnable: (addFeatures && addFeatures.isEnable) || "No",
+      status: (addFeatures && addFeatures.status) || "",
     },
     validationSchema: Yup.object({
       feature: Yup.string().required("Please enter the features name"),
+      isEnable: Yup.string().required("Please select enable status"),
       status: Yup.string().required("Please select the status"),
     }),
     onSubmit: (values) => {
@@ -50,6 +52,7 @@ const ManageFeatures = () => {
         console.log("Adding new categories:", values);
       }
       toggleModal();
+      formik.resetForm();
     },
   });
 
@@ -67,6 +70,19 @@ const ManageFeatures = () => {
       },
 
       {
+        Header: "isEnable ?",
+        accessor: "isEnable",
+        filterable: true,
+        Cell: ({ value }) => (
+          <div>
+            <Badge color={value === "active" ? "success" : "danger"}>
+              {value.charAt(0).toUpperCase() + value.slice(1)}
+            </Badge>
+          </div>
+        ),
+      },
+
+      {
         Header: "Status",
         accessor: "status",
         filterable: true,
@@ -76,6 +92,7 @@ const ManageFeatures = () => {
           </Badge>
         ),
       },
+
       {
         Header: "Action",
         accessor: "action",
@@ -174,6 +191,31 @@ const ManageFeatures = () => {
                       ) : null}
                     </div>
                     <div className="mb-3">
+                      <Label className="form-label">isEnable ?</Label>
+                      <Input
+                        name="isEnable"
+                        type="select"
+                        className="form-select"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.isEnable || ""}
+                        invalid={
+                          formik.touched.isEnable && formik.errors.isEnable
+                            ? true
+                            : false
+                        }
+                      >
+                        <option value="">Select Enable Status</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                      </Input>
+                      {formik.touched.isEnable && formik.errors.isEnable ? (
+                        <FormFeedback type="invalid">
+                          {formik.errors.isEnable}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                    <div className="mb-3">
                       <Label className="form-label">Status</Label>
                       <Input
                         name="status"
@@ -182,7 +224,13 @@ const ManageFeatures = () => {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.status || ""}
+                        invalid={
+                          formik.touched.status && formik.errors.status
+                            ? true
+                            : false
+                        }
                       >
+                        <option value="">Select Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                       </Input>

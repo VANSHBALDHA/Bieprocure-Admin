@@ -1,32 +1,15 @@
 import React, { useMemo, useState } from "react";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardText,
-  Col,
-  Container,
-  Nav,
-  NavItem,
-  NavLink,
-  Row,
-  TabContent,
-  TabPane,
-  UncontrolledTooltip,
-} from "reactstrap";
-import Breadcrumbs from "../../../components/Common/Breadcrumb";
-import withRouter from "../../../components/Common/withRouter";
-import classnames from "classnames";
-import TableContainer from "../../../components/Common/TableContainer";
-import { customerOrderData } from "../../../common/data/MyFackData";
 import { PaymentStatus } from "../../Dashboard/LatestTranactionCol";
+import { Link } from "react-router-dom";
+import { Col, Container, Row, UncontrolledTooltip } from "reactstrap";
 import EcommerceOrdersModal from "../../Ecommerce/EcommerceOrders/EcommerceOrdersModal";
 import EcommerceOrdersPaymentModal from "../../Ecommerce/EcommerceOrders/EcommerceOrdersPaymentModal";
 import EcommerceOrdersTrackingModal from "../../Ecommerce/EcommerceOrders/EcommerceOrdersTrackingModal";
-import { Link } from "react-router-dom";
+import Breadcrumbs from "../../../components/Common/Breadcrumb";
+import TableContainer from "../../../components/Common/TableContainer";
+import { customerOrderData } from "../../../common/data/MyFackData";
 
-const CustomerOrder = () => {
-  const [customActiveTab, setcustomActiveTab] = useState("1");
+const CorporateOrder = () => {
   const [orderDetailsModel, setOrderDetailsModal] = useState(false);
   const [paymentDetailsModel, setPaymentDetailsModal] = useState(false);
   const [trackingDetailsModel, setTrackingDetailsModal] = useState(false);
@@ -36,26 +19,8 @@ const CustomerOrder = () => {
   const toggleTrackingDetailsViewModal = () =>
     setTrackingDetailsModal(!trackingDetailsModel);
 
-  const toggleCustom = (tab) => {
-    if (customActiveTab !== tab) {
-      setcustomActiveTab(tab);
-    }
-  };
-
-  document.title = "Customer Orders | Bieprocure";
-
-  // indivisual customer order list
-
   const columns = useMemo(
     () => [
-      // {
-      //   Header: "#",
-      //   filterable: false,
-      //   disableFilters: true,
-      //   Cell: cellProps => {
-      //     return <input type="checkbox" className="form-check-input" />;
-      //   },
-      // },
       {
         Header: "Order ID",
         accessor: "orderId",
@@ -118,7 +83,7 @@ const CustomerOrder = () => {
           return (
             <div className="d-flex gap-3 align-items-center">
               <Link
-                to={`/manage-user-orders/view-order/${orderId}`}
+                to={`/manage-orders/corporate-customer/order-details/${orderId}`}
                 className="text-success"
               >
                 <i
@@ -160,12 +125,13 @@ const CustomerOrder = () => {
     []
   );
 
+  document.title = "Corporate Customer Orders | Bieprocure";
   return (
     <>
       <div className="page-content">
         <Container fluid>
           {/* Render Breadcrumbs */}
-          <Breadcrumbs title="Orders" breadcrumbItem="Customer Orders" />
+          <Breadcrumbs title="Orders" breadcrumbItem="Corporate Customer Orders" />
           <EcommerceOrdersModal
             isOpen={orderDetailsModel}
             toggle={toggleViewModal}
@@ -180,83 +146,13 @@ const CustomerOrder = () => {
           />
           <Row>
             <Col lg="12">
-              <Card>
-                <CardBody>
-                  <Nav tabs className="nav-tabs-custom nav-justified">
-                    <NavItem>
-                      <NavLink
-                        style={{ cursor: "pointer" }}
-                        className={classnames({
-                          active: customActiveTab === "1",
-                        })}
-                        onClick={() => {
-                          toggleCustom("1");
-                        }}
-                      >
-                        <span className="d-block d-sm-none">
-                          <i className="fas fa-home"></i>
-                        </span>
-                        <span className="d-none d-sm-block">
-                          Individual Customers
-                        </span>
-                      </NavLink>
-                    </NavItem>
-                    <NavItem>
-                      <NavLink
-                        style={{ cursor: "pointer" }}
-                        className={classnames({
-                          active: customActiveTab === "2",
-                        })}
-                        onClick={() => {
-                          toggleCustom("2");
-                        }}
-                      >
-                        <span className="d-block d-sm-none">
-                          <i className="far fa-user"></i>
-                        </span>
-                        <span className="d-none d-sm-block">
-                          Corporate Customers
-                        </span>
-                      </NavLink>
-                    </NavItem>
-                  </Nav>
-
-                  <TabContent
-                    activeTab={customActiveTab}
-                    className="p-3 text-muted"
-                  >
-                    {/* indivisual customer tab 1 */}
-                    <TabPane tabId="1">
-                      <Row>
-                        <Col lg="12">
-                          <TableContainer
-                            columns={columns}
-                            data={customerOrderData}
-                            isGlobalFilter={true}
-                            customPageSize={10}
-                            className="custom-header-css"
-                          />
-                        </Col>
-                      </Row>
-                    </TabPane>
-
-                    {/* indivisual customer tab 2 */}
-                    <TabPane tabId="2">
-                      <Row>
-                        <Col lg="12">
-                          <TableContainer
-                            columns={columns}
-                            data={customerOrderData}
-                            isGlobalFilter={true}
-                            customPageSize={10}
-                            className="custom-header-css"
-                          />
-                        </Col>
-                      </Row>
-                    </TabPane>
-                  </TabContent>
-                </CardBody>
-              </Card>
+              <TableContainer
+                columns={columns}
+                data={customerOrderData}
+                isGlobalFilter={true}
+                customPageSize={10}
+                className="custom-header-css"
+              />
             </Col>
           </Row>
         </Container>
@@ -265,4 +161,4 @@ const CustomerOrder = () => {
   );
 };
 
-export default withRouter(CustomerOrder);
+export default CorporateOrder;

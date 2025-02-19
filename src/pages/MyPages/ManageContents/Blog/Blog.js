@@ -1,125 +1,32 @@
 import React, { useMemo } from "react";
-import withRouter from "../../../components/Common/withRouter";
-import Breadcrumbs from "../../../components/Common/Breadcrumb";
-import { productsData } from "../../../common/data/MyFackData";
+import withRouter from "../../../../components/Common/withRouter";
+import Breadcrumbs from "../../../../components/Common/Breadcrumb";
 import {
   Button,
   Card,
   CardBody,
+  CardTitle,
   Col,
   Container,
+  Form,
+  FormFeedback,
+  Input,
+  Label,
   Row,
   UncontrolledTooltip,
-  Badge,
-  Label,
-  Input,
-  FormFeedback,
-  CardTitle,
-  Form,
 } from "reactstrap";
-import TableContainer from "../../../components/Common/TableContainer";
+import TableContainer from "../../../../components/Common/TableContainer";
 import { Link, useNavigate } from "react-router-dom";
-import "react-quill/dist/quill.snow.css";
+import { BlogData } from "../../../../common/data/MyFackData";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
-const ManageProduct = () => {
-  document.title = "Products | Bieprocure";
+const Blog = () => {
+  const navigate = useNavigate();
 
-  const columns = useMemo(
-    () => [
-      {
-        Header: "Product Code",
-        accessor: "productCode",
-        Cell: ({ value }) => <div className="text-body fw-bold">{value}</div>,
-      },
-      {
-        Header: "Product Name",
-        accessor: "productName",
-        filterable: true,
-        Cell: ({ value }) => <div className="text-body fw-bold">{value}</div>,
-      },
-      {
-        Header: "Display Quan.",
-        accessor: "displayQuantity",
-        filterable: true,
-      },
-      {
-        Header: "Reserved Quan.",
-        accessor: "reservedQuantity",
-        filterable: true,
-      },
-      {
-        Header: "Sales Quan.",
-        accessor: "salesQuantity",
-        filterable: true,
-      },
-      {
-        Header: "Status",
-        accessor: "status",
-        filterable: true,
-        Cell: ({ value }) => (
-          <Badge color={value === "active" ? "success" : "danger"}>
-            {value.charAt(0).toUpperCase() + value.slice(1)}
-          </Badge>
-        ),
-      },
-      // {
-      //   Header: "#",
-      //   Cell: ({ row }) => {
-      //     return (
-      //       <>
-      //         <Button
-      //           type="button"
-      //           color="success"
-      //           className="btn-rounded mb-2 me-2"
-      //           style={{ width: "150px" }}
-      //           onClick={() =>
-      //             navigate(
-      //               `/manage-products/feature-list/${row.original.productCode}`
-      //             )
-      //           }
-      //         >
-      //           <i className="mdi mdi-plus me-1" />
-      //           Add Features
-      //         </Button>
-      //       </>
-      //     );
-      //   },
-      // },
-      {
-        Header: "Action",
-        accessor: "action",
-        disableFilters: true,
-        Cell: ({ row }) => (
-          <div className="d-flex gap-3">
-            <Link
-              to={`/manage-products/view-product/${row.original.productCode}`}
-              className="text-success"
-            >
-              <i
-                className="mdi mdi-eye-outline font-size-18"
-                id="viewtooltip"
-              ></i>
-              <UncontrolledTooltip placement="top" target="viewtooltip">
-                View
-              </UncontrolledTooltip>
-            </Link>
-            <Link
-              to={`/manage-products/edit-product/${row.original.productCode}`}
-              className="text-success"
-            >
-              <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
-              <UncontrolledTooltip placement="top" target="edittooltip">
-                Edit
-              </UncontrolledTooltip>
-            </Link>
-          </div>
-        ),
-      },
-    ],
-    []
-  );
+  const handleaddBlog = () => {
+    navigate("/manage-contents/blogs/add-blog");
+  };
 
   const seoValidation = useFormik({
     initialValues: {
@@ -193,11 +100,80 @@ const ManageProduct = () => {
     </div>
   );
 
+  const columns = useMemo(
+    () => [
+      {
+        Header: "ID",
+        accessor: "id",
+        disableFilters: true,
+        Cell: ({ value }) => <div className="text-body fw-bold">{value}</div>,
+      },
+      {
+        Header: "Blog Title",
+        accessor: "title",
+        filterable: true,
+        Cell: ({ value }) => <div className="text-body fw-bold">{value}</div>,
+      },
+      {
+        Header: "Slug",
+        accessor: "slug",
+        filterable: true,
+      },
+      {
+        Header: "	Category",
+        accessor: "category",
+        filterable: true,
+      },
+      {
+        Header: "	Image",
+        accessor: "image",
+        disableFilters: true,
+        Cell: ({ value }) => (
+          <img className="rounded-circle avatar-md" src={value} alt="" />
+        ),
+      },
+      {
+        Header: "Action",
+        accessor: "action",
+        disableFilters: true,
+        Cell: ({ row }) => (
+          <div className="d-flex gap-3">
+            <Link
+              to={`/manage-contents/blogs/view-blog/${row.original.id}`}
+              className="text-success"
+            >
+              <i
+                className="mdi mdi-eye-outline font-size-18"
+                id="viewtooltip"
+              ></i>
+              <UncontrolledTooltip placement="top" target="viewtooltip">
+                View
+              </UncontrolledTooltip>
+            </Link>
+            <Link
+              to={`/manage-contents/blogs/edit-blog/${row.original.id}`}
+              className="text-success"
+            >
+              <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
+              <UncontrolledTooltip placement="top" target="edittooltip">
+                Edit
+              </UncontrolledTooltip>
+            </Link>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
+  document.title = "Blog Section | Bieprocure";
+
   return (
     <>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Product" breadcrumbItem="Manage Products" />
+          {/* Render Breadcrumbs */}
+          <Breadcrumbs title="Blogs" breadcrumbItem="Blogs List" />
           <Row className="mb-2">
             <Card>
               <CardBody>
@@ -271,10 +247,11 @@ const ManageProduct = () => {
                 <CardBody>
                   <TableContainer
                     columns={columns}
-                    data={productsData}
+                    data={BlogData}
                     isGlobalFilter={true}
+                    isAddBlog={true}
                     customPageSize={10}
-                    isAddProduct={true}
+                    handleaddBlog={handleaddBlog}
                     className="custom-header-css"
                   />
                 </CardBody>
@@ -287,4 +264,4 @@ const ManageProduct = () => {
   );
 };
 
-export default withRouter(ManageProduct);
+export default withRouter(Blog);

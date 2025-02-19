@@ -1,12 +1,20 @@
 import React from "react";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import withRouter from "../../../components/Common/withRouter";
-import { Badge, Button, CardText, Col, Container, Row, Table } from "reactstrap";
+import {
+  Badge,
+  Button,
+  CardText,
+  Col,
+  Container,
+  Row,
+  Table,
+} from "reactstrap";
 import { useNavigate, useParams } from "react-router-dom";
 
-const ViewOrder = () => {
+const ViewIndividualOrder = () => {
   const { id } = useParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   document.title = "Order details | Bieprocure";
   return (
     <>
@@ -17,7 +25,7 @@ const ViewOrder = () => {
             type="button"
             color="primary"
             className="btn mb-3 me-2 d-flex align-items-center"
-            onClick={() => navigate("/manage-user-orders")}
+            onClick={() => navigate("/manage-orders/individual-customer")}
           >
             <i class="bx bx-arrow-back me-1"></i>
             Back to Orders
@@ -166,4 +174,4 @@ const ViewOrder = () => {
   );
 };
 
-export default withRouter(ViewOrder);
+export default withRouter(ViewIndividualOrder);

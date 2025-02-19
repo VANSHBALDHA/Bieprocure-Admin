@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import withRouter from "../../../components/Common/withRouter";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { combinedData } from "../../../common/data/MyFackData";
@@ -23,13 +23,42 @@ import TableContainer from "../../../components/Common/TableContainer";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import MediaModel from "../MediaUpload/MediaModel";
 
 const Categories = () => {
+  const imageInputRef = useRef(null);
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentCategories, setCurrentCategories] = useState(null);
 
+  const [uploadedImages, setUploadedImages] = useState(null);
+  const [imageModel, setImageModel] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const toggleModal = () => setModal(!modal);
+
+  const toggleImageModal = () => {
+    setImageModel(!imageModel);
+    setSelectedImage([]);
+  };
+
+  const handleUploadImage = (image) => {
+    if (image) {
+      setUploadedImages([image?.image]);
+    }
+    toggleImageModal();
+    setSelectedImage(null);
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const newImage = Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+      setUploadedImages([newImage]);
+    }
+  };
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -37,11 +66,18 @@ const Categories = () => {
       id: (currentCategories && currentCategories.id) || "",
       categoryName: (currentCategories && currentCategories.categoryName) || "",
       name: (currentCategories && currentCategories.name) || "",
-      status: (currentCategories && currentCategories.status) || "active",
+      categoryImage:
+        (currentCategories && currentCategories.categoryImage) || "",
+      status: (currentCategories && currentCategories.status) || "",
     },
     validationSchema: Yup.object({
       categoryName: Yup.string().required("Please enter the category name"),
       name: Yup.string().required("Please select the display name"),
+      categoryImage: Yup.mixed().test(
+        "fileSelected",
+        "Please select an image",
+        () => uploadedImages && uploadedImages?.length > 0
+      ),
       status: Yup.string().required("Please select the status"),
     }),
     onSubmit: (values) => {
@@ -51,6 +87,27 @@ const Categories = () => {
         console.log("Adding new categories:", values);
       }
       toggleModal();
+      formik.resetForm();
+    },
+  });
+
+  const seoValidation = useFormik({
+    initialValues: {
+      metaTitle: "",
+      metaDescription: "",
+      metaKeywords: "",
+    },
+
+    validationSchema: Yup.object({
+      metaTitle: Yup.string().required("Meta title is required"),
+      metaDescription: Yup.string()
+        .required("Meta description is required")
+        .max(180, "Meta description cannot exceed 180 characters"),
+      metaKeywords: Yup.string().required("Meta keywords are required"),
+    }),
+
+    onSubmit: (values) => {
+      console.log("SEO Metadata Submitted:", values);
     },
   });
 
@@ -70,6 +127,17 @@ const Categories = () => {
         Header: "Display Name",
         accessor: "name",
         filterable: true,
+      },
+      {
+        Header: "Category Image",
+        accessor: "categoryImage",
+        disableFilters: true,
+        filterable: false,
+        Cell: ({ value }) => (
+          <div className="text-center">
+            <img className="avatar-md" src={value} alt="" />
+          </div>
+        ),
       },
       {
         Header: "Status",
@@ -116,12 +184,115 @@ const Categories = () => {
     toggleModal();
   };
 
+  document.title = "Categories";
+
   return (
     <>
       <div className="page-content">
         <Container fluid>
           {/* Render Breadcrumbs */}
           <Breadcrumbs title="Categories" breadcrumbItem="Manage Categories" />
+          <Row className="mb-2">
+            <Col lg="12">
+              <Card>
+                <CardBody>
+                  <h5 className="mb-3">SEO Metadata</h5>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      seoValidation.handleSubmit();
+                    }}
+                  >
+                    <Row>
+                      {/* Meta Title */}
+                      <Col md="4">
+                        <Label className="form-label">Meta Title</Label>
+                        <Input
+                          type="text"
+                          name="metaTitle"
+                          placeholder="Enter Meta Title"
+                          onChange={seoValidation.handleChange}
+                          onBlur={seoValidation.handleBlur}
+                          value={seoValidation.values.metaTitle}
+                          invalid={
+                            seoValidation.touched.metaTitle &&
+                            seoValidation.errors.metaTitle
+                              ? true
+                              : false
+                          }
+                        />
+                        {seoValidation.touched.metaTitle &&
+                        seoValidation.errors.metaTitle ? (
+                          <FormFeedback>
+                            {seoValidation.errors.metaTitle}
+                          </FormFeedback>
+                        ) : null}
+                      </Col>
+
+                      {/* Meta Description */}
+                      <Col md="4">
+                        <Label className="form-label">
+                          Meta Description (Max 180 Characters)
+                        </Label>
+                        <textarea
+                          name="metaDescription"
+                          placeholder="Enter Meta Description"
+                          className="form-control"
+                          rows="1"
+                          maxLength="180"
+                          onChange={seoValidation.handleChange}
+                          onBlur={seoValidation.handleBlur}
+                          value={seoValidation.values.metaDescription}
+                        />
+                        <div className="small text-muted">
+                          {seoValidation.values.metaDescription.length}/180
+                          characters
+                        </div>
+                        {seoValidation.touched.metaDescription &&
+                        seoValidation.errors.metaDescription ? (
+                          <div className="text-danger">
+                            {seoValidation.errors.metaDescription}
+                          </div>
+                        ) : null}
+                      </Col>
+
+                      {/* Meta Keywords */}
+                      <Col md="4">
+                        <Label className="form-label">Meta Keywords</Label>
+                        <Input
+                          type="text"
+                          name="metaKeywords"
+                          placeholder="Enter Meta Keywords (comma-separated)"
+                          onChange={seoValidation.handleChange}
+                          onBlur={seoValidation.handleBlur}
+                          value={seoValidation.values.metaKeywords}
+                          invalid={
+                            seoValidation.touched.metaKeywords &&
+                            seoValidation.errors.metaKeywords
+                              ? true
+                              : false
+                          }
+                        />
+                        {seoValidation.touched.metaKeywords &&
+                        seoValidation.errors.metaKeywords ? (
+                          <FormFeedback>
+                            {seoValidation.errors.metaKeywords}
+                          </FormFeedback>
+                        ) : null}
+                      </Col>
+                    </Row>
+
+                    {/* Save Button */}
+                    <div className="text-end mt-3">
+                      <Button type="submit" color="success">
+                        Save SEO Metadata
+                      </Button>
+                    </div>
+                  </form>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
           <Row>
             <Col lg="12">
               <Card>
@@ -185,9 +356,14 @@ const Categories = () => {
                         className="form-select"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        value={formik.values.name || "aaa"}
+                        value={formik.values.name || ""}
+                        invalid={
+                          formik.touched.name && formik.errors.name
+                            ? true
+                            : false
+                        }
                       >
-                        {/* <option value="">Select Display Name</option> */}
+                        <option value="">Select Display Name</option>
                         {displayData?.map((data) => (
                           <option key={data.id} value={data.id}>
                             {data.name}
@@ -201,6 +377,69 @@ const Categories = () => {
                       ) : null}
                     </div>
                     <div className="mb-3">
+                      <Label className="form-label">Category Image</Label>
+                      <Input
+                        name="categoryImage"
+                        type="file"
+                        accept="image/jpeg, image/png"
+                        onChange={handleImageChange}
+                        innerRef={imageInputRef}
+                        style={{ display: "none" }}
+                        invalid={
+                          formik.touched.categoryImage &&
+                          formik.errors.categoryImage
+                            ? true
+                            : false
+                        }
+                      />
+                      <div
+                        className="custom-file-button"
+                        onClick={toggleImageModal}
+                      >
+                        <i
+                          class="bx bx-cloud-upload me-2"
+                          style={{ fontSize: "25px" }}
+                        ></i>
+                        Choose File
+                      </div>
+                      {formik.errors.categoryImage &&
+                      formik.touched.categoryImage ? (
+                        <FormFeedback type="invalid" className="d-block">
+                          {formik.errors.categoryImage}
+                        </FormFeedback>
+                      ) : null}
+
+                      {uploadedImages && (
+                        <Card className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
+                          <div className="p-2">
+                            <Row className="d-flex justify-content-between align-items-center">
+                              <Col className="col-auto">
+                                <img
+                                  data-dz-thumbnail=""
+                                  height="100"
+                                  width="100"
+                                  className="avatar-md rounded bg-light"
+                                  alt="images"
+                                  src={uploadedImages}
+                                />
+                              </Col>
+                              <Col className="col-auto">
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-sm"
+                                  onClick={() => {
+                                    setUploadedImages(null);
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </Col>
+                            </Row>
+                          </div>
+                        </Card>
+                      )}
+                    </div>
+                    <div className="mb-3">
                       <Label className="form-label">Status</Label>
                       <Input
                         name="status"
@@ -209,7 +448,13 @@ const Categories = () => {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.status || ""}
+                        invalid={
+                          formik.touched.status && formik.errors.status
+                            ? true
+                            : false
+                        }
                       >
+                        <option value="">Select Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                       </Input>
@@ -233,6 +478,15 @@ const Categories = () => {
               </form>
             </ModalBody>
           </Modal>
+
+          {/* Modal for select image */}
+          <MediaModel
+            imageModel={imageModel}
+            toggleModal={toggleImageModal}
+            handleUploadImage={handleUploadImage}
+            selectedImage={selectedImage}
+            setSelectedImage={setSelectedImage}
+          />
         </Container>
       </div>
     </>

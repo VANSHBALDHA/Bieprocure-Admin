@@ -43,16 +43,12 @@ import Reserved from "../pages/MyPages/ManageInventory/Reserved";
 import Corporate from "../pages/MyPages/ManageCustomers/Corporate";
 import Individual from "../pages/MyPages/ManageCustomers/Individual";
 
-// Manage User Requests
-import Cart from "../pages/MyPages/ManageRequests/Cart";
-
 // Manage Tickets
 import ManageTicket from "../pages/MyPages/ManageTicket/ManageTicket";
 
 // Manage Contents
 import Banner from "../pages/MyPages/ManageContents/Banner";
 import Legal from "../pages/MyPages/ManageContents/Legal";
-import Blog from "../pages/MyPages/ManageContents/Blog";
 
 // Generate Reports
 import GenerateReports from "../pages/MyPages/GenerateReports/GenerateReports";
@@ -69,17 +65,25 @@ import FeatureList from "../pages/MyPages/ManageProduct/FeatureList";
 import Invoice from "../pages/MyPages/InvoiceList/Invoice";
 import InvoiceDetails from "../pages/MyPages/InvoiceList/InvoiceDetails";
 import UserQuoteList from "../pages/MyPages/QuoteListing/UserQuoteList";
-import CustomerOrder from "../pages/MyPages/ManageOrders/CustomerOrder";
-import ViewOrder from "../pages/MyPages/ManageOrders/ViewOrder";
-import CustomerPayment from "../pages/MyPages/ManageOrders/CustomerPayment";
-import TrackingOrder from "../pages/MyPages/ManageOrders/TrackingOrder";
 import UserCartList from "../pages/MyPages/UserCartList/UserCartList";
 import ViewProductModel from "../pages/MyPages/ManageProduct/ViewProduct";
-
-
+import IndividualCart from "../pages/MyPages/ManageRequests/Cart/IndividualCart";
+import CorporateCart from "../pages/MyPages/ManageRequests/Cart/CorporateCart";
+import IndividualUserCartList from "../pages/MyPages/ManageRequests/Cart/IndividualUserCartList";
+import CorporateUserCartList from "../pages/MyPages/ManageRequests/Cart/CorporateUserCartList";
+import IndividualOrder from "../pages/MyPages/ManageOrders/IndividualOrder";
+import CorporateOrder from "../pages/MyPages/ManageOrders/CorporateOrder";
+import ViewCorporateOrder from "../pages/MyPages/ManageOrders/ViewCorporateOrder";
+import ViewIndividualOrder from "../pages/MyPages/ManageOrders/ViewIndividualOrder";
+import Blog from "../pages/MyPages/ManageContents/Blog/Blog";
+import ViewBlog from "../pages/MyPages/ManageContents/Blog/ViewBlog";
+import AddBlog from "../pages/MyPages/ManageContents/Blog/AddBlog";
+import EditBlog from "../pages/MyPages/ManageContents/Blog/EditBlog";
+import IndividualDetail from "../pages/MyPages/ManageCustomers/IndividualDetail";
+import CorporateDetail from "../pages/MyPages/ManageCustomers/CorporateDetail";
+import ReservedView from "../pages/MyPages/ManageInventory/ReservedView";
 
 const authProtectedRoutes = [
-
   { path: "/", exact: true, component: <Dashboard /> },
 
   // //profile
@@ -110,12 +114,19 @@ const authProtectedRoutes = [
   { path: "/manage-products", component: <ManageProduct /> },
   { path: "/manage-products/add-product", component: <AddProduct /> },
   { path: "/manage-products/edit-product/:id", component: <EditProduct /> },
-  { path: "/manage-products/view-product/:id", component: <ViewProductModel /> },
+  {
+    path: "/manage-products/view-product/:id",
+    component: <ViewProductModel />,
+  },
   { path: "/manage-products/feature-list/:id", component: <FeatureList /> },
 
   // Manage Inventory
   { path: "/manage-inventory/display", component: <Display /> },
   { path: "/manage-inventory/reserved", component: <Reserved /> },
+  {
+    path: "/manage-inventory/reserved/view-details/:id",
+    component: <ReservedView />,
+  },
   { path: "/manage-inventory/sales", component: <Sales /> },
   { path: "/manage-inventory/sales/orders/:id", component: <OrderList /> },
   { path: "/manage-inventory/sales/invoices/:id", component: <Invoice /> },
@@ -126,11 +137,39 @@ const authProtectedRoutes = [
 
   // Manage Customers
   { path: "/manage-customers/individual", component: <Individual /> },
+  {
+    path: "/manage-customers/individual/customer-details/:id",
+    component: <IndividualDetail />,
+  },
   { path: "/manage-customers/corporate", component: <Corporate /> },
+  {
+    path: "/manage-customers/corporate/customer-details/:id",
+    component: <CorporateDetail />,
+  },
 
   // Manage Requests
-  { path: "/manage-request/cart", component: <Cart /> },
-  { path: "/manage-request/cart/cart-list/:id", component: <UserCartList /> },
+  {
+    path: "/manage-request/cart/individual-customers",
+    component: <IndividualCart />,
+  },
+  {
+    path: "/manage-request/cart/individual-customers/cart-list/:id",
+    component: <IndividualUserCartList />,
+  },
+
+  {
+    path: "/manage-request/cart/corporate-customers",
+    component: <CorporateCart />,
+  },
+  {
+    path: "/manage-request/cart/corporate-customers/cart-list/:id",
+    component: <CorporateUserCartList />,
+  },
+
+  {
+    path: "/manage-request/cart/individual-customers/cart-list/:id",
+    component: <UserCartList />,
+  },
   { path: "/manage-request/quote", component: <Quote /> },
   {
     path: "/manage-request/quote/customre-quote-list/:id",
@@ -145,12 +184,27 @@ const authProtectedRoutes = [
 
   // Manage Contents
   { path: "/manage-contents/blogs", component: <Blog /> },
+  { path: "/manage-contents/blogs/add-blog", component: <AddBlog /> },
+  { path: "/manage-contents/blogs/edit-blog/:id", component: <EditBlog /> },
+  { path: "/manage-contents/blogs/view-blog/:id", component: <ViewBlog /> },
   { path: "/manage-contents/banner", component: <Banner /> },
   { path: "/manage-contents/legal", component: <Legal /> },
 
   // Manage Contents
-  { path: "/manage-user-orders", component: <CustomerOrder /> },
-  { path: "/manage-user-orders/view-order/:id", component: <ViewOrder /> },
+  { path: "/manage-orders/corporate-customer", component: <CorporateOrder /> },
+  {
+    path: "/manage-orders/corporate-customer/order-details/:id",
+    component: <ViewCorporateOrder />,
+  },
+
+  {
+    path: "/manage-orders/individual-customer",
+    component: <IndividualOrder />,
+  },
+  {
+    path: "/manage-orders/individual-customer/order-details/:id",
+    component: <ViewIndividualOrder />,
+  },
 
   // Generate Reports
   { path: "/generate-reports", component: <GenerateReports /> },
