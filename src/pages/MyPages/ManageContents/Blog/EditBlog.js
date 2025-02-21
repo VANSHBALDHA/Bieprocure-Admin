@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CardBody,
+  CardTitle,
   Col,
   Container,
   FormFeedback,
@@ -45,6 +46,9 @@ const EditBlog = () => {
       published_date: editData?.published_date,
       status: editData?.status,
       images: editData?.image,
+      metaTitle: "",
+      metaDescription: "",
+      metaKeywords: "",
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Please enter the title"),
@@ -57,6 +61,11 @@ const EditBlog = () => {
         "Please select an image",
         () => uploadedImages && uploadedImages?.length > 0
       ),
+      metaTitle: Yup.string().required("Meta title is required"),
+      metaDescription: Yup.string()
+        .required("Meta description is required")
+        .max(180, "Meta description cannot exceed 180 characters"),
+      metaKeywords: Yup.string().required("Meta keywords are required"),
     }),
     onSubmit: (values) => {
       console.log("Adding new blog:", values);
@@ -138,6 +147,84 @@ const EditBlog = () => {
         <Container fluid>
           {/* Render Breadcrumbs */}
           <Breadcrumbs title="Blog" breadcrumbItem="Edit blog" />
+          <Card>
+            <CardBody>
+              <CardTitle>Meta Data</CardTitle>
+              <p className="card-title-desc">Fill all information below</p>
+              <Row>
+                <Col sm={6}>
+                  <div className="mb-3">
+                    <Label className="form-label">Meta title</Label>
+                    <Input
+                      name="metaTitle"
+                      type="text"
+                      placeholder="Meta title"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.metaTitle || ""}
+                      invalid={
+                        formik.touched.metaTitle && formik.errors.metaTitle
+                          ? true
+                          : false
+                      }
+                    />
+                    {formik.touched.metaTitle && formik.errors.metaTitle ? (
+                      <FormFeedback type="invalid">
+                        {formik.errors.metaTitle}
+                      </FormFeedback>
+                    ) : null}
+                  </div>
+                  <div className="mb-3">
+                    <Label className="form-label">Meta Keywords</Label>
+                    <Input
+                      name="metaKeywords"
+                      type="text"
+                      placeholder="Meta Keywords"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.metaKeywords || ""}
+                      invalid={
+                        formik.touched.metaKeywords &&
+                        formik.errors.metaKeywords
+                          ? true
+                          : false
+                      }
+                    />
+                    {formik.touched.metaKeywords &&
+                    formik.errors.metaKeywords ? (
+                      <FormFeedback type="invalid">
+                        {formik.errors.metaKeywords}
+                      </FormFeedback>
+                    ) : null}
+                  </div>
+                </Col>
+                <Col sm={6}>
+                  <Label className="form-label">
+                    Meta Description (Max 180 Characters)
+                  </Label>
+                  <textarea
+                    name="metaDescription"
+                    placeholder="Enter Meta Description"
+                    className="form-control"
+                    rows="5"
+                    maxLength="180"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.metaDescription}
+                  />
+                  <div className="small text-muted">
+                    {formik.values.metaDescription.length}/180 characters
+                  </div>
+                  {formik.touched.metaDescription &&
+                  formik.errors.metaDescription ? (
+                    <div className="text-danger">
+                      {formik.errors.metaDescription}
+                    </div>
+                  ) : null}
+                </Col>
+              </Row>
+            </CardBody>
+          </Card>
           <Card>
             <CardBody>
               <Row>

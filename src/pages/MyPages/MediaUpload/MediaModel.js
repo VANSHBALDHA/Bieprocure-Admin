@@ -3,11 +3,15 @@ import "./MediaUpload.css";
 import {
   Button,
   Card,
+  CardBody,
   CardImg,
+  CardTitle,
+  Col,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Row,
 } from "reactstrap";
 
 const MediaModel = ({
@@ -106,46 +110,78 @@ const MediaModel = ({
           Select image
         </ModalHeader>
         <ModalBody style={{ height: "calc(100vh - 80px)", overflowY: "auto" }}>
-          <div className="media-box">
-            {dummyImages?.map((img) => {
-              return (
-                <>
-                  <Card
-                    key={img.id}
+          <Row>
+            <Col lg={9}>
+              <div className="media-box">
+                {dummyImages?.map((img) => {
+                  return (
+                    <>
+                      <Card
+                        key={img.id}
+                        style={{
+                          position: "relative",
+                          border:
+                            selectedImage?.id === img.id
+                              ? "2px solid #74788d"
+                              : "1px solid #e9ebec",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setSelectedImage(img)}
+                        className="mb-0"
+                      >
+                        <div className="img-media">
+                          <CardImg src={img?.image} alt={img.id} />
+                          {selectedImage?.id === img.id && (
+                            <i
+                              class="bx bx-check"
+                              style={{
+                                position: "absolute",
+                                top: "-10px",
+                                color: "#fff",
+                                right: "-10px",
+                                fontSize: "24px",
+                                zIndex: 10,
+                                backgroundColor: "#74788d",
+                                borderRadius: "50%",
+                              }}
+                            ></i>
+                          )}
+                        </div>
+                      </Card>
+                    </>
+                  );
+                })}
+              </div>
+            </Col>
+            <Col lg={3}>
+              {selectedImage && selectedImage.image && (
+                <div
+                  className="selected-image-details"
+                  style={{
+                    padding: "10px",
+                    border: "1px solid #e9ebec",
+                    borderRadius: "5px",
+                    background: "#f9f9f9",
+                  }}
+                >
+                  <h6 className="text-center mb-2">ATTACHMENT DETAILS</h6>
+                  <img
+                    src={selectedImage.image}
+                    alt="Selected"
                     style={{
-                      position: "relative",
-                      border:
-                        selectedImage?.id === img.id
-                          ? "2px solid #74788d"
-                          : "1px solid #e9ebec",
-                      cursor: "pointer",
+                      width: "275px",
+                      height: "275px",
+                      borderRadius: "5px",
+                      objectFit: "cover",
                     }}
-                    onClick={() => setSelectedImage(img)}
-                    className="mb-0"
-                  >
-                    <div className="img-media">
-                      <CardImg src={img?.image} alt={img.id} />
-                      {selectedImage?.id === img.id && (
-                        <i
-                          class="bx bx-check"
-                          style={{
-                            position: "absolute",
-                            top: "-10px",
-                            color: "#fff",
-                            right: "-10px",
-                            fontSize: "24px",
-                            zIndex: 10,
-                            backgroundColor: "#74788d",
-                            borderRadius: "50%",
-                          }}
-                        ></i>
-                      )}
-                    </div>
-                  </Card>
-                </>
-              );
-            })}
-          </div>
+                  />
+                  <p>
+                    <strong>ID:</strong> {selectedImage.id}
+                  </p>
+                </div>
+              )}
+            </Col>
+          </Row>
         </ModalBody>
         <ModalFooter>
           <Button

@@ -34,6 +34,8 @@ const Setting = () => {
       instagram: "",
       totalProducts: "",
       newProducts: "",
+      individualDuration: "",
+      corporateDuration: "",
     },
     validationSchema: Yup.object({
       logo: Yup.mixed().test(
@@ -58,6 +60,12 @@ const Setting = () => {
         .required("Required"),
       newProducts: Yup.number()
         .min(0, "Cannot be negative")
+        .required("Required"),
+      individualDuration: Yup.number()
+        .positive("Must be a positive number")
+        .required("Required"),
+      corporateDuration: Yup.number()
+        .positive("Must be a positive number")
         .required("Required"),
     }),
     onSubmit: (values) => {
@@ -244,6 +252,48 @@ const Setting = () => {
 
                   <h5 className="mt-4">Social Media Links</h5>
                   {renderSocialMediaLinks()}
+
+                  <h5 className="mt-4">Login Activation Duration</h5>
+
+                  <div className="mb-3">
+                    <Label>For Individual Customer (in Months)</Label>
+                    <Input
+                      type="number"
+                      name="individualDuration"
+                      placeholder="Enter duration in months"
+                      {...formik.getFieldProps("individualDuration")}
+                      invalid={
+                        formik.touched.individualDuration &&
+                        formik.errors.individualDuration
+                      }
+                    />
+                    {formik.touched.individualDuration &&
+                      formik.errors.individualDuration && (
+                        <FormFeedback>
+                          {formik.errors.individualDuration}
+                        </FormFeedback>
+                      )}
+                  </div>
+
+                  <div className="mb-3">
+                    <Label>For Corporate Customer (in Months)</Label>
+                    <Input
+                      type="number"
+                      name="corporateDuration"
+                      placeholder="Enter duration in months"
+                      {...formik.getFieldProps("corporateDuration")}
+                      invalid={
+                        formik.touched.corporateDuration &&
+                        formik.errors.corporateDuration
+                      }
+                    />
+                    {formik.touched.corporateDuration &&
+                      formik.errors.corporateDuration && (
+                        <FormFeedback>
+                          {formik.errors.corporateDuration}
+                        </FormFeedback>
+                      )}
+                  </div>
 
                   <h5 className="mt-4">Number Updates</h5>
                   {renderNumberUpdates()}

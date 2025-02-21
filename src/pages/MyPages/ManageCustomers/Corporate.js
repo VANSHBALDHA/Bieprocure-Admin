@@ -23,16 +23,12 @@ const Corporate = () => {
         Cell: ({ value }) => <div className="text-body fw-bold">{value}</div>,
       },
       {
-        Header: "Username",
+        Header: "Company Name",
         accessor: "name",
         filterable: true,
         Cell: ({ value }) => <div className="text-body fw-bold">{value}</div>,
       },
-      {
-        Header: "User Type",
-        accessor: "customer_type",
-        filterable: true,
-      },
+
       {
         Header: "Joining Date",
         accessor: "date",
@@ -61,6 +57,14 @@ const Corporate = () => {
             </Badge>
           );
         },
+      },
+      {
+        Header: "Diligence",
+        accessor: "Diligence",
+        filterable: true,
+        Cell: ({ value }) => (
+          <div className="text-body fw-bold">Modified Diligence</div>
+        ),
       },
       {
         Header: "Action",

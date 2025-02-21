@@ -2,7 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { productsData } from "../../../common/data/MyFackData";
 import withRouter from "../../../components/Common/withRouter";
-import { Container } from "reactstrap";
+import {
+  Card,
+  CardBody,
+  CardTitle,
+  Col,
+  Container,
+  FormGroup,
+  Input,
+  Label,
+  Row,
+} from "reactstrap";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
@@ -74,6 +84,47 @@ const ViewProduct = () => {
             title="Product"
             breadcrumbItem={`View product - ${id}`}
           />
+          <Card>
+            <CardBody>
+              <CardTitle className="h4 mb-3">Meta Data</CardTitle>
+
+              <Row>
+                <Col md={6}>
+                  <FormGroup>
+                    <Label>Meta Title</Label>
+                    <Input
+                      type="text"
+                      value="Sample Meta Title"
+                      readOnly
+                      className="form-control-plaintext"
+                    />
+                  </FormGroup>
+
+                  <FormGroup>
+                    <Label>Meta Keywords</Label>
+                    <Input
+                      type="text"
+                      value="blog, SEO, content, marketing"
+                      readOnly
+                      className="form-control-plaintext"
+                    />
+                  </FormGroup>
+                </Col>
+
+                <Col md={6}>
+                  <FormGroup>
+                    <Label>Meta Description</Label>
+                    <textarea
+                      value="This is a sample meta description for the blog post."
+                      className="form-control-plaintext"
+                      rows="5"
+                      readOnly
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+            </CardBody>
+          </Card>
           <div className="row">
             <div className="col-md-4 col-12">
               <div style={styles.container}>

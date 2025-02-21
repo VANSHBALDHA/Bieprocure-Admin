@@ -158,9 +158,7 @@ const IndividualUserCartList = () => {
                         type="button"
                         color="primary"
                         className="btn mb-2 me-2 d-flex align-items-center"
-                        onClick={() =>
-                          navigate("/manage-request/cart/corporate-customers")
-                        }
+                        onClick={() => navigate(-1)}
                       >
                         <i class="bx bx-arrow-back me-1"></i>
                         Back to Cart
@@ -184,28 +182,46 @@ const IndividualUserCartList = () => {
                         User Personal Details
                       </CardTitle>
                       <Row>
-                        <Col md="6">
+                        <Col md="4">
                           <CardText>
                             <strong>User ID:</strong> #123
                           </CardText>
                           <CardText>
                             <strong>User Name:</strong> Testing purpose
                           </CardText>
-                          <CardText className="mb-3">
+                          <CardText>
                             <strong>Mobile Number:</strong> 7778889994
                           </CardText>
-                        </Col>
-                        <Col md="6">
                           <CardText>
                             <strong>Email:</strong> testing123@gmail.com
                           </CardText>
                           <CardText>
-                            <strong>Cart ID:</strong> #SKU123
+                            <strong>Order Date:</strong> 24/05/2023
                           </CardText>
                           <CardText>
                             <strong>Order Status:</strong>{" "}
                             <Badge>Pending</Badge>
                           </CardText>
+                          <CardText>
+                            <strong>Payment Status:</strong>{" "}
+                            <Badge>Pending</Badge>
+                          </CardText>
+                        </Col>
+                        <Col md="4">
+                          <CardText>
+                            <strong>Billing Address:</strong>
+                          </CardText>
+                          <CardText>123 Main Street, Apartment 4B</CardText>
+                          <CardText>New York, NY 10001</CardText>
+                          <CardText>United States</CardText>
+                        </Col>
+                        <Col md="4">
+                          <CardText>
+                            <strong>Shipping Address:</strong>
+                          </CardText>
+                          <CardText>123 Main Street, Apartment 4B</CardText>
+                          <CardText>New York, NY 10001</CardText>
+                          <CardText>United States</CardText>
                         </Col>
                       </Row>
                     </CardBody>
@@ -221,6 +237,8 @@ const IndividualUserCartList = () => {
                           <th>Quantity</th>
                           <th>Discount Percentage</th>
                           <th>Discount Price</th>
+                          <th>CGST</th>
+                          <th>SGST</th>
                           <th colSpan="2">Total</th>
                         </tr>
                       </thead>
@@ -293,6 +311,8 @@ const IndividualUserCartList = () => {
                                 </td>
                                 <td>{product?.discount_percentage} %</td>
                                 <td>₹ {product?.discount_value}</td>
+                                <td>18%</td>
+                                <td>3%</td>
                                 <td>₹ {product?.total}</td>
                                 <td>
                                   <div className="d-flex gap-3 align-items-center">

@@ -68,11 +68,13 @@ const Brand = () => {
       brandFullName: (currentBrand && currentBrand.brandFullName) || "",
       status: (currentBrand && currentBrand.status) || "",
       brandLogo: (currentBrand && currentBrand.brandLogo) || "",
+      isDisplay: "No",
     },
     validationSchema: Yup.object({
       brandName: Yup.string().required("Please enter the brand short name"),
       brandFullName: Yup.string().required("Please enter the brand full name"),
       status: Yup.string().required("Please select the status"),
+      isDisplay: Yup.string().required("Please select the anyone"),
       brandLogo: Yup.mixed().test(
         "fileSelected",
         "Please select an image",
@@ -318,6 +320,31 @@ const Brand = () => {
                           </div>
                         </Card>
                       )}
+                    </div>
+                    <div className="mb-3">
+                      <Label className="form-label">isDisplay?</Label>
+                      <Input
+                        name="isDisplay"
+                        type="select"
+                        className="form-select"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.isDisplay || ""}
+                        invalid={
+                          formik.touched.isDisplay && formik.errors.isDisplay
+                            ? true
+                            : false
+                        }
+                      >
+                        <option value="">Select Display </option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                      </Input>
+                      {formik.touched.isDisplay && formik.errors.isDisplay ? (
+                        <FormFeedback type="invalid">
+                          {formik.errors.isDisplay}
+                        </FormFeedback>
+                      ) : null}
                     </div>
                     <div className="mb-3">
                       <Label className="form-label">Status</Label>

@@ -18,6 +18,7 @@ import {
   FormFeedback,
   Label,
   Input,
+  CardTitle,
 } from "reactstrap";
 import TableContainer from "../../../components/Common/TableContainer";
 import { Link } from "react-router-dom";
@@ -69,6 +70,9 @@ const Categories = () => {
       categoryImage:
         (currentCategories && currentCategories.categoryImage) || "",
       status: (currentCategories && currentCategories.status) || "",
+      metaTitle: "",
+      metaDescription: "",
+      metaKeywords: "",
     },
     validationSchema: Yup.object({
       categoryName: Yup.string().required("Please enter the category name"),
@@ -79,6 +83,11 @@ const Categories = () => {
         () => uploadedImages && uploadedImages?.length > 0
       ),
       status: Yup.string().required("Please select the status"),
+      metaTitle: Yup.string().required("Meta title is required"),
+      metaDescription: Yup.string()
+        .required("Meta description is required")
+        .max(180, "Meta description cannot exceed 180 characters"),
+      metaKeywords: Yup.string().required("Meta keywords are required"),
     }),
     onSubmit: (values) => {
       if (isEdit) {
@@ -88,26 +97,6 @@ const Categories = () => {
       }
       toggleModal();
       formik.resetForm();
-    },
-  });
-
-  const seoValidation = useFormik({
-    initialValues: {
-      metaTitle: "",
-      metaDescription: "",
-      metaKeywords: "",
-    },
-
-    validationSchema: Yup.object({
-      metaTitle: Yup.string().required("Meta title is required"),
-      metaDescription: Yup.string()
-        .required("Meta description is required")
-        .max(180, "Meta description cannot exceed 180 characters"),
-      metaKeywords: Yup.string().required("Meta keywords are required"),
-    }),
-
-    onSubmit: (values) => {
-      console.log("SEO Metadata Submitted:", values);
     },
   });
 
@@ -184,7 +173,7 @@ const Categories = () => {
     toggleModal();
   };
 
-  document.title = "Categories";
+  document.title = "Categories | Bieprocure";
 
   return (
     <>
@@ -192,107 +181,7 @@ const Categories = () => {
         <Container fluid>
           {/* Render Breadcrumbs */}
           <Breadcrumbs title="Categories" breadcrumbItem="Manage Categories" />
-          <Row className="mb-2">
-            <Col lg="12">
-              <Card>
-                <CardBody>
-                  <h5 className="mb-3">SEO Metadata</h5>
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      seoValidation.handleSubmit();
-                    }}
-                  >
-                    <Row>
-                      {/* Meta Title */}
-                      <Col md="4">
-                        <Label className="form-label">Meta Title</Label>
-                        <Input
-                          type="text"
-                          name="metaTitle"
-                          placeholder="Enter Meta Title"
-                          onChange={seoValidation.handleChange}
-                          onBlur={seoValidation.handleBlur}
-                          value={seoValidation.values.metaTitle}
-                          invalid={
-                            seoValidation.touched.metaTitle &&
-                            seoValidation.errors.metaTitle
-                              ? true
-                              : false
-                          }
-                        />
-                        {seoValidation.touched.metaTitle &&
-                        seoValidation.errors.metaTitle ? (
-                          <FormFeedback>
-                            {seoValidation.errors.metaTitle}
-                          </FormFeedback>
-                        ) : null}
-                      </Col>
 
-                      {/* Meta Description */}
-                      <Col md="4">
-                        <Label className="form-label">
-                          Meta Description (Max 180 Characters)
-                        </Label>
-                        <textarea
-                          name="metaDescription"
-                          placeholder="Enter Meta Description"
-                          className="form-control"
-                          rows="1"
-                          maxLength="180"
-                          onChange={seoValidation.handleChange}
-                          onBlur={seoValidation.handleBlur}
-                          value={seoValidation.values.metaDescription}
-                        />
-                        <div className="small text-muted">
-                          {seoValidation.values.metaDescription.length}/180
-                          characters
-                        </div>
-                        {seoValidation.touched.metaDescription &&
-                        seoValidation.errors.metaDescription ? (
-                          <div className="text-danger">
-                            {seoValidation.errors.metaDescription}
-                          </div>
-                        ) : null}
-                      </Col>
-
-                      {/* Meta Keywords */}
-                      <Col md="4">
-                        <Label className="form-label">Meta Keywords</Label>
-                        <Input
-                          type="text"
-                          name="metaKeywords"
-                          placeholder="Enter Meta Keywords (comma-separated)"
-                          onChange={seoValidation.handleChange}
-                          onBlur={seoValidation.handleBlur}
-                          value={seoValidation.values.metaKeywords}
-                          invalid={
-                            seoValidation.touched.metaKeywords &&
-                            seoValidation.errors.metaKeywords
-                              ? true
-                              : false
-                          }
-                        />
-                        {seoValidation.touched.metaKeywords &&
-                        seoValidation.errors.metaKeywords ? (
-                          <FormFeedback>
-                            {seoValidation.errors.metaKeywords}
-                          </FormFeedback>
-                        ) : null}
-                      </Col>
-                    </Row>
-
-                    {/* Save Button */}
-                    <div className="text-end mt-3">
-                      <Button type="submit" color="success">
-                        Save SEO Metadata
-                      </Button>
-                    </div>
-                  </form>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
           <Row>
             <Col lg="12">
               <Card>
@@ -317,6 +206,7 @@ const Categories = () => {
             toggle={toggleModal}
             backdrop="static"
             keyboard={false}
+            size="lg"
           >
             <ModalHeader toggle={toggleModal} tag="h4">
               {isEdit ? "Edit Category" : "Add Category"}
@@ -324,7 +214,7 @@ const Categories = () => {
             <ModalBody>
               <form onSubmit={formik.handleSubmit}>
                 <Row>
-                  <Col className="col-12">
+                  <Col sm={6}>
                     <div className="mb-3">
                       <Label className="form-label">Category Name</Label>
                       <Input
@@ -348,6 +238,8 @@ const Categories = () => {
                         </FormFeedback>
                       ) : null}
                     </div>
+                  </Col>
+                  <Col sm={6}>
                     <div className="mb-3">
                       <Label className="form-label">Select Display Name</Label>
                       <Input
@@ -376,6 +268,8 @@ const Categories = () => {
                         </FormFeedback>
                       ) : null}
                     </div>
+                  </Col>
+                  <Col sm={6}>
                     <div className="mb-3">
                       <Label className="form-label">Category Image</Label>
                       <Input
@@ -439,6 +333,8 @@ const Categories = () => {
                         </Card>
                       )}
                     </div>
+                  </Col>
+                  <Col sm={6}>
                     <div className="mb-3">
                       <Label className="form-label">Status</Label>
                       <Input
@@ -464,6 +360,78 @@ const Categories = () => {
                         </FormFeedback>
                       ) : null}
                     </div>
+                  </Col>
+                  <CardTitle>Meta Data</CardTitle>
+                  <p className="mb-3">Fill all information below</p>
+                  <Col sm={6}>
+                    <div className="mb-3">
+                      <Label className="form-label">Meta title</Label>
+                      <Input
+                        name="metaTitle"
+                        type="text"
+                        placeholder="Meta title"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.metaTitle || ""}
+                        invalid={
+                          formik.touched.metaTitle && formik.errors.metaTitle
+                            ? true
+                            : false
+                        }
+                      />
+                      {formik.touched.metaTitle && formik.errors.metaTitle ? (
+                        <FormFeedback type="invalid">
+                          {formik.errors.metaTitle}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                    <div className="mb-3">
+                      <Label className="form-label">Meta Keywords</Label>
+                      <Input
+                        name="metaKeywords"
+                        type="text"
+                        placeholder="Meta Keywords"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.metaKeywords || ""}
+                        invalid={
+                          formik.touched.metaKeywords &&
+                          formik.errors.metaKeywords
+                            ? true
+                            : false
+                        }
+                      />
+                      {formik.touched.metaKeywords &&
+                      formik.errors.metaKeywords ? (
+                        <FormFeedback type="invalid">
+                          {formik.errors.metaKeywords}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                  </Col>
+                  <Col sm={6}>
+                    <Label className="form-label">
+                      Meta Description (Max 180 Characters)
+                    </Label>
+                    <textarea
+                      name="metaDescription"
+                      placeholder="Enter Meta Description"
+                      className="form-control"
+                      rows="5"
+                      maxLength="180"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.metaDescription}
+                    />
+                    <div className="small text-muted">
+                      {formik.values.metaDescription.length}/180 characters
+                    </div>
+                    {formik.touched.metaDescription &&
+                    formik.errors.metaDescription ? (
+                      <div className="text-danger">
+                        {formik.errors.metaDescription}
+                      </div>
+                    ) : null}
                   </Col>
                 </Row>
                 <Row>

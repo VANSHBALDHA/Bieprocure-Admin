@@ -13,8 +13,6 @@ import {
   Row,
   Table,
 } from "reactstrap";
-import img7 from "../../../assets/images/product/img-7.png";
-import img4 from "../../../assets/images/product/img-4.png";
 
 const EcommerceOrdersPaymentModal = (props) => {
   const { isOpen, toggle } = props;

@@ -38,7 +38,7 @@ const EditProduct = () => {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [imageModel, setImageModel] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
+  const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [uploadedDataSheet, setUploadedDataSheet] = useState([]);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
   const [editData, setEditData] = useState(null);
@@ -76,6 +76,9 @@ const EditProduct = () => {
       visibility: editData?.status,
       technicalDataSheets: uploadedDataSheet,
       images: uploadedImages,
+      metaTitle: "",
+      metaDescription: "",
+      metaKeywords: "",
     },
     validationSchema: Yup.object({
       productCode: Yup.string().required("Please enter the product code"),
@@ -128,11 +131,22 @@ const EditProduct = () => {
       technicalDataSheets: Yup.array()
         .min(1, "Please upload a datasheet")
         .required("Datasheet is required"),
+      metaTitle: Yup.string().required("Meta title is required"),
+      metaDescription: Yup.string()
+        .required("Meta description is required")
+        .max(180, "Meta description cannot exceed 180 characters"),
+      metaKeywords: Yup.string().required("Meta keywords are required"),
     }),
     onSubmit: (values) => {
       console.log("Adding new product:", values);
     },
   });
+
+  const handleSubSubCategoryChange = (event) => {
+    const selectedId = event.target.value;
+    formik.setFieldValue("subSubCategoryName", selectedId);
+    setSelectedFeatures(categoryData[selectedId] || []);
+  };
 
   const handleShortContentChange = (newContent) => {
     setShortContent(newContent);
@@ -438,7 +452,7 @@ const EditProduct = () => {
                         <Input
                           name="subSubCategoryName"
                           type="select"
-                          onChange={formik.handleChange}
+                          onChange={handleSubSubCategoryChange}
                           onBlur={formik.handleBlur}
                           value={formik.values.subSubCategoryName}
                           invalid={
@@ -462,6 +476,36 @@ const EditProduct = () => {
                           </FormFeedback>
                         ) : null}
                       </div>
+                      {selectedFeatures?.features && (
+                        <>
+                          <div className="mt-1">
+                            <h5>Feature List</h5>
+                            <table className="table table-bordered">
+                              <thead>
+                                <tr>
+                                  <th>Feature Name</th>
+                                  <th>Add specification about the product</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {selectedFeatures?.features?.map(
+                                  (feature, index) => (
+                                    <tr key={index}>
+                                      <td>{feature?.name}</td>
+                                      <td>
+                                        <Input
+                                          type="text"
+                                          value={feature?.value}
+                                        ></Input>
+                                      </td>
+                                    </tr>
+                                  )
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </>
+                      )}
                       <div className="col-md-4 mb-3">
                         <Label className="form-label">
                           Manufacturer Part No.
@@ -702,6 +746,91 @@ const EditProduct = () => {
                         className=""
                       />
                     </div>
+                  </div>
+                </div>
+
+                {/* For Add Product Meta Data Row */}
+                <div className="card" style={{ border: "1px solid #e9ebec" }}>
+                  <div class="card-header">
+                    <div class="flex-grow-1">
+                      <h5 class="card-title mb-1">Meta Data</h5>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <Row>
+                      <Col sm={6}>
+                        <div className="mb-3">
+                          <Label className="form-label">Meta title</Label>
+                          <Input
+                            name="metaTitle"
+                            type="text"
+                            placeholder="Meta title"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            value={formik.values.metaTitle || ""}
+                            invalid={
+                              formik.touched.metaTitle &&
+                              formik.errors.metaTitle
+                                ? true
+                                : false
+                            }
+                          />
+                          {formik.touched.metaTitle &&
+                          formik.errors.metaTitle ? (
+                            <FormFeedback type="invalid">
+                              {formik.errors.metaTitle}
+                            </FormFeedback>
+                          ) : null}
+                        </div>
+                        <div className="mb-3">
+                          <Label className="form-label">Meta Keywords</Label>
+                          <Input
+                            name="metaKeywords"
+                            type="text"
+                            placeholder="Meta Keywords"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            value={formik.values.metaKeywords || ""}
+                            invalid={
+                              formik.touched.metaKeywords &&
+                              formik.errors.metaKeywords
+                                ? true
+                                : false
+                            }
+                          />
+                          {formik.touched.metaKeywords &&
+                          formik.errors.metaKeywords ? (
+                            <FormFeedback type="invalid">
+                              {formik.errors.metaKeywords}
+                            </FormFeedback>
+                          ) : null}
+                        </div>
+                      </Col>
+                      <Col sm={6}>
+                        <Label className="form-label">
+                          Meta Description (Max 180 Characters)
+                        </Label>
+                        <textarea
+                          name="metaDescription"
+                          placeholder="Enter Meta Description"
+                          className="form-control"
+                          rows="5"
+                          maxLength="180"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.metaDescription}
+                        />
+                        <div className="small text-muted">
+                          {formik.values.metaDescription.length}/180 characters
+                        </div>
+                        {formik.touched.metaDescription &&
+                        formik.errors.metaDescription ? (
+                          <div className="text-danger">
+                            {formik.errors.metaDescription}
+                          </div>
+                        ) : null}
+                      </Col>
+                    </Row>
                   </div>
                 </div>
               </div>

@@ -30,13 +30,15 @@ const AddProduct = () => {
   document.title = "Add product | Bieprocure";
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
+  const otherImageInputRef = useRef(null);
 
   const [shortContent, setShortContent] = useState("");
   const [longContent, setLongContent] = useState("");
   const [uploadedImages, setUploadedImages] = useState([]);
+  const [otherImages, setOtherImages] = useState([]);
   const [imageModel, setImageModel] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
+  const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [uploadedDataSheet, setUploadedDataSheet] = useState([]);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
 
@@ -63,6 +65,10 @@ const AddProduct = () => {
       visibility: "",
       technicalDataSheets: uploadedDataSheet,
       images: uploadedImages,
+      otherImages: [],
+      metaTitle: "",
+      metaDescription: "",
+      metaKeywords: "",
     },
     validationSchema: Yup.object({
       productCode: Yup.string().required("Please enter the product code"),
@@ -112,9 +118,17 @@ const AddProduct = () => {
       images: Yup.array()
         .min(1, "Please upload at least one image")
         .max(3, "You can only upload a maximum of 3 images"),
+      otherImages: Yup.array()
+        .min(1, "Please upload at least one other image")
+        .max(5, "You can only upload a maximum of 5 images"),
       technicalDataSheets: Yup.array()
         .min(1, "Please upload a datasheet")
         .required("Datasheet is required"),
+      metaTitle: Yup.string().required("Meta title is required"),
+      metaDescription: Yup.string()
+        .required("Meta description is required")
+        .max(180, "Meta description cannot exceed 180 characters"),
+      metaKeywords: Yup.string().required("Meta keywords are required"),
     }),
     onSubmit: (values) => {
       console.log("Adding new product:", values);
@@ -124,6 +138,12 @@ const AddProduct = () => {
   const handleShortContentChange = (newContent) => {
     setShortContent(newContent);
     console.log("setShortContent", newContent);
+  };
+
+  const handleSubSubCategoryChange = (event) => {
+    const selectedId = event.target.value;
+    formik.setFieldValue("subSubCategoryName", selectedId);
+    setSelectedFeatures(categoryData[selectedId] || []);
   };
 
   const handleLongContentChange = (newContent) => {
@@ -150,6 +170,23 @@ const AddProduct = () => {
     }
   };
 
+  const handleOtherImagesChange = (event) => {
+    const files = Array.from(event.target.files);
+
+    if (files.length + otherImages.length > 5) {
+      alert("You can only upload a maximum of 5 other images.");
+      return;
+    }
+
+    const newImages = files.map((file) => {
+      return Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+    });
+
+    setOtherImages([...otherImages, ...newImages]);
+  };
+
   const handleDataSheetChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -174,6 +211,7 @@ const AddProduct = () => {
   const toggleModal = () => {
     setImageModel(!imageModel);
     setSelectedImage([]);
+    setOtherImages([]);
   };
 
   const handleUploadImage = (image) => {
@@ -422,7 +460,7 @@ const AddProduct = () => {
                         <Input
                           name="subSubCategoryName"
                           type="select"
-                          onChange={formik.handleChange}
+                          onChange={handleSubSubCategoryChange}
                           onBlur={formik.handleBlur}
                           value={formik.values.subSubCategoryName}
                           invalid={
@@ -446,6 +484,36 @@ const AddProduct = () => {
                           </FormFeedback>
                         ) : null}
                       </div>
+                      {selectedFeatures?.features && (
+                        <>
+                          <div className="mt-1">
+                            <h5>Feature List</h5>
+                            <table className="table table-bordered">
+                              <thead>
+                                <tr>
+                                  <th>Feature Name</th>
+                                  <th>Add specification about the product</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {selectedFeatures?.features?.map(
+                                  (feature, index) => (
+                                    <tr key={index}>
+                                      <td>{feature?.name}</td>
+                                      <td>
+                                        <Input
+                                          type="text"
+                                          value={feature?.value}
+                                        ></Input>
+                                      </td>
+                                    </tr>
+                                  )
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </>
+                      )}
                       <div className="col-md-4 mb-3">
                         <Label className="form-label">
                           Manufacturer Part No.
@@ -688,6 +756,91 @@ const AddProduct = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* For Add Product Meta Data Row */}
+                <div className="card" style={{ border: "1px solid #e9ebec" }}>
+                  <div class="card-header">
+                    <div class="flex-grow-1">
+                      <h5 class="card-title mb-1">Meta Data</h5>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <Row>
+                      <Col sm={6}>
+                        <div className="mb-3">
+                          <Label className="form-label">Meta title</Label>
+                          <Input
+                            name="metaTitle"
+                            type="text"
+                            placeholder="Meta title"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            value={formik.values.metaTitle || ""}
+                            invalid={
+                              formik.touched.metaTitle &&
+                              formik.errors.metaTitle
+                                ? true
+                                : false
+                            }
+                          />
+                          {formik.touched.metaTitle &&
+                          formik.errors.metaTitle ? (
+                            <FormFeedback type="invalid">
+                              {formik.errors.metaTitle}
+                            </FormFeedback>
+                          ) : null}
+                        </div>
+                        <div className="mb-3">
+                          <Label className="form-label">Meta Keywords</Label>
+                          <Input
+                            name="metaKeywords"
+                            type="text"
+                            placeholder="Meta Keywords"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            value={formik.values.metaKeywords || ""}
+                            invalid={
+                              formik.touched.metaKeywords &&
+                              formik.errors.metaKeywords
+                                ? true
+                                : false
+                            }
+                          />
+                          {formik.touched.metaKeywords &&
+                          formik.errors.metaKeywords ? (
+                            <FormFeedback type="invalid">
+                              {formik.errors.metaKeywords}
+                            </FormFeedback>
+                          ) : null}
+                        </div>
+                      </Col>
+                      <Col sm={6}>
+                        <Label className="form-label">
+                          Meta Description (Max 180 Characters)
+                        </Label>
+                        <textarea
+                          name="metaDescription"
+                          placeholder="Enter Meta Description"
+                          className="form-control"
+                          rows="5"
+                          maxLength="180"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.metaDescription}
+                        />
+                        <div className="small text-muted">
+                          {formik.values.metaDescription.length}/180 characters
+                        </div>
+                        {formik.touched.metaDescription &&
+                        formik.errors.metaDescription ? (
+                          <div className="text-danger">
+                            {formik.errors.metaDescription}
+                          </div>
+                        ) : null}
+                      </Col>
+                    </Row>
+                  </div>
+                </div>
               </div>
               <div className="col-md-3 col-12">
                 <div class="card" style={{ border: "1px solid #e9ebec" }}>
@@ -822,11 +975,9 @@ const AddProduct = () => {
                             <Row className="align-items-center">
                               <Col className="col-auto">
                                 <img
-                                  data-dz-thumbnail=""
-                                  height="80"
-                                  className="avatar-sm rounded bg-light"
-                                  alt="image"
                                   src={image}
+                                  alt="image"
+                                  className="w-100"
                                 />
                               </Col>
                               <Col>
@@ -849,6 +1000,80 @@ const AddProduct = () => {
                                       (_, i) => i !== index
                                     );
                                     setUploadedImages(newImages);
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </Col>
+                            </Row>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="card" style={{ border: "1px solid #e9ebec" }}>
+                  <div className="card-header">
+                    <h5 className="card-title">Other Images (Multiple)</h5>
+                  </div>
+                  <div className="card-body">
+                    <Input
+                      name="otherImages"
+                      type="file"
+                      accept="image/jpeg, image/png"
+                      onChange={handleOtherImagesChange}
+                      innerRef={otherImageInputRef}
+                      style={{ display: "none" }}
+                      invalid={
+                        formik.touched.otherImages && formik.errors.otherImages
+                          ? true
+                          : false
+                      }
+                    />
+                    <div className="custom-file-button" onClick={toggleModal}>
+                      <i
+                        class="bx bx-cloud-upload me-2"
+                        style={{ fontSize: "25px" }}
+                      ></i>
+                      Choose File
+                    </div>
+                    {formik.touched.otherImages && formik.errors.otherImages ? (
+                      <FormFeedback type="invalid" className="d-block">
+                        {formik.errors.otherImages}
+                      </FormFeedback>
+                    ) : null}
+                    <div>
+                      {otherImages.map((image, index) => (
+                        <Card
+                          key={index}
+                          className="mt-1 mb-0 shadow-none border"
+                        >
+                          <div className="p-2">
+                            <Row className="align-items-center">
+                              <Col className="col-auto">
+                                <img
+                                  src={image.preview}
+                                  alt="other image"
+                                  className="w-100"
+                                />
+                              </Col>
+                              <Col>
+                                <Link
+                                  to="#"
+                                  className="text-muted font-weight-bold"
+                                >
+                                  {image.name}
+                                </Link>
+                              </Col>
+                              <Col className="col-auto mt-4">
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-sm"
+                                  onClick={() => {
+                                    const newOtherImages = otherImages.filter(
+                                      (_, i) => i !== index
+                                    );
+                                    setOtherImages(newOtherImages);
                                   }}
                                 >
                                   Delete

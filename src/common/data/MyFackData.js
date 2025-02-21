@@ -155,72 +155,240 @@ const brandData = [
 ];
 
 const categoryData = [
-  { id: 1, categoryName: "Utility Module", status: "active" },
-  { id: 2, categoryName: "Power Distribution Module", status: "InActive" },
-  { id: 3, categoryName: "Diode Oring Module", status: "InActive" },
-  { id: 4, categoryName: "Fan Failure Detection Module", status: "InActive" },
-  { id: 5, categoryName: "Digital Thermostat", status: "active" },
-  { id: 6, categoryName: "Temperature Monitoring Unit", status: "active" },
-  { id: 7, categoryName: "6 Port Din rail Mount Loaded LIU", status: "active" },
-  { id: 8, categoryName: "8 Port Din rail Mount Loaded LIU", status: "active" },
+  {
+    id: 1,
+    categoryName: "Utility Module",
+    status: "active",
+    features: [
+      { name: "Voltage Range", value: "5V - 24V" },
+      { name: "Current Rating", value: "10A" },
+    ],
+  },
+  {
+    id: 2,
+    categoryName: "Power Distribution Module",
+    status: "InActive",
+    features: [
+      { name: "Input Voltage", value: "230V AC" },
+      { name: "Output Channels", value: "4 Channels" },
+    ],
+  },
+  {
+    id: 3,
+    categoryName: "Diode Oring Module",
+    status: "InActive",
+    features: [
+      { name: "Diode Type", value: "Schottky" },
+      { name: "Efficiency", value: "95%" },
+    ],
+  },
+  {
+    id: 4,
+    categoryName: "Fan Failure Detection Module",
+    status: "InActive",
+    features: [
+      { name: "Detection Method", value: "Optical Sensor" },
+      { name: "Alarm Output", value: "Buzzer" },
+    ],
+  },
+  {
+    id: 5,
+    categoryName: "Digital Thermostat",
+    status: "active",
+    features: [
+      { name: "Temperature Range", value: "-40°C to 120°C" },
+      { name: "Display Type", value: "LCD" },
+    ],
+  },
+  {
+    id: 6,
+    categoryName: "Temperature Monitoring Unit",
+    status: "active",
+    features: [
+      { name: "Sensors Supported", value: "NTC, PT100" },
+      { name: "Power Supply", value: "12V DC" },
+    ],
+  },
+  {
+    id: 7,
+    categoryName: "6 Port Din rail Mount Loaded LIU",
+    status: "active",
+    features: [
+      { name: "Ports", value: "6" },
+      { name: "Material", value: "Aluminum" },
+    ],
+  },
+  {
+    id: 8,
+    categoryName: "8 Port Din rail Mount Loaded LIU",
+    status: "active",
+    features: [
+      { name: "Ports", value: "8" },
+      { name: "Material", value: "Steel" },
+    ],
+  },
   {
     id: 9,
     categoryName: "12 Port Din rail Mount Loaded LIU",
     status: "active",
+    features: [
+      { name: "Ports", value: "12" },
+      { name: "Rack Type", value: "DIN Rail" },
+    ],
   },
   {
     id: 10,
     categoryName: "24 Port Din rail Mount Loaded LIU",
     status: "InActive",
+    features: [
+      { name: "Ports", value: "24" },
+      { name: "Compatibility", value: "Fiber Optic" },
+    ],
   },
   {
     id: 11,
     categoryName: "6/8 Port wall Mount Loaded LIU",
     status: "InActive",
+    features: [
+      { name: "Ports", value: "6/8" },
+      { name: "Mounting Type", value: "Wall Mount" },
+    ],
   },
-  { id: 12, categoryName: "12 Port wall Mount Loaded LIU", status: "InActive" },
-  { id: 13, categoryName: "24 Port wall Mount Loaded LIU", status: "active" },
-  { id: 14, categoryName: "48 Port wall Mount Loaded LIU", status: "active" },
+  {
+    id: 12,
+    categoryName: "12 Port wall Mount Loaded LIU",
+    status: "InActive",
+    features: [
+      { name: "Ports", value: "12" },
+      { name: "Color", value: "Grey" },
+    ],
+  },
+  {
+    id: 13,
+    categoryName: "24 Port wall Mount Loaded LIU",
+    status: "active",
+    features: [
+      { name: "Ports", value: "24" },
+      { name: "Locking Mechanism", value: "Yes" },
+    ],
+  },
+  {
+    id: 14,
+    categoryName: "48 Port wall Mount Loaded LIU",
+    status: "active",
+    features: [
+      { name: "Ports", value: "48" },
+      { name: "Weight", value: "5kg" },
+    ],
+  },
   {
     id: 15,
     categoryName: "Mini Rack 6 Port Rack Mount Loaded LIU",
     status: "active",
+    features: [
+      { name: "Rack Size", value: "Mini" },
+      { name: "Fiber Type", value: "Single Mode" },
+    ],
   },
   {
     id: 16,
     categoryName: "1U 12/24 Port Rack Mount Loaded LIU",
     status: "active",
+    features: [
+      { name: "Ports", value: "12/24" },
+      { name: "Height", value: "1U" },
+    ],
   },
   {
     id: 17,
     categoryName: "2U 48 Port Rack Mount Loaded LIU",
     status: "active",
+    features: [
+      { name: "Ports", value: "48" },
+      { name: "Rack Type", value: "2U" },
+    ],
   },
   {
     id: 18,
     categoryName: "4U 96 Port Rack Mount Loaded LIU",
     status: "active",
+    features: [
+      { name: "Ports", value: "96" },
+      { name: "Rack Size", value: "4U" },
+    ],
   },
   {
     id: 19,
     categoryName: "1U 12/24 Port Sliding Rack Mount Loaded LIU",
     status: "InActive",
+    features: [
+      { name: "Sliding Feature", value: "Yes" },
+      { name: "Ports", value: "12/24" },
+    ],
   },
   {
     id: 20,
     categoryName: "2U 48/96 Port Sliding Rack Mount Loaded LIU",
     status: "InActive",
+    features: [
+      { name: "Sliding Feature", value: "Yes" },
+      { name: "Ports", value: "48/96" },
+    ],
   },
   {
     id: 21,
     categoryName: "4U 96/192 Port Sliding Rack Mount Loaded LIU",
     status: "InActive",
+    features: [
+      { name: "Sliding Feature", value: "Yes" },
+      { name: "Ports", value: "96/192" },
+    ],
   },
-  { id: 22, categoryName: "Single Mode", status: "InActive" },
-  { id: 23, categoryName: "Multimode (OM1/OM2)", status: "InActive" },
-  { id: 24, categoryName: "Multimode (OM3)", status: "InActive" },
-  { id: 25, categoryName: "Multimode (OM4)", status: "active" },
-  { id: 26, categoryName: "Simplex and Duplex Patch cords", status: "active" },
+  {
+    id: 22,
+    categoryName: "Single Mode",
+    status: "InActive",
+    features: [
+      { name: "Fiber Type", value: "Single Mode" },
+      { name: "Core Size", value: "9µm" },
+    ],
+  },
+  {
+    id: 23,
+    categoryName: "Multimode (OM1/OM2)",
+    status: "InActive",
+    features: [
+      { name: "Fiber Type", value: "Multimode" },
+      { name: "Core Size", value: "50/62.5µm" },
+    ],
+  },
+  {
+    id: 24,
+    categoryName: "Multimode (OM3)",
+    status: "InActive",
+    features: [
+      { name: "Fiber Type", value: "Multimode OM3" },
+      { name: "Speed", value: "10Gbps" },
+    ],
+  },
+  {
+    id: 25,
+    categoryName: "Multimode (OM4)",
+    status: "active",
+    features: [
+      { name: "Fiber Type", value: "Multimode OM4" },
+      { name: "Distance", value: "550m" },
+    ],
+  },
+  {
+    id: 26,
+    categoryName: "Simplex and Duplex Patch cords",
+    status: "active",
+    features: [
+      { name: "Type", value: "Simplex/Duplex" },
+      { name: "Connector", value: "LC, SC, ST" },
+    ],
+  },
 ];
 
 const subCategoryData = [

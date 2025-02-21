@@ -1,5 +1,15 @@
 import React from "react";
-import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import {
+  Card,
+  CardBody,
+  CardTitle,
+  Col,
+  Container,
+  FormGroup,
+  Input,
+  Label,
+  Row,
+} from "reactstrap";
 import Breadcrumbs from "../../../../components/Common/Breadcrumb";
 import blogImage from "../../../../assets/images/small/img-2.jpg";
 
@@ -8,8 +18,48 @@ const ViewBlog = () => {
     <>
       <div className="page-content">
         <Container fluid>
-          {/* Render Breadcrumbs */}
           <Breadcrumbs title="Blog" breadcrumbItem="Blog Details" />
+          <Card>
+            <CardBody>
+              <CardTitle className="h4 mb-3">Meta Data</CardTitle>
+
+              <Row>
+                <Col md={6}>
+                  <FormGroup>
+                    <Label>Meta Title</Label>
+                    <Input
+                      type="text"
+                      value="Sample Meta Title"
+                      readOnly
+                      className="form-control-plaintext"
+                    />
+                  </FormGroup>
+
+                  <FormGroup>
+                    <Label>Meta Keywords</Label>
+                    <Input
+                      type="text"
+                      value="blog, SEO, content, marketing"
+                      readOnly
+                      className="form-control-plaintext"
+                    />
+                  </FormGroup>
+                </Col>
+
+                <Col md={6}>
+                  <FormGroup>
+                    <Label>Meta Description</Label>
+                    <textarea
+                      value="This is a sample meta description for the blog post."
+                      className="form-control-plaintext"
+                      rows="5"
+                      readOnly
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+            </CardBody>
+          </Card>
           <Row>
             <Col lg={12}>
               <Card>

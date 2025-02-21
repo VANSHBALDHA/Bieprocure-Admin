@@ -4,10 +4,14 @@ import {
   Button,
   Card,
   CardBody,
+  Col,
   Container,
   Input,
+  Label,
   Modal,
   ModalBody,
+  ModalHeader,
+  Row,
   UncontrolledTooltip,
 } from "reactstrap";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
@@ -22,6 +26,15 @@ const MediaUpload = () => {
   const [files, setFiles] = useState([]);
   const [deleteModal, setDeleteModal] = useState(false);
   const [fileToDelete, setFileToDelete] = useState(null);
+  const [editingFile, setEditingFile] = useState(null);
+  const [editModal, setEditModal] = useState(false);
+  const [altText, setAltText] = useState("");
+  const [caption, setCaption] = useState("");
+  const [ImageDimensions, setImageDimensions] = useState("");
+  const [imageFileSize, setImageFileSize] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [fileUrl, setFileUrl] = useState("");
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
@@ -34,8 +47,83 @@ const MediaUpload = () => {
       file: URL.createObjectURL(file),
       fileName: file.name,
       fileType: file.type,
+      uploadedAt: new Date().toLocaleString(),
     }));
     setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+  };
+
+  const handleEditFileName = (file) => {
+    setEditingFile(file);
+    setAltText(file.altText || "");
+    setCaption(file.caption || "");
+    setTitle(file.fileName || "");
+    setDescription(file.description || "");
+    setFileUrl(file.file);
+    const img = new Image();
+    img.onload = () => {
+      const width = img.width;
+      const height = img.height;
+      const fileSize = getFileSize(file.file);
+      setImageDimensions(`${width}x${height}`);
+      setImageFileSize(fileSize);
+    };
+    img.src = file.file;
+    setEditModal(true);
+  };
+
+  const getFileSize = (fileUrl) => {
+    const file = new File([fileUrl], fileUrl, { type: "image/*" });
+    const sizeInBytes = file.size;
+    if (sizeInBytes < 1024) return `${sizeInBytes} B`;
+    const sizeInKB = (sizeInBytes / 1024).toFixed(2);
+    if (sizeInKB < 1024) return `${sizeInKB} KB`;
+    const sizeInMB = (sizeInKB / 1024).toFixed(2);
+    return `${sizeInMB} MB`;
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFileUrl(reader.result);
+
+        const img = new Image();
+        img.onload = () => {
+          const width = img.width;
+          const height = img.height;
+          const fileSize = getFileSize(file);
+          setImageDimensions(`${width}x${height}`);
+          setImageFileSize(fileSize);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveFileName = () => {
+    setFiles((prevFiles) =>
+      prevFiles.map((file) =>
+        file.id === editingFile.id
+          ? { ...file, altText, caption, title, description }
+          : file
+      )
+    );
+    setEditModal(false);
+    toast.success("File details updated!");
+  };
+
+  const handleCopyURL = (file) => {
+    navigator.clipboard.writeText(file.original.file);
+    toast.success("URL copied to clipboard!");
+  };
+
+  const handleDownloadFile = (file) => {
+    const link = document.createElement("a");
+    link.href = file.original.file;
+    link.download = file.original.fileName;
+    link.click();
   };
 
   const renderFilePreview = (file) => {
@@ -61,7 +149,7 @@ const MediaUpload = () => {
 
   const handleDeleteFile = () => {
     setFiles(files.filter((file) => file.id !== fileToDelete));
-    toast.success("Delete Successfully!");
+    toast.success("File deleted successfully!");
     setDeleteModal(false);
   };
 
@@ -80,13 +168,40 @@ const MediaUpload = () => {
         filterable: false,
         disableFilters: true,
         Cell: ({ value, row }) => (
-          <div className="d-flex align-items-center">
+          <div className="d-flex media-content">
             {renderFilePreview(row.original)}
             <div className="ms-2">
               <h6 className="mb-0">{row.original.fileName}</h6>
-              <span className="text-secondary">{row.original.fileType}</span>
+              <p className="text-secondary my-1">{row.original.fileType}</p>
+              <div className="image-editing">
+                <span onClick={() => handleEditFileName(row.original)}>
+                  Edit
+                </span>
+                <p
+                  onClick={() => {
+                    setFileToDelete(row.original.id);
+                    setDeleteModal(true);
+                  }}
+                >
+                  Delete Permanently
+                </p>
+                <span>View</span>
+              </div>
+              <div className="image-editing-copy">
+                <span onClick={() => handleCopyURL(row)}>Copy URL</span>
+                <p onClick={() => handleDownloadFile(row)}>Download file</p>
+              </div>
             </div>
           </div>
+        ),
+      },
+      {
+        Header: "Date",
+        accessor: "uploadedAt",
+        filterable: false,
+        disableFilters: true,
+        Cell: ({ row }) => (
+          <div className="text-body fw-bold">{row.original.uploadedAt}</div>
         ),
       },
       {
@@ -181,10 +296,11 @@ const MediaUpload = () => {
                   </div>
                 </div>
                 <p className="text-muted font-size-16 mb-4">
-                  Are you sure you want to permanently delete this file?
+                  If image currently use in anywhere in the system, button would
+                  you like to permanently delete from the server
                 </p>
 
-                <div className="hstack gap-2 justify-content-center mb-0">
+                <div className="vstack gap-2 justify-content-center mb-0">
                   <button
                     type="button"
                     className="btn btn-danger"
@@ -200,6 +316,135 @@ const MediaUpload = () => {
                     Close
                   </button>
                 </div>
+              </ModalBody>
+            </div>
+          </Modal>
+
+          {/* Modal for Editing Image Details */}
+          <Modal
+            size="xl"
+            isOpen={editModal}
+            toggle={() => setEditModal(false)}
+            scrollable
+          >
+            <ModalHeader toggle={() => setEditModal(false)} tag="h4">
+              Attachment details
+            </ModalHeader>
+            <div className="modal-content">
+              <ModalBody className="px-4 py-4">
+                {editingFile && (
+                  <>
+                    <Row>
+                      <Col lg={6} sm={12}>
+                        <div className="d-grid align-items-center justify-content-center">
+                          <img
+                            src={editingFile.file}
+                            alt={editingFile.fileName}
+                            style={{
+                              width: "300px",
+                              height: "300px",
+                              objectFit: "cover",
+                            }}
+                          />
+                          {/* <div className="text-center">
+                            <input
+                              type="file"
+                              className="form-control"
+                              onChange={handleImageChange}
+                            />
+                          </div> */}
+                        </div>
+                      </Col>
+                      <Col lg={6} sm={12}>
+                        <p className="mb-1">
+                          <strong>Uploaded on: </strong>
+                          {editingFile.uploadedAt}
+                        </p>
+                        <p className="mb-1">
+                          <strong>File Name: </strong> {editingFile.fileName}
+                        </p>
+                        <p className="mb-1">
+                          <strong>File Type: </strong> {editingFile.fileType}
+                        </p>
+                        <p className="mb-1">
+                          <strong>File Size: </strong> {imageFileSize}
+                        </p>
+                        <p className="mb-4">
+                          <strong>Dimensions: </strong> {ImageDimensions}
+                        </p>
+                        <div className="mb-3 d-flex align-items-center">
+                          <Label className="mb-0" style={{ width: "120px" }}>
+                            Alternative Text
+                          </Label>
+                          <Input
+                            type="text"
+                            value={altText}
+                            onChange={(e) => setAltText(e.target.value)}
+                            style={{ flex: 1 }}
+                          />
+                        </div>
+                        <div className="mb-3 d-flex align-items-center">
+                          <Label className="mb-0" style={{ width: "120px" }}>
+                            File URL
+                          </Label>
+                          <Input
+                            type="text"
+                            value={fileUrl}
+                            readOnly
+                            style={{ flex: 1 }}
+                          />
+                        </div>
+                        <div className="mb-3 d-flex align-items-center">
+                          <Label className="mb-0" style={{ width: "120px" }}>
+                            Caption
+                          </Label>
+                          <Input
+                            type="text"
+                            value={caption}
+                            onChange={(e) => setCaption(e.target.value)}
+                            style={{ flex: 1 }}
+                          />
+                        </div>
+                        <div className="mb-3 d-flex align-items-center">
+                          <Label className="mb-0" style={{ width: "120px" }}>
+                            Title
+                          </Label>
+                          <Input
+                            type="text"
+                            value={title}
+                            readOnly
+                            onChange={(e) => setTitle(e.target.value)}
+                            style={{ flex: 1 }}
+                          />
+                        </div>
+                        <div className="mb-3 d-flex align-items-center">
+                          <Label className="mb-0" style={{ width: "120px" }}>
+                            Description
+                          </Label>
+                          <Input
+                            type="textarea"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            style={{ flex: 1 }}
+                          />
+                        </div>
+
+                        <div className="d-flex justify-content-end">
+                          <Button color="primary" onClick={handleSaveFileName}>
+                            Save Changes
+                          </Button>
+                          <Button
+                            color="secondary"
+                            onClick={() => setEditModal(false)}
+                            className="ms-2"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </Col>
+                    </Row>
+                  </>
+                )}
               </ModalBody>
             </div>
           </Modal>
