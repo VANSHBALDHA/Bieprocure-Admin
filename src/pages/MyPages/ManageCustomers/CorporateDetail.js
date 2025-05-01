@@ -22,6 +22,7 @@ import CorporateCustomerCart from "../../../components/CorporateCart/CorporateCu
 import CorporatePaymentTerms from "./CorporatePaymentTerms";
 import CorporateCustomerAdd from "./CorporateCustomerAdd";
 import CorporateShipment from "../ManageShipment/CorporateShipment";
+import CorporatePayment from "../ManagePayment/CorporatePayment";
 
 const CorporateDetail = () => {
   const { id } = useParams();
@@ -507,9 +508,9 @@ const CorporateDetail = () => {
 
           {activeTab === "6" && (
             <TabPane tabId="6">
-              <Row className="d-flex justify-content-between align-items-center mb-2">
-                <Col lg="6">
-                  <h5 className="m-0">Manage Payment</h5>
+              <Row>
+                <Col lg="12">
+                  <CorporatePayment />
                 </Col>
               </Row>
             </TabPane>

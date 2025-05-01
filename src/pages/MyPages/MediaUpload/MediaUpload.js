@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import withRouter from "../../../components/Common/withRouter";
 import {
   Button,
@@ -17,7 +17,7 @@ import {
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import TableContainer from "../../../components/Common/TableContainer";
 import "./MediaUpload.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const MediaUpload = () => {
@@ -36,20 +36,40 @@ const MediaUpload = () => {
   const [description, setDescription] = useState("");
   const [fileUrl, setFileUrl] = useState("");
 
+  useEffect(() => {
+    const storedFiles = localStorage.getItem("mediaFiles");
+    if (storedFiles) {
+      setFiles(JSON.parse(storedFiles));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("mediaFiles", JSON.stringify(files));
+  }, [files]);
+
   const handleButtonClick = () => {
     fileInputRef.current.click();
   };
 
   const handleAddMedia = (event) => {
     const selectedFiles = Array.from(event.target.files);
-    const newFiles = selectedFiles.map((file, index) => ({
-      id: files.length + index + 1,
-      file: URL.createObjectURL(file),
-      fileName: file.name,
-      fileType: file.type,
-      uploadedAt: new Date().toLocaleString(),
-    }));
-    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+
+    selectedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newFile = {
+          id: Date.now(),
+          file: reader.result,
+          viewFile: URL.createObjectURL(file),
+          fileName: file.name,
+          fileType: file.type,
+          uploadedAt: new Date().toLocaleString(),
+        };
+
+        setFiles((prevFiles) => [...prevFiles, newFile]);
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleEditFileName = (file) => {
@@ -185,7 +205,9 @@ const MediaUpload = () => {
                 >
                   Delete Permanently
                 </p>
-                <span>View</span>
+                <span onClick={() => window.open(row.original.viewFile, "_blank")}>
+                  View
+                </span>
               </div>
               <div className="image-editing-copy">
                 <span onClick={() => handleCopyURL(row)}>Copy URL</span>

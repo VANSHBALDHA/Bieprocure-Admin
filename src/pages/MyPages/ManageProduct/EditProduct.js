@@ -31,15 +31,16 @@ const EditProduct = () => {
   const { id } = useParams();
   document.title = `Edit product - ${id} | Bieprocure`;
   const fileInputRef = useRef(null);
-  const imageInputRef = useRef(null);
-  const otherImageInputRef = useRef(null);
 
   const [shortContent, setShortContent] = useState("");
   const [longContent, setLongContent] = useState("");
+
+  const [modalType, setModalType] = useState(null);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [imageModel, setImageModel] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [otherImages, setOtherImages] = useState([]);
+  const [uploadedOtherImages, setUploadedOtherImages] = useState([]);
+
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [uploadedDataSheet, setUploadedDataSheet] = useState([]);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
@@ -76,6 +77,7 @@ const EditProduct = () => {
       visibility: editData?.status,
       technicalDataSheets: uploadedDataSheet,
       images: uploadedImages,
+      otherImages: uploadedOtherImages,
       purchasePrice: "",
       margin: "",
       loading: "",
@@ -134,8 +136,11 @@ const EditProduct = () => {
         .min(0, "margin must be at least 0%")
         .max(100, "margin cannot exceed 100%"),
       images: Yup.array()
-        .min(1, "Please upload at least one image")
-        .max(3, "You can only upload a maximum of 3 images"),
+        .min(1, "Please upload an image")
+        .max(1, "You can only upload 1 image"),
+      otherImages: Yup.array()
+        .min(1, "Please upload an image")
+        .max(5, "You can upload maximum 5 images"),
       technicalDataSheets: Yup.array()
         .min(1, "Please upload a datasheet")
         .required("Datasheet is required"),
@@ -174,43 +179,43 @@ const EditProduct = () => {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      if (uploadedImages?.length < 3) {
-        const newImage = Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        });
-        setUploadedImages([...uploadedImages, newImage]);
-      } else {
-        alert("You can only upload a maximum of 3 images.");
-      }
-    }
-  };
-
-  const handleOtherImagesChange = (event) => {
-    const files = Array.from(event.target.files);
-
-    if (files.length + otherImages.length > 5) {
-      alert("You can only upload a maximum of 5 other images.");
-      return;
-    }
-
-    const newImages = files.map((file) => {
-      return Object.assign(file, {
+      const newImage = Object.assign(file, {
         preview: URL.createObjectURL(file),
       });
-    });
-
-    setOtherImages([...otherImages, ...newImages]);
+      setUploadedImages([newImage]);
+    }
   };
 
-  const toggleModal = () => {
+  const handleOtherImageChange = (event) => {
+    const files = Array.from(event.target.files);
+    const updatedImages = files.map((file) =>
+      Object.assign(file, { preview: URL.createObjectURL(file) })
+    );
+    setUploadedOtherImages((prev) => [...prev, ...updatedImages]);
+  };
+
+  const toggleModal = (type = null) => {
     setImageModel(!imageModel);
     setSelectedImage([]);
+    setModalType(type);
   };
 
-  const handleUploadImage = (image) => {
-    setUploadedImages([...uploadedImages, image?.image]);
-    toggleModal();
+  const handleUploadImage = (images) => {
+    if (modalType === "feature") {
+      setUploadedImages([images[0].image]);
+    } else if (modalType === "other") {
+      setUploadedOtherImages((prev) => {
+        const newImages = images.map((img) => img.image);
+
+        if (prev.length + newImages.length > 5) {
+          return [...prev.slice(newImages.length), ...newImages];
+        }
+        return [...prev, ...newImages];
+      });
+    }
+    setImageModel(false);
     setSelectedImage([]);
+    setModalType(null);
   };
 
   const handleDataSheetChange = (event) => {
@@ -334,7 +339,6 @@ const EditProduct = () => {
                     </div>
                   </div>
                 </div>
-
                 <div className="card" style={{ border: "1px solid #e9ebec" }}>
                   <div class="card-header">
                     <div class="flex-grow-1">
@@ -993,7 +997,6 @@ const EditProduct = () => {
                         type="file"
                         accept="image/jpeg, image/png"
                         onChange={handleImageChange}
-                        innerRef={imageInputRef}
                         style={{ display: "none" }}
                         invalid={
                           formik.touched.images && formik.errors.images
@@ -1001,7 +1004,10 @@ const EditProduct = () => {
                             : false
                         }
                       />
-                      <div className="custom-file-button" onClick={toggleModal}>
+                      <div
+                        className="custom-file-button"
+                        onClick={() => toggleModal("feature")}
+                      >
                         <i
                           class="bx bx-cloud-upload me-2"
                           style={{ fontSize: "25px" }}
@@ -1022,13 +1028,11 @@ const EditProduct = () => {
                         >
                           <div className="p-2">
                             <Row className="align-items-center">
-                              <Col className="col-auto">
+                              <Col className="col-auto mb-2">
                                 <img
-                                  data-dz-thumbnail=""
-                                  height="80"
-                                  className="avatar-sm rounded bg-light"
-                                  alt="img"
                                   src={image}
+                                  alt="image_"
+                                  className="w-100"
                                 />
                               </Col>
                               <Col>
@@ -1036,10 +1040,10 @@ const EditProduct = () => {
                                   to="#"
                                   className="text-muted font-weight-bold"
                                 >
-                                  {image.name}
+                                  placeholder.png
                                 </Link>
                                 <p className="mb-0">
-                                  <strong>{image.formattedSize}</strong>
+                                  <strong>87 KB</strong>
                                 </p>
                               </Col>
                               <Col className="col-auto">
@@ -1063,78 +1067,102 @@ const EditProduct = () => {
                     </div>
                   </div>
                 </div>
-                <div className="card" style={{ border: "1px solid #e9ebec" }}>
-                  <div className="card-header">
-                    <h5 className="card-title">Other Images (Multiple)</h5>
+                <div class="card" style={{ border: "1px solid #e9ebec" }}>
+                  <div class="card-header">
+                    <h5 class="card-title">Other Images (Multiple)</h5>
                   </div>
-                  <div className="card-body">
-                    <Input
-                      name="otherImages"
-                      type="file"
-                      accept="image/jpeg, image/png"
-                      onChange={handleOtherImagesChange}
-                      innerRef={otherImageInputRef}
-                      style={{ display: "none" }}
-                      invalid={
-                        formik.touched.otherImages && formik.errors.otherImages
-                          ? true
-                          : false
-                      }
-                    />
-                    <div className="custom-file-button" onClick={toggleModal}>
-                      <i
-                        class="bx bx-cloud-upload me-2"
-                        style={{ fontSize: "25px" }}
-                      ></i>
-                      Choose File
+                  <div class="card-body">
+                    <div className="mb-3">
+                      <Input
+                        name="otherImages"
+                        type="file"
+                        accept="image/jpeg, image/png"
+                        onChange={handleOtherImageChange}
+                        style={{ display: "none" }}
+                        invalid={
+                          formik.touched.otherImages &&
+                          formik.errors.otherImages
+                            ? true
+                            : false
+                        }
+                      />
+                      <div
+                        className="custom-file-button"
+                        onClick={() => toggleModal("other")}
+                      >
+                        <i
+                          class="bx bx-cloud-upload me-2"
+                          style={{ fontSize: "25px" }}
+                        ></i>
+                        Choose File
+                      </div>
+                      {formik.touched.otherImages &&
+                      formik.errors.otherImages ? (
+                        <FormFeedback type="invalid" className="d-block">
+                          {formik.errors.otherImages}
+                        </FormFeedback>
+                      ) : null}
                     </div>
-                    {formik.touched.otherImages && formik.errors.otherImages ? (
-                      <FormFeedback type="invalid" className="d-block">
-                        {formik.errors.otherImages}
-                      </FormFeedback>
-                    ) : null}
-                    <div>
-                      {otherImages.map((image, index) => (
-                        <Card
-                          key={index}
-                          className="mt-1 mb-0 shadow-none border"
+
+                    {uploadedOtherImages?.length > 0 && (
+                      <>
+                        <div
+                          style={{
+                            height: "500px",
+                            overflowY: "auto",
+                            overflowX: "hidden",
+                          }}
                         >
-                          <div className="p-2">
-                            <Row className="align-items-center">
-                              <Col className="col-auto">
-                                <img
-                                  src={image.preview}
-                                  alt="other image"
-                                  className="w-100"
-                                />
-                              </Col>
-                              <Col>
-                                <Link
-                                  to="#"
-                                  className="text-muted font-weight-bold"
-                                >
-                                  {image.name}
-                                </Link>
-                              </Col>
-                              <Col className="col-auto mt-4">
-                                <button
-                                  type="button"
-                                  className="btn btn-danger btn-sm"
-                                  onClick={() => {
-                                    const newOtherImages = otherImages.filter(
-                                      (_, i) => i !== index
-                                    );
-                                    setOtherImages(newOtherImages);
-                                  }}
-                                >
-                                  Delete
-                                </button>
-                              </Col>
-                            </Row>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
+                          {uploadedOtherImages.map((image, index) => (
+                            <Card
+                              className="mt-1 mb-3 shadow-none border dz-processing dz-image-preview dz-success dz-complete"
+                              key={index + "-file"}
+                            >
+                              <div className="p-2">
+                                <Row className="align-items-center">
+                                  <Col className="col-auto mb-2">
+                                    <img
+                                      src={image}
+                                      alt="image_"
+                                      style={{
+                                        maxWidth: "100%",
+                                        height: "auto",
+                                      }}
+                                    />
+                                  </Col>
+                                  <Col>
+                                    <Link
+                                      to="#"
+                                      className="text-muted font-weight-bold"
+                                    >
+                                      placeholder.png
+                                    </Link>
+                                    <p className="mb-0">
+                                      <strong>87 KB</strong>
+                                    </p>
+                                  </Col>
+                                  <Col className="col-auto">
+                                    <button
+                                      type="button"
+                                      className="btn btn-danger btn-sm"
+                                      onClick={() => {
+                                        const newImages =
+                                          uploadedOtherImages.filter(
+                                            (_, i) => i !== index
+                                          );
+                                        setUploadedOtherImages(newImages);
+                                      }}
+                                    >
+                                      Delete
+                                    </button>
+                                  </Col>
+                                </Row>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div class="card" style={{ border: "1px solid #e9ebec" }}>
@@ -1212,6 +1240,7 @@ const EditProduct = () => {
             handleUploadImage={handleUploadImage}
             selectedImage={selectedImage}
             setSelectedImage={setSelectedImage}
+            modalType={modalType}
           />
         </Container>
       </div>

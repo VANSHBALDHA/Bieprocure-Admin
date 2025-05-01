@@ -29,17 +29,14 @@ import MediaModel from "../MediaUpload/MediaModel";
 const AddProduct = () => {
   document.title = "Add product | Bieprocure";
   const fileInputRef = useRef(null);
-  const imageInputRef = useRef(null);
 
   const [shortContent, setShortContent] = useState("");
   const [longContent, setLongContent] = useState("");
 
   const [modalType, setModalType] = useState(null);
-
   const [uploadedImages, setUploadedImages] = useState([]);
   const [imageModel, setImageModel] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
   const [uploadedOtherImages, setUploadedOtherImages] = useState([]);
 
   const [selectedFeatures, setSelectedFeatures] = useState([]);
@@ -987,7 +984,6 @@ const AddProduct = () => {
                         type="file"
                         accept="image/jpeg, image/png"
                         onChange={handleImageChange}
-                        innerRef={imageInputRef}
                         style={{ display: "none" }}
                         invalid={
                           formik.touched.images && formik.errors.images
@@ -1070,7 +1066,6 @@ const AddProduct = () => {
                         type="file"
                         accept="image/jpeg, image/png"
                         onChange={handleOtherImageChange}
-                        innerRef={imageInputRef}
                         style={{ display: "none" }}
                         invalid={
                           formik.touched.otherImages &&
