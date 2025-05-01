@@ -278,7 +278,7 @@ const MediaUpload = () => {
 
           {/* Modal for Delete Image */}
           <Modal
-            size="sm"
+            size="lg"
             isOpen={deleteModal}
             toggle={() => setDeleteModal(false)}
             centered={true}
@@ -300,20 +300,20 @@ const MediaUpload = () => {
                   you like to permanently delete from the server
                 </p>
 
-                <div className="vstack gap-2 justify-content-center mb-0">
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={handleDeleteFile}
-                  >
-                    Delete Now
-                  </button>
+                <div className="hstack gap-2 justify-content-center mb-0">
                   <button
                     type="button"
                     className="btn btn-secondary"
                     onClick={() => setDeleteModal(false)}
                   >
                     Close
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={handleDeleteFile}
+                  >
+                    Delete Now
                   </button>
                 </div>
               </ModalBody>

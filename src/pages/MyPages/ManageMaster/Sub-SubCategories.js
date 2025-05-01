@@ -27,6 +27,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import MediaModel from "../MediaUpload/MediaModel";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const SubSubCategories = () => {
   const navigate = useNavigate();
@@ -34,7 +36,7 @@ const SubSubCategories = () => {
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentSubCategories, setCurrentSubCategories] = useState(null);
-
+  const [shortContent, setShortContent] = useState("");
   const [uploadedImages, setUploadedImages] = useState(null);
   const [imageModel, setImageModel] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -48,7 +50,7 @@ const SubSubCategories = () => {
 
   const handleUploadImage = (image) => {
     if (image) {
-      setUploadedImages([image?.image]);
+      setUploadedImages([image[0].image]);
     }
     toggleImageModal();
     setSelectedImage(null);
@@ -64,6 +66,11 @@ const SubSubCategories = () => {
     }
   };
 
+  const handleShortContentChange = (newContent) => {
+    setShortContent(newContent);
+    console.log("setShortContent", newContent);
+  };
+
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -72,6 +79,7 @@ const SubSubCategories = () => {
         (currentSubCategories && currentSubCategories.subCategoryName) || "",
       categoryName:
         (currentSubCategories && currentSubCategories.categoryName) || "",
+      isDisplay: "No",
       subSubCategoryImage:
         (currentSubCategories && currentSubCategories.subSubCategoryImage) ||
         "",
@@ -85,6 +93,7 @@ const SubSubCategories = () => {
         "Please enter the sub-sub category name"
       ),
       categoryName: Yup.string().required("Please select the sub category"),
+      isDisplay: Yup.string().required("Please select the anyone"),
       subSubCategoryImage: Yup.mixed().test(
         "fileSelected",
         "Please select an image",
@@ -190,6 +199,47 @@ const SubSubCategories = () => {
     []
   );
 
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike", "blockquote"],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      ["link", "image", "video"],
+      [{ align: [] }],
+      [{ color: [] }],
+      ["code-block"],
+      ["clean"],
+    ],
+    clipboard: {
+      matchVisual: false,
+    },
+  };
+
+  const quillFormats = [
+    "header",
+    "bold",
+    "italic",
+    "video",
+    "font",
+    "size",
+    "underline",
+    "strike",
+    "blockquote",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "image",
+    "align",
+    "color",
+    "code-block",
+  ];
+
   const handleEditClick = (subcategory) => {
     setCurrentSubCategories(subcategory);
     setIsEdit(true);
@@ -237,6 +287,7 @@ const SubSubCategories = () => {
             backdrop="static"
             keyboard={false}
             size="lg"
+            scrollable={true}
           >
             <ModalHeader
               toggle={() => {
@@ -309,71 +360,31 @@ const SubSubCategories = () => {
                       ) : null}
                     </div>
                   </Col>
-                  <Col sm={6}>
+                  <Col lg={6}>
                     <div className="mb-3">
-                      <Label className="form-label">
-                        Sub Sub Category Image
-                      </Label>
+                      <Label className="form-label">isEnable?</Label>
                       <Input
-                        name="subSubCategoryImage"
-                        type="file"
-                        accept="image/jpeg, image/png"
-                        onChange={handleImageChange}
-                        innerRef={imageInputRef}
-                        style={{ display: "none" }}
+                        name="isDisplay"
+                        type="select"
+                        className="form-select"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.isDisplay || ""}
                         invalid={
-                          formik.touched.subSubCategoryImage &&
-                          formik.errors.subSubCategoryImage
+                          formik.touched.isDisplay && formik.errors.isDisplay
                             ? true
                             : false
                         }
-                      />
-                      <div
-                        className="custom-file-button"
-                        onClick={toggleImageModal}
                       >
-                        <i
-                          class="bx bx-cloud-upload me-2"
-                          style={{ fontSize: "25px" }}
-                        ></i>
-                        Choose File
-                      </div>
-                      {formik.errors.subSubCategoryImage &&
-                      formik.touched.subSubCategoryImage ? (
-                        <FormFeedback type="invalid" className="d-block">
-                          {formik.errors.subSubCategoryImage}
+                        <option value="">Select Display </option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                      </Input>
+                      {formik.touched.isDisplay && formik.errors.isDisplay ? (
+                        <FormFeedback type="invalid">
+                          {formik.errors.isDisplay}
                         </FormFeedback>
                       ) : null}
-
-                      {uploadedImages && (
-                        <Card className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
-                          <div className="p-2">
-                            <Row className="d-flex justify-content-between align-items-center">
-                              <Col className="col-auto">
-                                <img
-                                  data-dz-thumbnail=""
-                                  height="100"
-                                  width="100"
-                                  className="avatar-md rounded bg-light"
-                                  alt="images"
-                                  src={uploadedImages}
-                                />
-                              </Col>
-                              <Col className="col-auto">
-                                <button
-                                  type="button"
-                                  className="btn btn-danger btn-sm"
-                                  onClick={() => {
-                                    setUploadedImages(null);
-                                  }}
-                                >
-                                  Delete
-                                </button>
-                              </Col>
-                            </Row>
-                          </div>
-                        </Card>
-                      )}
                     </div>
                   </Col>
                   <Col sm={6}>
@@ -403,7 +414,104 @@ const SubSubCategories = () => {
                       ) : null}
                     </div>
                   </Col>
-
+                  <Col lg={12}>
+                    <Row>
+                      <Col sm={6}>
+                        <div className="mb-3">
+                          <Label className="form-label">
+                            Sub Sub Category Image
+                          </Label>
+                          <Input
+                            name="subSubCategoryImage"
+                            type="file"
+                            accept="image/jpeg, image/png"
+                            onChange={handleImageChange}
+                            innerRef={imageInputRef}
+                            style={{ display: "none" }}
+                            invalid={
+                              formik.touched.subSubCategoryImage &&
+                              formik.errors.subSubCategoryImage
+                                ? true
+                                : false
+                            }
+                          />
+                          <div
+                            className="custom-file-button"
+                            onClick={toggleImageModal}
+                          >
+                            <i
+                              class="bx bx-cloud-upload me-2"
+                              style={{ fontSize: "25px" }}
+                            ></i>
+                            Choose File
+                          </div>
+                          {formik.errors.subSubCategoryImage &&
+                          formik.touched.subSubCategoryImage ? (
+                            <FormFeedback type="invalid" className="d-block">
+                              {formik.errors.subSubCategoryImage}
+                            </FormFeedback>
+                          ) : null}
+                        </div>
+                      </Col>
+                      <Col lg={6}>
+                        {uploadedImages && (
+                          <Card className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
+                            <div className="p-1">
+                              <Row className="d-flex justify-content-between align-items-center">
+                                <Col className="col-auto">
+                                  <img
+                                    data-dz-thumbnail=""
+                                    height="100"
+                                    width="100"
+                                    className="avatar-md rounded bg-light"
+                                    alt="images"
+                                    src={uploadedImages}
+                                  />
+                                </Col>
+                                <Col className="col-auto">
+                                  <button
+                                    type="button"
+                                    className="btn btn-danger btn-sm"
+                                    onClick={() => {
+                                      setUploadedImages(null);
+                                    }}
+                                  >
+                                    Delete
+                                  </button>
+                                </Col>
+                              </Row>
+                            </div>
+                          </Card>
+                        )}
+                      </Col>
+                    </Row>
+                  </Col>
+                  <Col lg={12}>
+                    <div
+                      className="card"
+                      style={{ border: "1px solid #e9ebec" }}
+                    >
+                      <div class="card-header">
+                        <div class="flex-grow-1">
+                          <h5 class="card-title m-0">Description</h5>
+                        </div>
+                      </div>
+                      <div class="card-body">
+                        <div className="mb-5">
+                          <ReactQuill
+                            value={shortContent}
+                            theme="snow"
+                            onChange={handleShortContentChange}
+                            modules={quillModules}
+                            formats={quillFormats}
+                            style={{ height: "200px" }}
+                            placeholder="Enter your content...."
+                            className=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </Col>
                   <CardTitle>Meta Data</CardTitle>
                   <p className="mb-3">Fill all information below</p>
                   <Col sm={6}>

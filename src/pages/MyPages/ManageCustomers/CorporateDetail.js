@@ -6,10 +6,6 @@ import {
   Col,
   Card,
   CardBody,
-  Button,
-  Input,
-  Label,
-  CardTitle,
   Modal,
   ModalBody,
   UncontrolledTooltip,
@@ -22,9 +18,70 @@ import {
 } from "reactstrap";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { corporateCustomer } from "../../../common/data/MyFackData";
+import CorporateCustomerCart from "../../../components/CorporateCart/CorporateCustomerCart";
+import CorporatePaymentTerms from "./CorporatePaymentTerms";
+import CorporateCustomerAdd from "./CorporateCustomerAdd";
+import CorporateShipment from "../ManageShipment/CorporateShipment";
 
 const CorporateDetail = () => {
   const { id } = useParams();
+  const [quotes, setQuotes] = useState([
+    {
+      quoteNumber: "Q-1025",
+      userName: "Ankit Gandhi",
+      mobileNumber: "1234567890",
+      role: "Technician",
+      date: "28-02-2024",
+      revisedDate: "28-02-2024",
+      status: "Expired",
+      products: [
+        {
+          productCode: "P-101",
+          productImage: "path/to/image1",
+          productName: "Product 1",
+          orderQty: 10,
+          actualPrice: 50,
+          quotedPrice: 45,
+          yourPrice: 40,
+          currentStocks: 50,
+          deliverySchedule: "4-5 Weeks",
+        },
+        {
+          productCode: "P-102",
+          productImage: "path/to/image2",
+          productName: "Product 2",
+          orderQty: 20,
+          actualPrice: 60,
+          quotedPrice: 55,
+          yourPrice: 50,
+          currentStocks: 30,
+          deliverySchedule: "4-5 Weeks",
+        },
+      ],
+    },
+    {
+      quoteNumber: "Q-1026",
+      userName: "John Doe",
+      mobileNumber: "1234567890",
+      role: "Technician",
+      date: "28-02-2024",
+      revisedDate: "28-02-2024",
+      status: "Revised",
+      products: [
+        {
+          productCode: "P-103",
+          productImage: "path/to/image3",
+          productName: "Product 3",
+          orderQty: 15,
+          actualPrice: 70,
+          quotedPrice: 65,
+          yourPrice: 60,
+          currentStocks: 20,
+          deliverySchedule: "4-5 Weeks",
+        },
+      ],
+    },
+  ]);
   const [customer, setCustomer] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [newRegisterAs, setNewRegisterAs] = useState("");
@@ -32,28 +89,6 @@ const CorporateDetail = () => {
   const [activeTab, setActiveTab] = useState(
     localStorage.getItem("activeTab") || "1"
   );
-  const [paymentTerms, setPaymentTerms] = useState([
-    {
-      type: "Advance 30% - Order Confirmation",
-      dueDate: "Advance – Order Confirmation",
-      percentage: "30%",
-      days: "30",
-      creditDays: "5",
-    },
-  ]);
-
-  const addPaymentTerm = () => {
-    setPaymentTerms([
-      ...paymentTerms,
-      {
-        type: "New Term",
-        dueDate: "Custom Due Date",
-        percentage: "0%",
-        days: "0",
-        creditDays: "0",
-      },
-    ]);
-  };
 
   useEffect(() => {
     localStorage.setItem("activeTab", activeTab);
@@ -86,7 +121,7 @@ const CorporateDetail = () => {
       <Container fluid>
         <Breadcrumbs
           title="Manage Customers"
-          breadcrumbItem="Customer Details"
+          breadcrumbItem="Corporate Customer Details"
         />
 
         <Row>
@@ -124,29 +159,50 @@ const CorporateDetail = () => {
           </Col>
 
           <Col lg="9">
-            <table
-              className="table table-bordered"
-              style={{
-                backgroundColor: "#f8f9fa",
-                border: "2px solid #ddd",
-                borderRadius: "8px",
-              }}
-            >
-              <tbody>
-                <tr>
-                  <th style={{ width: "25%" }}>Company Name</th>
-                  <td>Bieprocure</td>
-                </tr>
-                <tr>
-                  <th style={{ width: "25%" }}>GST Number</th>
-                  <td>27ABCDE1234F1Z5</td>
-                </tr>
-                <tr>
-                  <th style={{ width: "25%" }}>PAN Card Number</th>
-                  <td>GBQWE1212A</td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="mb-3">
+              <button
+                className="btn btn-success d-flex align-items-center"
+                style={{
+                  fontSize: "16px",
+                  borderRadius: "15px",
+                  padding: "10px 20px",
+                  fontWeight: "600",
+                  display: "inline-flex",
+                  alignItems: "center",
+                }}
+              >
+                <i
+                  className="mdi mdi-shield-check me-2"
+                  style={{ fontSize: "20px" }}
+                ></i>
+                Verified
+              </button>
+            </div>
+            <div className="table-responsive">
+              <table
+                className="table table-bordered"
+                style={{
+                  backgroundColor: "#f8f9fa",
+                  border: "1px solid #ddd",
+                  borderRadius: "8px",
+                }}
+              >
+                <tbody>
+                  <tr>
+                    <th style={{ width: "25%" }}>Company Name</th>
+                    <td>Bieprocure</td>
+                  </tr>
+                  <tr>
+                    <th style={{ width: "25%" }}>GST Number</th>
+                    <td>27ABCDE1234F1Z5</td>
+                  </tr>
+                  <tr>
+                    <th style={{ width: "25%" }}>PAN Card Number</th>
+                    <td>GBQWE1212A</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </Col>
         </Row>
 
@@ -221,217 +277,8 @@ const CorporateDetail = () => {
         <TabContent activeTab={activeTab} className="mt-3">
           {activeTab === "1" && (
             <TabPane tabId="1">
-              <div
-                style={{ border: "1px solid #ced4da " }}
-                className="p-2 mb-5"
-              >
-                <Row className="d-flex justify-content-between align-items-center mb-2">
-                  <Col lg="6">
-                    <h5 className="m-0">Payment Terms</h5>
-                  </Col>
-                  <Col lg="6">
-                    <div className="text-end d-flex justify-content-end align-items-center gap-2">
-                      <div className="d-flex justify-content-end align-items-center gap-2">
-                        <span>Remaining</span>
-                        <Input type="text" placeholder="Enter remaining.." />
-                      </div>
-                      <div>
-                        <Button
-                          type="button"
-                          color="primary"
-                          className="btn"
-                          onClick={addPaymentTerm}
-                        >
-                          <i className="mdi mdi-plus me-1" />
-                          Add Payment Term
-                        </Button>
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col lg="12">
-                    <div className="table-responsive">
-                      <table
-                        className="table table-bordered"
-                        style={{
-                          backgroundColor: "#f8f9fa",
-                          border: "2px solid #ddd",
-                          borderRadius: "8px",
-                          width: "100%",
-                          marginBottom: "20px",
-                        }}
-                      >
-                        <thead>
-                          <tr>
-                            <th>Type Selection</th>
-                            <th>Due Date Based on (DropDown)</th>
-                            <th>In Percentage</th>
-                            <th>Days</th>
-                            <th>Credit Days</th>
-                            <th className="text-center">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {paymentTerms.map((term, index) => (
-                            <tr key={index}>
-                              <td>{term.type}</td>
-                              <td>{term.dueDate}</td>
-                              <td>{term.percentage}</td>
-                              <td>{term.days}</td>
-                              <td>{term.creditDays}</td>
-                              <td>
-                                <div className="d-flex gap-3 align-items-center">
-                                  <Link to="#" className="text-success">
-                                    <i
-                                      className="mdi mdi-pencil font-size-18"
-                                      id={`edit-${index}`}
-                                    />
-                                    <UncontrolledTooltip
-                                      placement="top"
-                                      target={`edit-${index}`}
-                                    >
-                                      Edit Payment Term
-                                    </UncontrolledTooltip>
-                                  </Link>
-                                  <Link
-                                    to="#"
-                                    className="action-icon text-danger"
-                                    onClick={() => {
-                                      setPaymentTerms(
-                                        paymentTerms.filter(
-                                          (_, i) => i !== index
-                                        )
-                                      );
-                                    }}
-                                  >
-                                    <i
-                                      className="mdi mdi-trash-can font-size-18"
-                                      id={`remove-${index}`}
-                                    />
-                                    <UncontrolledTooltip
-                                      placement="top"
-                                      target={`remove-${index}`}
-                                    >
-                                      Remove
-                                    </UncontrolledTooltip>
-                                  </Link>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col lg="6">
-                    <h5 className="m-0">Other Terms</h5>
-                  </Col>
-                  <div className="py-3">
-                    <textarea
-                      name="metaDescription"
-                      placeholder="Add the Other Details by Admin"
-                      className="form-control"
-                      rows="5"
-                    />
-                  </div>
-                  <div className="text-end">
-                    <Button type="button" color="secondary" className="btn">
-                      Save
-                    </Button>
-                  </div>
-                </Row>
-              </div>
-
-              {/* Manage Customer */}
-              <Row className="d-flex justify-content-between align-items-center mb-2">
-                <Col lg="6">
-                  <h5 className="m-0">Manage Customer</h5>
-                </Col>
-                <Col lg="6">
-                  <div className="text-end">
-                    <Button type="button" color="primary" className="btn">
-                      <i className="mdi mdi-plus me-1" />
-                      Add User
-                    </Button>
-                  </div>
-                </Col>
-              </Row>
-              <Row>
-                <Col lg="12">
-                  <div className="table-responsive">
-                    <table
-                      className="table table-bordered"
-                      style={{
-                        backgroundColor: "#f8f9fa",
-                        border: "2px solid #ddd",
-                        borderRadius: "8px",
-                        width: "100%",
-                        marginBottom: "20px",
-                      }}
-                    >
-                      <thead>
-                        <tr>
-                          <th>Full Name</th>
-                          <th>Role</th>
-                          <th>Mobile Number</th>
-                          <th>Mobile Status</th>
-                          <th>Email Address</th>
-                          <th>Status</th>
-                          <th>Last Login</th>
-                          <th className="text-center">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>Ankit Gandhi</td>
-                          <td>
-                            <Input
-                              type="select"
-                              name="register_as"
-                              value={customer?.register_as}
-                              onChange={handleRegisterAsChange}
-                            >
-                              <option value="Admin">Admin</option>
-                              <option value="Sales">Sales</option>
-                              <option value="Technition">Technition</option>
-                            </Input>
-                          </td>
-                          <td>1234567890</td>
-                          <td>
-                            <Badge color="success">Verified</Badge>
-                          </td>
-                          <td>gandhiankit@gmail.com</td>
-                          <td>
-                            <Badge color="primary">Verified</Badge>
-                          </td>
-                          <td>30-06-2024</td>
-                          <td className="text-center">
-                            <Link
-                              to="#"
-                              className="text-success"
-                              // onClick={toggleCustomerModal}
-                            >
-                              <i
-                                className="mdi mdi-pencil font-size-18"
-                                id="paymentbutton"
-                              />
-                              <UncontrolledTooltip
-                                placement="top"
-                                target="paymentbutton"
-                              >
-                                Edit Customer
-                              </UncontrolledTooltip>
-                            </Link>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </Col>
-              </Row>
+              <CorporatePaymentTerms />
+              <CorporateCustomerAdd />
 
               {/* Customer Addresses */}
               <Row>
@@ -446,20 +293,32 @@ const CorporateDetail = () => {
                     style={{
                       backgroundColor: "#f8f9fa",
                       padding: "15px",
-                      border: "2px solid #ddd",
+                      border: "1px solid #ddd",
                       borderRadius: "8px",
                       marginBottom: "15px",
                     }}
                   >
                     <h6>Billing Address:</h6>
                     <p>
-                      123 Main Street, Apartment 4B
+                      <strong>Full Name:</strong> John Doe
                       <br />
-                      New York, NY 10001
+                      <strong>Contact Number:</strong> +1 234-567-8901
                       <br />
-                      Landmark: Near Central Park
+                      <strong>Pincode:</strong> 10001
                       <br />
-                      United States
+                      <strong>
+                        Flat, House No., Building, Company, Apartment:
+                      </strong>{" "}
+                      Apartment 4B
+                      <br />
+                      <strong>Area, Street, Sector, Village:</strong> 123 Main
+                      Street
+                      <br />
+                      <strong>Landmark:</strong> Near Central Park
+                      <br />
+                      <strong>Town/City, State:</strong> New York, NY
+                      <br />
+                      <strong>Country:</strong> United States
                     </p>
                   </div>
                 </Col>
@@ -469,20 +328,32 @@ const CorporateDetail = () => {
                     style={{
                       backgroundColor: "#f8f9fa",
                       padding: "15px",
-                      border: "2px solid #ddd",
+                      border: "1px solid #ddd",
                       borderRadius: "8px",
                       marginBottom: "15px",
                     }}
                   >
                     <h6>Shipping Address:</h6>
                     <p>
-                      45 Greenway Street, House No. 8
+                      <strong>Full Name:</strong> Jane Smith
                       <br />
-                      London, SW1A 1AA
+                      <strong>Contact Number:</strong> +44 789-456-1230
                       <br />
-                      Landmark: Near Hyde Park
+                      <strong>Pincode:</strong> 111222
                       <br />
-                      United Kingdom
+                      <strong>
+                        Flat, House No., Building, Company, Apartment:
+                      </strong>{" "}
+                      House No. 8
+                      <br />
+                      <strong>Area, Street, Sector, Village:</strong> 45
+                      Greenway Street
+                      <br />
+                      <strong>Landmark:</strong> Near Hyde Park
+                      <br />
+                      <strong>Town/City, State:</strong> London
+                      <br />
+                      <strong>Country:</strong> United Kingdom
                     </p>
                   </div>
                 </Col>
@@ -494,7 +365,108 @@ const CorporateDetail = () => {
             <TabPane tabId="2">
               <Row className="d-flex justify-content-between align-items-center mb-2">
                 <Col lg="6">
-                  <h5 className="m-0">Manage Quotess</h5>
+                  <h5 className="m-0">Manage Quotes</h5>
+                </Col>
+              </Row>
+              <Row>
+                <Col lg="12">
+                  <div className="table-responsive">
+                    <table
+                      className="table table-bordered"
+                      style={{
+                        backgroundColor: "#f8f9fa",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        width: "100%",
+                        marginBottom: "20px",
+                      }}
+                    >
+                      <thead>
+                        <tr>
+                          <th>Quote Number</th>
+                          <th>User Name</th>
+                          <th>Mobile Number</th>
+                          <th>Role</th>
+                          <th>Quoted Date</th>
+                          <th>Revised Quoted Date</th>
+                          <th>Status</th>
+                          <th className="text-center">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {quotes.map((customer) => {
+                          const statusColors = {
+                            Expired: "danger",
+                            Revised: "warning",
+                            Cart: "info",
+                          };
+                          return (
+                            <>
+                              <tr key={customer.quoteNumber}>
+                                <td>{customer.quoteNumber}</td>
+                                <td>{customer.userName}</td>
+                                <td>{customer.mobileNumber}</td>
+                                <td>{customer.role}</td>
+                                <td>{customer.date}</td>
+                                <td>{customer.revisedDate}</td>
+                                <td>
+                                  <Badge
+                                    color={
+                                      statusColors[customer.status] ||
+                                      "secondary"
+                                    }
+                                  >
+                                    {customer.status}
+                                  </Badge>
+                                </td>
+
+                                <td className="text-center">
+                                  <Link
+                                    to={`/manage-corporate-customer-quote/${customer.quoteNumber}`}
+                                    target="_blank"
+                                  >
+                                    <span
+                                      className={
+                                        customer.status === "Expired"
+                                          ? "text-muted"
+                                          : "text-success"
+                                      }
+                                      style={{
+                                        cursor:
+                                          customer.status === "Expired"
+                                            ? "not-allowed"
+                                            : "pointer",
+                                      }}
+                                    >
+                                      <i
+                                        className="mdi mdi-message-text-outline"
+                                        style={{
+                                          fontSize: "20px",
+                                          opacity:
+                                            customer.status === "Expired"
+                                              ? 0.5
+                                              : 1,
+                                        }}
+                                        id={`edit-${customer.quoteNumber}`}
+                                      />
+                                      <UncontrolledTooltip
+                                        placement="top"
+                                        target={`edit-${customer.quoteNumber}`}
+                                      >
+                                        {customer.status === "Expired"
+                                          ? "Edit Disabled"
+                                          : "Edit Quote"}
+                                      </UncontrolledTooltip>
+                                    </span>
+                                  </Link>
+                                </td>
+                              </tr>
+                            </>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 </Col>
               </Row>
             </TabPane>
@@ -505,6 +477,9 @@ const CorporateDetail = () => {
               <Row className="d-flex justify-content-between align-items-center mb-2">
                 <Col lg="6">
                   <h5 className="m-0">Manage Carts</h5>
+                </Col>
+                <Col lg="12">
+                  <CorporateCustomerCart />
                 </Col>
               </Row>
             </TabPane>
@@ -544,7 +519,10 @@ const CorporateDetail = () => {
             <TabPane tabId="7">
               <Row className="d-flex justify-content-between align-items-center mb-2">
                 <Col lg="6">
-                  <h5 className="m-0">Manage Shipment </h5>
+                  <h5 className="m-0">Manage Shipment</h5>
+                </Col>
+                <Col lg="12">
+                  <CorporateShipment />
                 </Col>
               </Row>
             </TabPane>

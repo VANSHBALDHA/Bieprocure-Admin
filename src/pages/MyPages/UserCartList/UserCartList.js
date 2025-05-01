@@ -47,7 +47,7 @@ const UserCartList = () => {
 
   const handleUploadImage = (image) => {
     if (image) {
-      setUploadedImages([image?.image]);
+      setUploadedImages([image[0].image]);
     }
     toggleImageModal();
     setSelectedImage(null);

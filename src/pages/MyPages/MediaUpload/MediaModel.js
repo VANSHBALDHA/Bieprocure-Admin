@@ -3,9 +3,7 @@ import "./MediaUpload.css";
 import {
   Button,
   Card,
-  CardBody,
   CardImg,
-  CardTitle,
   Col,
   Modal,
   ModalBody,
@@ -20,6 +18,7 @@ const MediaModel = ({
   handleUploadImage,
   selectedImage,
   setSelectedImage,
+  modalType,
 }) => {
   const dummyImages = [
     {
@@ -94,6 +93,28 @@ const MediaModel = ({
     },
   ];
 
+  const isSelected = (img) =>
+    modalType === "other"
+      ? selectedImage?.some((i) => i.id === img.id)
+      : selectedImage?.[0]?.id === img.id;
+
+  const handleSelectImage = (img) => {
+    if (modalType === "other") {
+      const exists = selectedImage?.find((i) => i.id === img.id);
+      if (exists) {
+        setSelectedImage(selectedImage.filter((i) => i.id !== img.id));
+      } else {
+        if ((selectedImage?.length || 0) < 5) {
+          setSelectedImage([...(selectedImage || []), img]);
+        } else {
+          alert("You can select up to 5 images only.");
+        }
+      }
+    } else {
+      setSelectedImage([img]);
+    }
+  };
+
   return (
     <>
       <Modal
@@ -107,7 +128,7 @@ const MediaModel = ({
         style={{ maxHeight: "100vh", maxWidth: "90%" }}
       >
         <ModalHeader toggle={toggleModal} tag="h4">
-          Select image
+          Select image{modalType === "other" ? "s" : ""}
         </ModalHeader>
         <ModalBody style={{ height: "calc(100vh - 80px)", overflowY: "auto" }}>
           <Row>
@@ -120,20 +141,19 @@ const MediaModel = ({
                         key={img.id}
                         style={{
                           position: "relative",
-                          border:
-                            selectedImage?.id === img.id
-                              ? "2px solid #74788d"
-                              : "1px solid #e9ebec",
+                          border: isSelected(img)
+                            ? "2px solid #74788d"
+                            : "1px solid #e9ebec",
                           cursor: "pointer",
                         }}
-                        onClick={() => setSelectedImage(img)}
+                        onClick={() => handleSelectImage(img)}
                         className="mb-0"
                       >
                         <div className="img-media">
                           <CardImg src={img?.image} alt={img.id} />
-                          {selectedImage?.id === img.id && (
+                          {isSelected(img) && (
                             <i
-                              class="bx bx-check"
+                              className="bx bx-check"
                               style={{
                                 position: "absolute",
                                 top: "-10px",
@@ -154,7 +174,7 @@ const MediaModel = ({
               </div>
             </Col>
             <Col lg={3}>
-              {selectedImage && selectedImage.image && (
+              {selectedImage?.length > 0 && (
                 <div
                   className="selected-image-details"
                   style={{
@@ -162,22 +182,59 @@ const MediaModel = ({
                     border: "1px solid #e9ebec",
                     borderRadius: "5px",
                     background: "#f9f9f9",
+                    width: "100%",
+                    height: "550px",
+                    overflow: "auto",
                   }}
                 >
                   <h6 className="text-center mb-2">ATTACHMENT DETAILS</h6>
-                  <img
-                    src={selectedImage.image}
-                    alt="Selected"
-                    style={{
-                      width: "275px",
-                      height: "275px",
-                      borderRadius: "5px",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <p>
-                    <strong>ID:</strong> {selectedImage.id}
-                  </p>
+                  {selectedImage?.map((img) => (
+                    <>
+                      <div
+                        className="mb-3"
+                        style={{ border: "1px solid rgb(233, 235, 236)", padding: "8px" }}
+                      >
+                        <img
+                          key={img.id}
+                          src={img.image}
+                          alt="Selected"
+                          className="mb-3"
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            borderRadius: "5px",
+                            objectFit: "cover",
+                          }}
+                        />
+                        <p className="mb-1">
+                          <strong>Uploaded on: </strong>
+                          5/1/2025, 11:11:11 AM
+                        </p>
+                        <p className="mb-1">
+                          <strong>File Name: </strong> placeholder.png
+                        </p>
+                        <p className="mb-1">
+                          <strong>File Type: </strong> image/png
+                        </p>
+                        <p className="mb-1">
+                          <strong>File Size: </strong> 87 KB
+                        </p>
+                        <p className="mb-1">
+                          <strong>Dimensions: </strong> 275 x 275
+                        </p>
+                        <p className="mb-0">
+                          <strong>File URL: </strong>
+                          <a
+                            href="https://via.placeholder.com/275"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            https://via.placeholder.com/275
+                          </a>
+                        </p>
+                      </div>
+                    </>
+                  ))}
                 </div>
               )}
             </Col>
@@ -186,7 +243,7 @@ const MediaModel = ({
         <ModalFooter>
           <Button
             onClick={() => {
-              if (selectedImage) {
+              if (selectedImage?.length > 0) {
                 handleUploadImage(selectedImage);
               }
             }}

@@ -93,7 +93,7 @@ const IndividualOrder = () => {
                   View
                 </UncontrolledTooltip>
               </Link>
-              <Link
+              {/* <Link
                 to="#"
                 className="text-success"
                 onClick={togglePaymentDetailsViewModal}
@@ -105,6 +105,18 @@ const IndividualOrder = () => {
                 <UncontrolledTooltip placement="top" target="paymentbutton">
                   Payment Details
                 </UncontrolledTooltip>
+              </Link> */}
+              <Link
+                to={`/manage-orders/individual-customer/order-details/${orderId}`}
+                className="text-success"
+              >
+                <i
+                  class="bx bxs-download font-size-18"
+                  id="downloadtooltip"
+                ></i>
+                <UncontrolledTooltip placement="top" target="downloadtooltip">
+                  Download invoice
+                </UncontrolledTooltip>
               </Link>
               <Link
                 to="#"
@@ -113,7 +125,7 @@ const IndividualOrder = () => {
               >
                 <i className="bx bxs-truck font-size-18" id="trackingbutton" />
                 <UncontrolledTooltip placement="top" target="trackingbutton">
-                  Tracking Details
+                  Shipment Details
                 </UncontrolledTooltip>
               </Link>
             </div>

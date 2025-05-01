@@ -17,12 +17,15 @@ import {
   FormFeedback,
   Label,
   Input,
+  CardTitle,
 } from "reactstrap";
 import TableContainer from "../../../components/Common/TableContainer";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import MediaModel from "../MediaUpload/MediaModel";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const Brand = () => {
   const imageInputRef = useRef(null);
@@ -30,7 +33,7 @@ const Brand = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [currentBrand, setCurrentBrand] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
-
+  const [shortContent, setShortContent] = useState("");
   const [uploadedImages, setUploadedImages] = useState(null);
   const [imageModel, setImageModel] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -44,7 +47,7 @@ const Brand = () => {
 
   const handleUploadImage = (image) => {
     if (image) {
-      setUploadedImages([image?.image]);
+      setUploadedImages([image[0].image]);
     }
     toggleImageModal();
     setSelectedImage(null);
@@ -60,6 +63,11 @@ const Brand = () => {
     }
   };
 
+  const handleShortContentChange = (newContent) => {
+    setShortContent(newContent);
+    console.log("setShortContent", newContent);
+  };
+
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -69,6 +77,9 @@ const Brand = () => {
       status: (currentBrand && currentBrand.status) || "",
       brandLogo: (currentBrand && currentBrand.brandLogo) || "",
       isDisplay: "No",
+      metaTitle: "",
+      metaDescription: "",
+      metaKeywords: "",
     },
     validationSchema: Yup.object({
       brandName: Yup.string().required("Please enter the brand short name"),
@@ -80,6 +91,11 @@ const Brand = () => {
         "Please select an image",
         () => uploadedImages && uploadedImages.length > 0
       ),
+      metaTitle: Yup.string().required("Meta title is required"),
+      metaDescription: Yup.string()
+        .required("Meta description is required")
+        .max(180, "Meta description cannot exceed 180 characters"),
+      metaKeywords: Yup.string().required("Meta keywords are required"),
     }),
     onSubmit: (values) => {
       if (isEdit) {
@@ -177,6 +193,47 @@ const Brand = () => {
     setImagePreview("");
   };
 
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike", "blockquote"],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      ["link", "image", "video"],
+      [{ align: [] }],
+      [{ color: [] }],
+      ["code-block"],
+      ["clean"],
+    ],
+    clipboard: {
+      matchVisual: false,
+    },
+  };
+
+  const quillFormats = [
+    "header",
+    "bold",
+    "italic",
+    "video",
+    "font",
+    "size",
+    "underline",
+    "strike",
+    "blockquote",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "image",
+    "align",
+    "color",
+    "code-block",
+  ];
+
   return (
     <>
       <div className="page-content">
@@ -207,6 +264,8 @@ const Brand = () => {
             toggle={toggleModal}
             backdrop="static"
             keyboard={false}
+            size="lg"
+            scrollable={true}
           >
             <ModalHeader toggle={toggleModal} tag="h4">
               {isEdit ? "Edit Brand" : "Add Brand"}
@@ -214,28 +273,7 @@ const Brand = () => {
             <ModalBody>
               <form onSubmit={formik.handleSubmit}>
                 <Row>
-                  <Col className="col-12">
-                    <div className="mb-3">
-                      <Label className="form-label">Brand Short Name</Label>
-                      <Input
-                        name="brandName"
-                        type="text"
-                        placeholder="Insert Brand Short Name"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.brandName || ""}
-                        invalid={
-                          formik.touched.brandName && formik.errors.brandName
-                            ? true
-                            : false
-                        }
-                      />
-                      {formik.touched.brandName && formik.errors.brandName ? (
-                        <FormFeedback type="invalid">
-                          {formik.errors.brandName}
-                        </FormFeedback>
-                      ) : null}
-                    </div>
+                  <Col lg={6}>
                     <div className="mb-3">
                       <Label className="form-label">Brand Full Name</Label>
                       <Input
@@ -259,7 +297,85 @@ const Brand = () => {
                         </FormFeedback>
                       ) : null}
                     </div>
-
+                  </Col>
+                  <Col lg={6}>
+                    <div className="mb-3">
+                      <Label className="form-label">Brand Short Name</Label>
+                      <Input
+                        name="brandName"
+                        type="text"
+                        placeholder="Insert Brand Short Name"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.brandName || ""}
+                        invalid={
+                          formik.touched.brandName && formik.errors.brandName
+                            ? true
+                            : false
+                        }
+                      />
+                      {formik.touched.brandName && formik.errors.brandName ? (
+                        <FormFeedback type="invalid">
+                          {formik.errors.brandName}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                  </Col>
+                  <Col lg={6}>
+                    <div className="mb-3">
+                      <Label className="form-label">isDisplay?</Label>
+                      <Input
+                        name="isDisplay"
+                        type="select"
+                        className="form-select"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.isDisplay || ""}
+                        invalid={
+                          formik.touched.isDisplay && formik.errors.isDisplay
+                            ? true
+                            : false
+                        }
+                      >
+                        <option value="">Select Display </option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                      </Input>
+                      {formik.touched.isDisplay && formik.errors.isDisplay ? (
+                        <FormFeedback type="invalid">
+                          {formik.errors.isDisplay}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                  </Col>
+                  <Col lg={6}>
+                    <div className="mb-3">
+                      <Label className="form-label">Status</Label>
+                      <Input
+                        name="status"
+                        type="select"
+                        className="form-select"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.status || ""}
+                        invalid={
+                          formik.touched.status && formik.errors.status
+                            ? true
+                            : false
+                        }
+                      >
+                        <option value="">Select Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                      </Input>
+                      {formik.touched.status && formik.errors.status ? (
+                        <FormFeedback type="invalid">
+                          {formik.errors.status}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                  </Col>
+                  <Col lg={12}>
                     <div className="mb-3">
                       <Label className="form-label">Brand Image</Label>
                       <Input
@@ -321,55 +437,121 @@ const Brand = () => {
                         </Card>
                       )}
                     </div>
-                    <div className="mb-3">
-                      <Label className="form-label">isDisplay?</Label>
-                      <Input
-                        name="isDisplay"
-                        type="select"
-                        className="form-select"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.isDisplay || ""}
-                        invalid={
-                          formik.touched.isDisplay && formik.errors.isDisplay
-                            ? true
-                            : false
-                        }
-                      >
-                        <option value="">Select Display </option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                      </Input>
-                      {formik.touched.isDisplay && formik.errors.isDisplay ? (
-                        <FormFeedback type="invalid">
-                          {formik.errors.isDisplay}
-                        </FormFeedback>
-                      ) : null}
+                  </Col>
+                  <Col lg={12}>
+                    <div
+                      className="card"
+                      style={{ border: "1px solid #e9ebec" }}
+                    >
+                      <div class="card-header">
+                        <div class="flex-grow-1">
+                          <h5 class="card-title m-0">Description</h5>
+                        </div>
+                      </div>
+                      <div class="card-body">
+                        <div className="mb-5">
+                          <ReactQuill
+                            value={shortContent}
+                            theme="snow"
+                            onChange={handleShortContentChange}
+                            modules={quillModules}
+                            formats={quillFormats}
+                            style={{ height: "200px" }}
+                            placeholder="Enter your content...."
+                            className=""
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="mb-3">
-                      <Label className="form-label">Status</Label>
-                      <Input
-                        name="status"
-                        type="select"
-                        className="form-select"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.status || ""}
-                        invalid={
-                          formik.touched.status && formik.errors.status
-                            ? true
-                            : false
-                        }
-                      >
-                        <option value="">Select Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </Input>
-                      {formik.touched.status && formik.errors.status ? (
-                        <FormFeedback type="invalid">
-                          {formik.errors.status}
-                        </FormFeedback>
-                      ) : null}
+                  </Col>
+                  <Col lg={12}>
+                    <div
+                      className="card"
+                      style={{ border: "1px solid #e9ebec" }}
+                    >
+                      <div class="card-header">
+                        <CardTitle>Meta Data</CardTitle>
+                        <p className="m-0">Fill all information below</p>
+                      </div>
+                      <div className="card-body">
+                        <Row>
+                          <Col sm={6}>
+                            <div className="mb-3">
+                              <Label className="form-label">Meta title</Label>
+                              <Input
+                                name="metaTitle"
+                                type="text"
+                                placeholder="Meta title"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.metaTitle || ""}
+                                invalid={
+                                  formik.touched.metaTitle &&
+                                  formik.errors.metaTitle
+                                    ? true
+                                    : false
+                                }
+                              />
+                              {formik.touched.metaTitle &&
+                              formik.errors.metaTitle ? (
+                                <FormFeedback type="invalid">
+                                  {formik.errors.metaTitle}
+                                </FormFeedback>
+                              ) : null}
+                            </div>
+                            <div className="mb-3">
+                              <Label className="form-label">
+                                Meta Keywords
+                              </Label>
+                              <Input
+                                name="metaKeywords"
+                                type="text"
+                                placeholder="Meta Keywords"
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.metaKeywords || ""}
+                                invalid={
+                                  formik.touched.metaKeywords &&
+                                  formik.errors.metaKeywords
+                                    ? true
+                                    : false
+                                }
+                              />
+                              {formik.touched.metaKeywords &&
+                              formik.errors.metaKeywords ? (
+                                <FormFeedback type="invalid">
+                                  {formik.errors.metaKeywords}
+                                </FormFeedback>
+                              ) : null}
+                            </div>
+                          </Col>
+                          <Col sm={6}>
+                            <Label className="form-label">
+                              Meta Description (Max 180 Characters)
+                            </Label>
+                            <textarea
+                              name="metaDescription"
+                              placeholder="Enter Meta Description"
+                              className="form-control"
+                              rows="5"
+                              maxLength="180"
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              value={formik.values.metaDescription}
+                            />
+                            <div className="small text-muted">
+                              {formik.values.metaDescription.length}/180
+                              characters
+                            </div>
+                            {formik.touched.metaDescription &&
+                            formik.errors.metaDescription ? (
+                              <div className="text-danger">
+                                {formik.errors.metaDescription}
+                              </div>
+                            ) : null}
+                          </Col>
+                        </Row>
+                      </div>
                     </div>
                   </Col>
                 </Row>

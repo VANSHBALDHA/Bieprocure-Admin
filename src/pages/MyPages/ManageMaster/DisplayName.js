@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import withRouter from "../../../components/Common/withRouter";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import {
@@ -23,15 +23,23 @@ import { displayData } from "../../../common/data/MyFackData";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import MediaModel from "../MediaUpload/MediaModel";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const DisplayName = () => {
+  const imageInputRef = useRef(null);
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState(null);
+  const [imageModel, setImageModel] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [shortContent, setShortContent] = useState("");
   const [editData, setEditData] = useState({
     id: "",
     name: "",
-    icon: "",
     status: "",
+    image: "",
     metaTitle: "",
     metaDescription: "",
     metaKeywords: "",
@@ -45,22 +53,95 @@ const DisplayName = () => {
     toggleModal();
   };
 
+  const toggleImageModal = () => {
+    setImageModel(!imageModel);
+    setSelectedImage([]);
+  };
+
+  const handleUploadImage = (image) => {
+    if (image) {
+      setUploadedImages([image[0].image]);
+    }
+    toggleImageModal();
+    setSelectedImage(null);
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const newImage = Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+      setUploadedImages([newImage]);
+    }
+  };
+
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike", "blockquote"],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      ["link", "image", "video"],
+      [{ align: [] }],
+      [{ color: [] }],
+      ["code-block"],
+      ["clean"],
+    ],
+    clipboard: {
+      matchVisual: false,
+    },
+  };
+
+  const quillFormats = [
+    "header",
+    "bold",
+    "italic",
+    "video",
+    "font",
+    "size",
+    "underline",
+    "strike",
+    "blockquote",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "image",
+    "align",
+    "color",
+    "code-block",
+  ];
+
+  const handleShortContentChange = (newContent) => {
+    setShortContent(newContent);
+    console.log("setShortContent", newContent);
+  };
+
   const validation = useFormik({
     enableReinitialize: true,
 
     initialValues: {
       name: editData.name || "",
-      icon: editData?.icon || "",
       status: editData.status || "",
+      image: editData.image || "",
       metaTitle: "",
       metaDescription: "",
       metaKeywords: "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Please enter a display name"),
-      icon: Yup.mixed().required("Please select an icon"),
       status: Yup.string().required("Please select a status"),
       metaTitle: Yup.string().required("Meta title is required"),
+      image: Yup.mixed().test(
+        "fileSelected",
+        "Please select an image",
+        () => uploadedImages && uploadedImages.length > 0
+      ),
       metaDescription: Yup.string()
         .required("Meta description is required")
         .max(180, "Meta description cannot exceed 180 characters"),
@@ -89,12 +170,14 @@ const DisplayName = () => {
         filterable: true,
       },
       {
-        Header: "Icon",
-        accessor: "icon",
+        Header: "Image",
+        accessor: "brandLogo",
         disableFilters: true,
         filterable: false,
         Cell: ({ value }) => (
-          <img className="rounded-circle avatar-xs" src={value} alt="" />
+          <div className="text-center">
+            <img className="avatar-md" src={value} alt="" />
+          </div>
         ),
       },
       {
@@ -165,6 +248,7 @@ const DisplayName = () => {
           backdrop="static"
           keyboard={false}
           size="lg"
+          scrollable={true}
         >
           <ModalHeader toggle={toggleModal} tag="h4">
             Edit
@@ -178,7 +262,7 @@ const DisplayName = () => {
               }}
             >
               <Row>
-                <Col className="col-4">
+                <Col className="col-6">
                   <div className="mb-3">
                     <Label className="form-label">Display Name</Label>
                     <Input
@@ -201,32 +285,8 @@ const DisplayName = () => {
                     ) : null}
                   </div>
                 </Col>
-                <Col className="col-4">
-                  <div className="mb-3">
-                    <Label className="form-label">Select Icon</Label>
-                    <Input
-                      name="icon"
-                      type="select"
-                      onChange={validation.handleChange}
-                      onBlur={validation.handleBlur}
-                      value={validation.values.icon || ""}
-                      invalid={
-                        validation.touched.icon && validation.errors.icon
-                          ? true
-                          : false
-                      }
-                    >
-                      <option value="">Select Icon</option>
-                      <option value=""></option>
-                    </Input>
-                    {validation.touched.icon && validation.errors.icon ? (
-                      <FormFeedback type="invalid">
-                        {validation.errors.icon}
-                      </FormFeedback>
-                    ) : null}
-                  </div>
-                </Col>
-                <Col className="col-4">
+
+                <Col className="col-6">
                   <div className="mb-3">
                     <Label className="form-label">Status</Label>
                     <Input
@@ -252,79 +312,179 @@ const DisplayName = () => {
                     ) : null}
                   </div>
                 </Col>
-                <CardTitle>Meta Data</CardTitle>
-                <p className="mb-3">Fill all information below</p>
-                <Col sm={6}>
+
+                <Col className="col-12">
                   <div className="mb-3">
-                    <Label className="form-label">Meta title</Label>
+                    <Label className="form-label">Image</Label>
                     <Input
-                      name="metaTitle"
-                      type="text"
-                      placeholder="Meta title"
-                      onChange={validation.handleChange}
-                      onBlur={validation.handleBlur}
-                      value={validation.values.metaTitle || ""}
+                      name="image"
+                      type="file"
+                      accept="image/jpeg, image/png"
+                      onChange={handleImageChange}
+                      innerRef={imageInputRef}
+                      style={{ display: "none" }}
                       invalid={
-                        validation.touched.metaTitle &&
-                        validation.errors.metaTitle
+                        validation.touched.image && validation.errors.image
                           ? true
                           : false
                       }
                     />
-                    {validation.touched.metaTitle &&
-                    validation.errors.metaTitle ? (
-                      <FormFeedback type="invalid">
-                        {validation.errors.metaTitle}
+                    <div
+                      className="custom-file-button"
+                      onClick={toggleImageModal}
+                    >
+                      <i
+                        class="bx bx-cloud-upload me-2"
+                        style={{ fontSize: "25px" }}
+                      ></i>
+                      Choose File
+                    </div>
+                    {validation.errors.image && validation.touched.image ? (
+                      <FormFeedback type="invalid" className="d-block">
+                        {validation.errors.image}
                       </FormFeedback>
                     ) : null}
-                  </div>
-                  <div className="mb-3">
-                    <Label className="form-label">Meta Keywords</Label>
-                    <Input
-                      name="metaKeywords"
-                      type="text"
-                      placeholder="Meta Keywords"
-                      onChange={validation.handleChange}
-                      onBlur={validation.handleBlur}
-                      value={validation.values.metaKeywords || ""}
-                      invalid={
-                        validation.touched.metaKeywords &&
-                        validation.errors.metaKeywords
-                          ? true
-                          : false
-                      }
-                    />
-                    {validation.touched.metaKeywords &&
-                    validation.errors.metaKeywords ? (
-                      <FormFeedback type="invalid">
-                        {validation.errors.metaKeywords}
-                      </FormFeedback>
-                    ) : null}
+
+                    {uploadedImages && (
+                      <Card className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
+                        <div className="p-2">
+                          <Row className="d-flex justify-content-between align-items-center">
+                            <Col className="col-auto">
+                              <img
+                                data-dz-thumbnail=""
+                                height="100"
+                                width="100"
+                                className="avatar-md rounded bg-light"
+                                alt="images"
+                                src={uploadedImages}
+                              />
+                            </Col>
+                            <Col className="col-auto">
+                              <button
+                                type="button"
+                                className="btn btn-danger btn-sm"
+                                onClick={() => {
+                                  setUploadedImages(null);
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </Col>
+                          </Row>
+                        </div>
+                      </Card>
+                    )}
                   </div>
                 </Col>
-                <Col sm={6}>
-                  <Label className="form-label">
-                    Meta Description (Max 180 Characters)
-                  </Label>
-                  <textarea
-                    name="metaDescription"
-                    placeholder="Enter Meta Description"
-                    className="form-control"
-                    rows="5"
-                    maxLength="180"
-                    onChange={validation.handleChange}
-                    onBlur={validation.handleBlur}
-                    value={validation.values.metaDescription}
-                  />
-                  <div className="small text-muted">
-                    {validation.values.metaDescription.length}/180 characters
-                  </div>
-                  {validation.touched.metaDescription &&
-                  validation.errors.metaDescription ? (
-                    <div className="text-danger">
-                      {validation.errors.metaDescription}
+
+                <Col className="col-12">
+                  <div className="card" style={{ border: "1px solid #e9ebec" }}>
+                    <div class="card-header">
+                      <div class="flex-grow-1">
+                        <h5 class="card-title m-0">Description</h5>
+                      </div>
                     </div>
-                  ) : null}
+                    <div class="card-body">
+                      <div className="mb-5">
+                        <ReactQuill
+                          value={shortContent}
+                          theme="snow"
+                          onChange={handleShortContentChange}
+                          modules={quillModules}
+                          formats={quillFormats}
+                          style={{ height: "200px" }}
+                          placeholder="Enter your content...."
+                          className=""
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Col>
+
+                <Col className="col-12">
+                  <div className="card" style={{ border: "1px solid #e9ebec" }}>
+                    <div class="card-header">
+                      <CardTitle>Meta Data</CardTitle>
+                      <p className="m-0">Fill all information below</p>
+                    </div>
+                    <div className="card-body">
+                      <Row>
+                        <Col sm={6}>
+                          <div className="mb-3">
+                            <Label className="form-label">Meta title</Label>
+                            <Input
+                              name="metaTitle"
+                              type="text"
+                              placeholder="Meta title"
+                              onChange={validation.handleChange}
+                              onBlur={validation.handleBlur}
+                              value={validation.values.metaTitle || ""}
+                              invalid={
+                                validation.touched.metaTitle &&
+                                validation.errors.metaTitle
+                                  ? true
+                                  : false
+                              }
+                            />
+                            {validation.touched.metaTitle &&
+                            validation.errors.metaTitle ? (
+                              <FormFeedback type="invalid">
+                                {validation.errors.metaTitle}
+                              </FormFeedback>
+                            ) : null}
+                          </div>
+                          <div className="mb-3">
+                            <Label className="form-label">Meta Keywords</Label>
+                            <Input
+                              name="metaKeywords"
+                              type="text"
+                              placeholder="Meta Keywords"
+                              onChange={validation.handleChange}
+                              onBlur={validation.handleBlur}
+                              value={validation.values.metaKeywords || ""}
+                              invalid={
+                                validation.touched.metaKeywords &&
+                                validation.errors.metaKeywords
+                                  ? true
+                                  : false
+                              }
+                            />
+                            {validation.touched.metaKeywords &&
+                            validation.errors.metaKeywords ? (
+                              <FormFeedback type="invalid">
+                                {validation.errors.metaKeywords}
+                              </FormFeedback>
+                            ) : null}
+                          </div>
+                        </Col>
+                        <Col sm={6}>
+                          <Label className="form-label">
+                            Meta Description (Max 180 Characters)
+                          </Label>
+                          <textarea
+                            name="metaDescription"
+                            placeholder="Enter Meta Description"
+                            className="form-control"
+                            rows="5"
+                            maxLength="180"
+                            onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
+                            value={validation.values.metaDescription}
+                          />
+                          <div className="small text-muted">
+                            {validation.values.metaDescription.length}/180
+                            characters
+                          </div>
+                          {validation.touched.metaDescription &&
+                          validation.errors.metaDescription ? (
+                            <div className="text-danger">
+                              {validation.errors.metaDescription}
+                            </div>
+                          ) : null}
+                        </Col>
+                      </Row>
+                    </div>
+                  </div>
                 </Col>
               </Row>
 
@@ -336,6 +496,14 @@ const DisplayName = () => {
             </form>
           </ModalBody>
         </Modal>
+
+        <MediaModel
+          imageModel={imageModel}
+          toggleModal={toggleImageModal}
+          handleUploadImage={handleUploadImage}
+          selectedImage={selectedImage}
+          setSelectedImage={setSelectedImage}
+        />
       </Container>
     </div>
   );

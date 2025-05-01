@@ -27,13 +27,15 @@ import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import MediaModel from "../MediaUpload/MediaModel";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const SubCategories = () => {
   const imageInputRef = useRef(null);
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentSubCategories, setCurrentSubCategories] = useState(null);
-
+  const [shortContent, setShortContent] = useState("");
   const [uploadedImages, setUploadedImages] = useState(null);
   const [imageModel, setImageModel] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -47,7 +49,7 @@ const SubCategories = () => {
 
   const handleUploadImage = (image) => {
     if (image) {
-      setUploadedImages([image?.image]);
+      setUploadedImages([image[0].image]);
     }
     toggleImageModal();
     setSelectedImage(null);
@@ -61,6 +63,11 @@ const SubCategories = () => {
       });
       setUploadedImages([newImage]);
     }
+  };
+
+  const handleShortContentChange = (newContent) => {
+    setShortContent(newContent);
+    console.log("setShortContent", newContent);
   };
 
   const formik = useFormik({
@@ -167,6 +174,47 @@ const SubCategories = () => {
     []
   );
 
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike", "blockquote"],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      ["link", "image", "video"],
+      [{ align: [] }],
+      [{ color: [] }],
+      ["code-block"],
+      ["clean"],
+    ],
+    clipboard: {
+      matchVisual: false,
+    },
+  };
+
+  const quillFormats = [
+    "header",
+    "bold",
+    "italic",
+    "video",
+    "font",
+    "size",
+    "underline",
+    "strike",
+    "blockquote",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "image",
+    "align",
+    "color",
+    "code-block",
+  ];
+
   const handleEditClick = (subcategory) => {
     setCurrentSubCategories(subcategory);
     setIsEdit(true);
@@ -214,6 +262,7 @@ const SubCategories = () => {
             backdrop="static"
             keyboard={false}
             size="lg"
+            scrollable={true}
           >
             <ModalHeader toggle={toggleModal} tag="h4">
               {isEdit ? "Edit Sub Category" : "Add Sub Category"}
@@ -368,6 +417,33 @@ const SubCategories = () => {
                           {formik.errors.status}
                         </FormFeedback>
                       ) : null}
+                    </div>
+                  </Col>
+
+                  <Col lg={12}>
+                    <div
+                      className="card"
+                      style={{ border: "1px solid #e9ebec" }}
+                    >
+                      <div class="card-header">
+                        <div class="flex-grow-1">
+                          <h5 class="card-title m-0">Description</h5>
+                        </div>
+                      </div>
+                      <div class="card-body">
+                        <div className="mb-5">
+                          <ReactQuill
+                            value={shortContent}
+                            theme="snow"
+                            onChange={handleShortContentChange}
+                            modules={quillModules}
+                            formats={quillFormats}
+                            style={{ height: "200px" }}
+                            placeholder="Enter your content...."
+                            className=""
+                          />
+                        </div>
+                      </div>
                     </div>
                   </Col>
                   <CardTitle>Meta Data</CardTitle>

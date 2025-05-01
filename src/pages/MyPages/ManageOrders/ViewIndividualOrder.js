@@ -25,7 +25,7 @@ const ViewIndividualOrder = () => {
             type="button"
             color="primary"
             className="btn mb-3 me-2 d-flex align-items-center"
-            onClick={() => navigate("/manage-orders/individual-customer")}
+            onClick={() => navigate(-1)}
           >
             <i class="bx bx-arrow-back me-1"></i>
             Back to Orders

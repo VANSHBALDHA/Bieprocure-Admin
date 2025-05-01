@@ -26,68 +26,38 @@ const ReservedView = () => {
           />
           <Row>
             <Col lg="12">
-              <Card className="shadow-sm">
-                <CardBody>
-                  <table className="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>Field</th>
-                        <th>Value</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <strong>Product Name</strong>
-                        </td>
-                        <td>{data.productName}</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <strong>Display Quantity</strong>
-                        </td>
-                        <td>{data.quantity}</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <strong>Purchase Price (Per item)</strong>
-                        </td>
-                        <td>{data.price}</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <strong>Quantity</strong>
-                        </td>
-                        <td>{data.quantity}</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <strong>Display Available Quantity</strong>
-                        </td>
-                        <td>90</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <strong>Available Quantity</strong>
-                        </td>
-                        <td>15</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <strong>Reserved Product Quantity</strong>
-                        </td>
-                        <td>15</td>
-                      </tr>
-                    </tbody>
-                  </table>
-
-                  <div className="text-center mt-4">
-                    <Link to="/manage-inventory/reserved">
-                      <Button color="secondary">Back</Button>
-                    </Link>
-                  </div>
-                </CardBody>
-              </Card>
+              <div className="table-responsive">
+                <table
+                  className="table table-bordered"
+                  style={{
+                    backgroundColor: "#f8f9fa",
+                    border: "1px solid #ddd",
+                    borderRadius: "8px",
+                    width: "100%",
+                  }}
+                >
+                  <thead>
+                    <tr>
+                      <th>Product Name</th>
+                      <th>Display Quantity</th>
+                      <th>Quantity</th>
+                      <th>Add Quantity</th>
+                      <th>Purchase Price (Per item) </th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{data.productName}</td>
+                      <td>{data.quantity}</td>
+                      <td>30</td>
+                      <td>200</td>
+                      <td>{data.price}</td>
+                      <td>28-02-2025</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </Col>
           </Row>
         </Container>

@@ -30,14 +30,18 @@ const AddProduct = () => {
   document.title = "Add product | Bieprocure";
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
-  const otherImageInputRef = useRef(null);
 
   const [shortContent, setShortContent] = useState("");
   const [longContent, setLongContent] = useState("");
+
+  const [modalType, setModalType] = useState(null);
+
   const [uploadedImages, setUploadedImages] = useState([]);
-  const [otherImages, setOtherImages] = useState([]);
   const [imageModel, setImageModel] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const [uploadedOtherImages, setUploadedOtherImages] = useState([]);
+
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [uploadedDataSheet, setUploadedDataSheet] = useState([]);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
@@ -53,19 +57,20 @@ const AddProduct = () => {
       subSubCategoryName: "",
       brandName: "",
       manufacturePartNumber: "",
-      minimumPurchasedQuantity: "",
       minimumStockQuantityWarning: "",
-      sellingPrice: "",
       mrp: "",
-      displayQuantity: "",
+      reservedQuantity: "",
       CGST: "",
       SGST: "",
       IGST: "",
       status: "",
       visibility: "",
+      purchasePrice: "",
+      loading: "",
+      margin: "",
       technicalDataSheets: uploadedDataSheet,
       images: uploadedImages,
-      otherImages: [],
+      otherImages: uploadedOtherImages,
       metaTitle: "",
       metaDescription: "",
       metaKeywords: "",
@@ -83,20 +88,15 @@ const AddProduct = () => {
       manufacturePartNumber: Yup.string().required(
         "Please enter the manufacturer part number"
       ),
-      minimumPurchasedQuantity: Yup.number()
-        .required("Please enter the minimum purchase quantity")
-        .positive("Must be a positive number"),
       minimumStockQuantityWarning: Yup.number()
         .required("Please enter the minimum stock quantity warning")
         .positive("Must be a positive number"),
-      sellingPrice: Yup.number()
-        .required("Please enter the selling price")
-        .positive("Must be a positive number"),
+
       mrp: Yup.number()
         .required("Please enter the MRP")
         .positive("Must be a positive number"),
-      displayQuantity: Yup.number()
-        .required("Please enter the display quantity")
+      reservedQuantity: Yup.number()
+        .required("Please enter the reserved quantity")
         .positive("Must be a positive number"),
       CGST: Yup.number()
         .required("Please enter the CGST percentage")
@@ -113,14 +113,25 @@ const AddProduct = () => {
         .positive("Must be a positive number")
         .min(0, "IGST must be at least 0%")
         .max(100, "IGST cannot exceed 100%"),
+      purchasePrice: Yup.string().required("Please enter purchase price"),
+      loading: Yup.number()
+        .required("Please enter loading percentage")
+        .positive("Must be a positive number")
+        .min(0, "loading must be at least 0%")
+        .max(100, "loading cannot exceed 100%"),
+      margin: Yup.number()
+        .required("Please enter margin percentage")
+        .positive("Must be a positive number")
+        .min(0, "margin must be at least 0%")
+        .max(100, "margin cannot exceed 100%"),
       visibility: Yup.string().required("Please select the visibility"),
       status: Yup.string().required("Please select the status"),
       images: Yup.array()
-        .min(1, "Please upload at least one image")
-        .max(3, "You can only upload a maximum of 3 images"),
+        .min(1, "Please upload an image")
+        .max(1, "You can only upload 1 image"),
       otherImages: Yup.array()
-        .min(1, "Please upload at least one other image")
-        .max(5, "You can only upload a maximum of 5 images"),
+        .min(1, "Please upload an image")
+        .max(5, "You can upload maximum 5 images"),
       technicalDataSheets: Yup.array()
         .min(1, "Please upload a datasheet")
         .required("Datasheet is required"),
@@ -159,32 +170,43 @@ const AddProduct = () => {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      if (uploadedImages?.length < 3) {
-        const newImage = Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        });
-        setUploadedImages([...uploadedImages, newImage]);
-      } else {
-        alert("You can only upload a maximum of 3 images.");
-      }
+      const newImage = Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+      setUploadedImages([newImage]);
     }
   };
 
-  const handleOtherImagesChange = (event) => {
+  const handleOtherImageChange = (event) => {
     const files = Array.from(event.target.files);
+    const updatedImages = files.map((file) =>
+      Object.assign(file, { preview: URL.createObjectURL(file) })
+    );
+    setUploadedOtherImages((prev) => [...prev, ...updatedImages]);
+  };
 
-    if (files.length + otherImages.length > 5) {
-      alert("You can only upload a maximum of 5 other images.");
-      return;
-    }
+  const toggleModal = (type = null) => {
+    setImageModel(!imageModel);
+    setSelectedImage([]);
+    setModalType(type);
+  };
 
-    const newImages = files.map((file) => {
-      return Object.assign(file, {
-        preview: URL.createObjectURL(file),
+  const handleUploadImage = (images) => {
+    if (modalType === "feature") {
+      setUploadedImages([images[0].image]);
+    } else if (modalType === "other") {
+      setUploadedOtherImages((prev) => {
+        const newImages = images.map((img) => img.image);
+
+        if (prev.length + newImages.length > 5) {
+          return [...prev.slice(newImages.length), ...newImages];
+        }
+        return [...prev, ...newImages];
       });
-    });
-
-    setOtherImages([...otherImages, ...newImages]);
+    }
+    setImageModel(false);
+    setSelectedImage([]);
+    setModalType(null);
   };
 
   const handleDataSheetChange = (event) => {
@@ -206,18 +228,6 @@ const AddProduct = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
-
-  const toggleModal = () => {
-    setImageModel(!imageModel);
-    setSelectedImage([]);
-    setOtherImages([]);
-  };
-
-  const handleUploadImage = (image) => {
-    setUploadedImages([...uploadedImages, image?.image]);
-    toggleModal();
-    setSelectedImage([]);
   };
 
   const quillModules = {
@@ -484,36 +494,7 @@ const AddProduct = () => {
                           </FormFeedback>
                         ) : null}
                       </div>
-                      {selectedFeatures?.features && (
-                        <>
-                          <div className="mt-1">
-                            <h5>Feature List</h5>
-                            <table className="table table-bordered">
-                              <thead>
-                                <tr>
-                                  <th>Feature Name</th>
-                                  <th>Add specification about the product</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {selectedFeatures?.features?.map(
-                                  (feature, index) => (
-                                    <tr key={index}>
-                                      <td>{feature?.name}</td>
-                                      <td>
-                                        <Input
-                                          type="text"
-                                          value={feature?.value}
-                                        ></Input>
-                                      </td>
-                                    </tr>
-                                  )
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-                        </>
-                      )}
+
                       <div className="col-md-4 mb-3">
                         <Label className="form-label">
                           Manufacturer Part No.
@@ -539,31 +520,7 @@ const AddProduct = () => {
                           </FormFeedback>
                         ) : null}
                       </div>
-                      <div className="col-md-4 mb-3">
-                        <Label className="form-label">
-                          Minimum Purchase Quantity
-                        </Label>
-                        <Input
-                          name="minimumPurchasedQuantity"
-                          type="number"
-                          placeholder="Insert Purchase Quantity"
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          value={formik.values.minimumPurchasedQuantity}
-                          invalid={
-                            formik.touched.minimumPurchasedQuantity &&
-                            formik.errors.minimumPurchasedQuantity
-                              ? true
-                              : false
-                          }
-                        />
-                        {formik.touched.minimumPurchasedQuantity &&
-                        formik.errors.minimumPurchasedQuantity ? (
-                          <FormFeedback type="invalid">
-                            {formik.errors.minimumPurchasedQuantity}
-                          </FormFeedback>
-                        ) : null}
-                      </div>
+
                       <div className="col-md-4 mb-3">
                         <Label className="form-label">
                           Minimum Stock Qty. Warning
@@ -589,31 +546,7 @@ const AddProduct = () => {
                           </FormFeedback>
                         ) : null}
                       </div>
-                      <div className="col-md-4 mb-3">
-                        <Label className="form-label">
-                          Selling Price (Per Item)
-                        </Label>
-                        <Input
-                          name="sellingPrice"
-                          type="number"
-                          placeholder="Insert Selling Price"
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          value={formik.values.sellingPrice}
-                          invalid={
-                            formik.touched.sellingPrice &&
-                            formik.errors.sellingPrice
-                              ? true
-                              : false
-                          }
-                        />
-                        {formik.touched.sellingPrice &&
-                        formik.errors.sellingPrice ? (
-                          <FormFeedback type="invalid">
-                            {formik.errors.sellingPrice}
-                          </FormFeedback>
-                        ) : null}
-                      </div>
+
                       <div className="col-md-4 mb-3">
                         <Label className="form-label">MRP (Per Item)</Label>
                         <Input
@@ -636,25 +569,25 @@ const AddProduct = () => {
                         ) : null}
                       </div>
                       <div className="col-md-4 mb-3">
-                        <Label className="form-label">Display Quantity</Label>
+                        <Label className="form-label">Reserved Quantity</Label>
                         <Input
-                          name="displayQuantity"
+                          name="reservedQuantity"
                           type="number"
-                          placeholder="Insert Display Quantity"
+                          placeholder="Insert Reserved Quantity"
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
-                          value={formik.values.displayQuantity}
+                          value={formik.values.reservedQuantity}
                           invalid={
-                            formik.touched.displayQuantity &&
-                            formik.errors.displayQuantity
+                            formik.touched.reservedQuantity &&
+                            formik.errors.reservedQuantity
                               ? true
                               : false
                           }
                         />
-                        {formik.touched.displayQuantity &&
-                        formik.errors.displayQuantity ? (
+                        {formik.touched.reservedQuantity &&
+                        formik.errors.reservedQuantity ? (
                           <FormFeedback type="invalid">
-                            {formik.errors.displayQuantity}
+                            {formik.errors.reservedQuantity}
                           </FormFeedback>
                         ) : null}
                       </div>
@@ -730,9 +663,119 @@ const AddProduct = () => {
                           </FormFeedback>
                         ) : null}
                       </div>
+                      <div className="col-md-4 mb-3">
+                        <Label className="form-label" htmlFor="purchasePrice">
+                          Purchase Price
+                        </Label>
+                        <Input
+                          id="purchasePrice"
+                          name="purchasePrice"
+                          type="text"
+                          placeholder="Enter purchase price"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.purchasePrice}
+                          invalid={
+                            formik.touched.purchasePrice &&
+                            formik.errors.purchasePrice
+                              ? true
+                              : false
+                          }
+                        />
+                        {formik.touched.purchasePrice &&
+                        formik.errors.purchasePrice ? (
+                          <FormFeedback type="invalid">
+                            {formik.errors.purchasePrice}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
+                      <div className="col-md-4 mb-3">
+                        <Label className="form-label" htmlFor="loading">
+                          Loading (%)
+                        </Label>
+                        <Input
+                          id="loading"
+                          name="loading"
+                          type="number"
+                          placeholder="Enter out of stock status"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.loading}
+                          invalid={
+                            formik.touched.loading && formik.errors.loading
+                              ? true
+                              : false
+                          }
+                        />
+                        {formik.touched.loading && formik.errors.loading ? (
+                          <FormFeedback type="invalid">
+                            {formik.errors.loading}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
+                      <div className="col-md-4 mb-3">
+                        <Label className="form-label" htmlFor="margin">
+                          Margin (%)
+                        </Label>
+                        <Input
+                          id="margin"
+                          name="margin"
+                          type="number"
+                          placeholder="Enter margin"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.margin}
+                          invalid={
+                            formik.touched.margin && formik.errors.margin
+                              ? true
+                              : false
+                          }
+                        />
+                        {formik.touched.margin && formik.errors.margin ? (
+                          <FormFeedback type="invalid">
+                            {formik.errors.margin}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {selectedFeatures?.features && (
+                  <>
+                    <div
+                      className="card"
+                      style={{ border: "1px solid #e9ebec" }}
+                    >
+                      <div class="card-header">
+                        <div class="flex-grow-1">
+                          <h5 class="card-title mb-1">Feature List</h5>
+                        </div>
+                      </div>
+                      <table className="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Feature Name</th>
+                            <th>Add specification about the product</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedFeatures?.features?.map((feature, index) => (
+                            <tr key={index}>
+                              <td>{feature?.name}</td>
+                              <td>
+                                <Input
+                                  type="text"
+                                  value={feature?.value}
+                                ></Input>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
 
                 {/* For Add Product Description Row */}
                 <div className="card" style={{ border: "1px solid #e9ebec" }}>
@@ -952,7 +995,10 @@ const AddProduct = () => {
                             : false
                         }
                       />
-                      <div className="custom-file-button" onClick={toggleModal}>
+                      <div
+                        className="custom-file-button"
+                        onClick={() => toggleModal("feature")}
+                      >
                         <i
                           class="bx bx-cloud-upload me-2"
                           style={{ fontSize: "25px" }}
@@ -973,10 +1019,10 @@ const AddProduct = () => {
                         >
                           <div className="p-2">
                             <Row className="align-items-center">
-                              <Col className="col-auto">
+                              <Col className="col-auto mb-2">
                                 <img
                                   src={image}
-                                  alt="image"
+                                  alt="image_"
                                   className="w-100"
                                 />
                               </Col>
@@ -985,10 +1031,10 @@ const AddProduct = () => {
                                   to="#"
                                   className="text-muted font-weight-bold"
                                 >
-                                  {image.name}
+                                  placeholder.png
                                 </Link>
                                 <p className="mb-0">
-                                  <strong>{image.formattedSize}</strong>
+                                  <strong>87 KB</strong>
                                 </p>
                               </Col>
                               <Col className="col-auto">
@@ -1012,80 +1058,107 @@ const AddProduct = () => {
                     </div>
                   </div>
                 </div>
-                <div className="card" style={{ border: "1px solid #e9ebec" }}>
-                  <div className="card-header">
-                    <h5 className="card-title">Other Images (Multiple)</h5>
+
+                <div class="card" style={{ border: "1px solid #e9ebec" }}>
+                  <div class="card-header">
+                    <h5 class="card-title">Other Images (Multiple)</h5>
                   </div>
-                  <div className="card-body">
-                    <Input
-                      name="otherImages"
-                      type="file"
-                      accept="image/jpeg, image/png"
-                      onChange={handleOtherImagesChange}
-                      innerRef={otherImageInputRef}
-                      style={{ display: "none" }}
-                      invalid={
-                        formik.touched.otherImages && formik.errors.otherImages
-                          ? true
-                          : false
-                      }
-                    />
-                    <div className="custom-file-button" onClick={toggleModal}>
-                      <i
-                        class="bx bx-cloud-upload me-2"
-                        style={{ fontSize: "25px" }}
-                      ></i>
-                      Choose File
+                  <div class="card-body">
+                    <div className="mb-3">
+                      <Input
+                        name="otherImages"
+                        type="file"
+                        accept="image/jpeg, image/png"
+                        onChange={handleOtherImageChange}
+                        innerRef={imageInputRef}
+                        style={{ display: "none" }}
+                        invalid={
+                          formik.touched.otherImages &&
+                          formik.errors.otherImages
+                            ? true
+                            : false
+                        }
+                      />
+                      <div
+                        className="custom-file-button"
+                        onClick={() => toggleModal("other")}
+                      >
+                        <i
+                          class="bx bx-cloud-upload me-2"
+                          style={{ fontSize: "25px" }}
+                        ></i>
+                        Choose File
+                      </div>
+                      {formik.touched.otherImages &&
+                      formik.errors.otherImages ? (
+                        <FormFeedback type="invalid" className="d-block">
+                          {formik.errors.otherImages}
+                        </FormFeedback>
+                      ) : null}
                     </div>
-                    {formik.touched.otherImages && formik.errors.otherImages ? (
-                      <FormFeedback type="invalid" className="d-block">
-                        {formik.errors.otherImages}
-                      </FormFeedback>
-                    ) : null}
-                    <div>
-                      {otherImages.map((image, index) => (
-                        <Card
-                          key={index}
-                          className="mt-1 mb-0 shadow-none border"
+
+                    {uploadedOtherImages?.length > 0 && (
+                      <>
+                        <div
+                          style={{
+                            height: "500px",
+                            overflowY: "auto",
+                            overflowX: "hidden",
+                          }}
                         >
-                          <div className="p-2">
-                            <Row className="align-items-center">
-                              <Col className="col-auto">
-                                <img
-                                  src={image.preview}
-                                  alt="other image"
-                                  className="w-100"
-                                />
-                              </Col>
-                              <Col>
-                                <Link
-                                  to="#"
-                                  className="text-muted font-weight-bold"
-                                >
-                                  {image.name}
-                                </Link>
-                              </Col>
-                              <Col className="col-auto mt-4">
-                                <button
-                                  type="button"
-                                  className="btn btn-danger btn-sm"
-                                  onClick={() => {
-                                    const newOtherImages = otherImages.filter(
-                                      (_, i) => i !== index
-                                    );
-                                    setOtherImages(newOtherImages);
-                                  }}
-                                >
-                                  Delete
-                                </button>
-                              </Col>
-                            </Row>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
+                          {uploadedOtherImages.map((image, index) => (
+                            <Card
+                              className="mt-1 mb-3 shadow-none border dz-processing dz-image-preview dz-success dz-complete"
+                              key={index + "-file"}
+                            >
+                              <div className="p-2">
+                                <Row className="align-items-center">
+                                  <Col className="col-auto mb-2">
+                                    <img
+                                      src={image}
+                                      alt="image_"
+                                      style={{
+                                        maxWidth: "100%",
+                                        height: "auto",
+                                      }}
+                                    />
+                                  </Col>
+                                  <Col>
+                                    <Link
+                                      to="#"
+                                      className="text-muted font-weight-bold"
+                                    >
+                                      placeholder.png
+                                    </Link>
+                                    <p className="mb-0">
+                                      <strong>87 KB</strong>
+                                    </p>
+                                  </Col>
+                                  <Col className="col-auto">
+                                    <button
+                                      type="button"
+                                      className="btn btn-danger btn-sm"
+                                      onClick={() => {
+                                        const newImages =
+                                          uploadedOtherImages.filter(
+                                            (_, i) => i !== index
+                                          );
+                                        setUploadedOtherImages(newImages);
+                                      }}
+                                    >
+                                      Delete
+                                    </button>
+                                  </Col>
+                                </Row>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
+
                 <div class="card" style={{ border: "1px solid #e9ebec" }}>
                   <div class="card-header">
                     <h5 class="card-title">Upload Datasheet</h5>
@@ -1161,6 +1234,7 @@ const AddProduct = () => {
             handleUploadImage={handleUploadImage}
             selectedImage={selectedImage}
             setSelectedImage={setSelectedImage}
+            modalType={modalType}
           />
         </Container>
       </div>

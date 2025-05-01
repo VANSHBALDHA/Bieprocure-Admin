@@ -31,6 +31,8 @@ import * as Yup from "yup";
 import toast from "react-hot-toast";
 import TableContainer from "../../../components/Common/TableContainer";
 import { PaymentStatus } from "../../Dashboard/LatestTranactionCol";
+import EcommerceOrdersPaymentModal from "../../Ecommerce/EcommerceOrders/EcommerceOrdersPaymentModal";
+import EcommerceOrdersTrackingModal from "../../Ecommerce/EcommerceOrders/EcommerceOrdersTrackingModal";
 
 const loginRecords = [
   "02/15/2024, 10:30 AM",
@@ -53,6 +55,8 @@ const IndividualDetail = () => {
   const [activeTab, setActiveTab] = useState(
     localStorage.getItem("activeTab") || "1"
   );
+  const [paymentDetailsModel, setPaymentDetailsModal] = useState(false);
+  const [trackingDetailsModel, setTrackingDetailsModal] = useState(false);
 
   const columns = useMemo(
     () => [
@@ -131,14 +135,18 @@ const IndividualDetail = () => {
               </Link>
               <Link to="#" className="text-success">
                 <i
-                  className="fab fas fa-money-bill-alt font-size-14"
-                  id="paymentbutton"
-                />
-                <UncontrolledTooltip placement="top" target="paymentbutton">
-                  Payment Details
+                  class="bx bxs-download font-size-18"
+                  id="downloadtooltip"
+                ></i>
+                <UncontrolledTooltip placement="top" target="downloadtooltip">
+                  Download invoice
                 </UncontrolledTooltip>
               </Link>
-              <Link to="#" className="text-success">
+              <Link
+                to="#"
+                className="text-success"
+                onClick={toggleTrackingDetailsViewModal}
+              >
                 <i className="bx bxs-truck font-size-18" id="trackingbutton" />
                 <UncontrolledTooltip placement="top" target="trackingbutton">
                   Tracking Details
@@ -166,6 +174,11 @@ const IndividualDetail = () => {
   const toggleModal = () => setModal(!modal);
   const toggleRegisterModal = () => setShowModal(!showModal);
   const toggleCustomerModal = () => setCustomerModal(!customerModal);
+
+  const togglePaymentDetailsViewModal = () =>
+    setPaymentDetailsModal(!paymentDetailsModel);
+  const toggleTrackingDetailsViewModal = () =>
+    setTrackingDetailsModal(!trackingDetailsModel);
 
   const handleSubmit = (values) => {
     console.log("Updated Customer Data:", values);
@@ -208,7 +221,16 @@ const IndividualDetail = () => {
         <Container fluid>
           <Breadcrumbs
             title="Manage Customers"
-            breadcrumbItem="Customer Details"
+            breadcrumbItem="Individual Customer Details"
+          />
+
+          <EcommerceOrdersPaymentModal
+            isOpen={paymentDetailsModel}
+            toggle={togglePaymentDetailsViewModal}
+          />
+          <EcommerceOrdersTrackingModal
+            isOpen={trackingDetailsModel}
+            toggle={toggleTrackingDetailsViewModal}
           />
 
           <Row>
@@ -250,7 +272,7 @@ const IndividualDetail = () => {
                 className="table table-bordered"
                 style={{
                   backgroundColor: "#f8f9fa",
-                  border: "2px solid #ddd",
+                  border: "1px solid #ddd",
                   borderRadius: "8px",
                 }}
               >
@@ -379,7 +401,7 @@ const IndividualDetail = () => {
                         className="table table-bordered"
                         style={{
                           backgroundColor: "#f8f9fa",
-                          border: "2px solid #ddd",
+                          border: "1px solid #ddd",
                           borderRadius: "8px",
                           width: "100%",
                           marginBottom: "20px",
@@ -442,7 +464,7 @@ const IndividualDetail = () => {
                       style={{
                         backgroundColor: "#f8f9fa",
                         padding: "15px",
-                        border: "2px solid #ddd",
+                        border: "1px solid #ddd",
                         borderRadius: "8px",
                         marginBottom: "15px",
                       }}
@@ -465,7 +487,7 @@ const IndividualDetail = () => {
                       style={{
                         backgroundColor: "#f8f9fa",
                         padding: "15px",
-                        border: "2px solid #ddd",
+                        border: "1px solid #ddd",
                         borderRadius: "8px",
                         marginBottom: "15px",
                       }}

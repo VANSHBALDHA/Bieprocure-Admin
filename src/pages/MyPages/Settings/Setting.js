@@ -80,7 +80,7 @@ const Setting = () => {
   };
 
   const handleUploadImage = (image) => {
-    if (image) setUploadedImages([image?.image]);
+    if (image) setUploadedImages([image[0].image]);
     toggleImageModal();
     setSelectedImage(null);
   };
@@ -93,44 +93,55 @@ const Setting = () => {
 
   document.title = "Admin settings | Bieprocure";
 
-  const renderSocialMediaLinks = () =>
-    ["facebook", "twitter", "linkedin", "youtube", "instagram"].map((field) => (
-      <div className="mb-3" key={field}>
-        <Label className="text-capitalize">{field}</Label>
-        <Input
-          type="text"
-          name={field}
-          placeholder={`Enter ${field} link`}
-          {...formik.getFieldProps(field)}
-          invalid={formik.touched[field] && formik.errors[field]}
-        />
-        {formik.touched[field] && formik.errors[field] && (
-          <FormFeedback>{formik.errors[field]}</FormFeedback>
-        )}
-      </div>
-    ));
+  const renderSocialMediaLinks = () => (
+    <Row>
+      {["facebook", "twitter", "linkedin", "youtube", "instagram"].map(
+        (field) => (
+          <Col lg={6}>
+            <div className="mb-3" key={field}>
+              <Label className="text-capitalize">{field}</Label>
+              <Input
+                type="text"
+                name={field}
+                placeholder={`Enter ${field} link`}
+                {...formik.getFieldProps(field)}
+                invalid={formik.touched[field] && !!formik.errors[field]}
+              />
+              {formik.touched[field] && formik.errors[field] && (
+                <FormFeedback>{formik.errors[field]}</FormFeedback>
+              )}
+            </div>
+          </Col>
+        )
+      )}
+    </Row>
+  );
 
   const renderNumberUpdates = () => (
     <>
-      {["totalProducts", "newProducts"].map((field) => (
-        <div className="mb-3" key={field}>
-          <Label>
-            {field === "totalProducts"
-              ? "Total Number of Products"
-              : "New Added Products"}
-          </Label>
-          <Input
-            type="number"
-            name={field}
-            placeholder={`Enter ${field}`}
-            {...formik.getFieldProps(field)}
-            invalid={formik.touched[field] && formik.errors[field]}
-          />
-          {formik.touched[field] && formik.errors[field] && (
-            <FormFeedback>{formik.errors[field]}</FormFeedback>
-          )}
-        </div>
-      ))}
+      <Row>
+        {["totalProducts", "newProducts"].map((field) => (
+          <Col lg={6}>
+            <div className="mb-3" key={field}>
+              <Label>
+                {field === "totalProducts"
+                  ? "Total Number of Products"
+                  : "New Added Products"}
+              </Label>
+              <Input
+                type="number"
+                name={field}
+                placeholder={`Enter ${field}`}
+                {...formik.getFieldProps(field)}
+                invalid={formik.touched[field] && formik.errors[field]}
+              />
+              {formik.touched[field] && formik.errors[field] && (
+                <FormFeedback>{formik.errors[field]}</FormFeedback>
+              )}
+            </div>
+          </Col>
+        ))}
+      </Row>
     </>
   );
 
@@ -143,157 +154,171 @@ const Setting = () => {
               <CardBody>
                 <h4 className="mb-4">Admin Settings</h4>
                 <form onSubmit={formik.handleSubmit}>
-                  <div className="mb-3">
-                    <Label className="form-label">
-                      Logo Upload (Only via Media Gallery)
-                    </Label>
-                    <Input
-                      name="logo"
-                      type="file"
-                      accept="image/jpeg, image/png"
-                      onChange={handleImageChange}
-                      innerRef={imageInputRef}
-                      style={{ display: "none" }}
-                      invalid={formik.touched.logo && formik.errors.logo}
-                    />
-                    <div
-                      className="custom-file-button"
-                      onClick={toggleImageModal}
-                    >
-                      <i
-                        className="bx bx-cloud-upload me-2"
-                        style={{ fontSize: "25px" }}
-                      ></i>
-                      Choose File
-                    </div>
-                    {formik.errors.logo && formik.touched.logo && (
-                      <FormFeedback type="invalid" className="d-block">
-                        {formik.errors.logo}
-                      </FormFeedback>
-                    )}
-                    {uploadedImages && (
-                      <Card className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
-                        <div className="p-2">
-                          <Row className="d-flex justify-content-between align-items-center">
-                            <Col className="col-auto">
-                              <img
-                                height="100"
-                                width="100"
-                                className="avatar-md rounded bg-light"
-                                alt="uploaded"
-                                src={
-                                  uploadedImages[0]?.preview ||
-                                  uploadedImages[0]
-                                }
-                              />
-                            </Col>
-                            <Col className="col-auto">
-                              <button
-                                type="button"
-                                className="btn btn-danger btn-sm"
-                                onClick={() => setUploadedImages(null)}
-                              >
-                                Delete
-                              </button>
-                            </Col>
-                          </Row>
+                  <Row>
+                    <Col md={6}>
+                      <div className="mb-3">
+                        <Label className="form-label">
+                          Logo Upload (Only via Media Gallery)
+                        </Label>
+                        <Input
+                          name="logo"
+                          type="file"
+                          accept="image/jpeg, image/png"
+                          onChange={handleImageChange}
+                          innerRef={imageInputRef}
+                          style={{ display: "none" }}
+                          invalid={formik.touched.logo && formik.errors.logo}
+                        />
+                        <div
+                          className="custom-file-button"
+                          onClick={toggleImageModal}
+                        >
+                          <i
+                            className="bx bx-cloud-upload me-2"
+                            style={{ fontSize: "25px" }}
+                          ></i>
+                          Choose File
                         </div>
-                      </Card>
-                    )}
-                  </div>
-
-                  <div className="mb-3">
-                    <Label>Address Line</Label>
-                    <Input
-                      type="text"
-                      name="address"
-                      placeholder="Enter Address"
-                      {...formik.getFieldProps("address")}
-                      invalid={formik.touched.address && formik.errors.address}
-                    />
-                    {formik.touched.address && formik.errors.address && (
-                      <FormFeedback>{formik.errors.address}</FormFeedback>
-                    )}
-                  </div>
-
-                  <div className="mb-3">
-                    <Label>Email ID</Label>
-                    <Input
-                      type="email"
-                      name="email"
-                      placeholder="Enter Email"
-                      {...formik.getFieldProps("email")}
-                      invalid={formik.touched.email && formik.errors.email}
-                    />
-                    {formik.touched.email && formik.errors.email && (
-                      <FormFeedback>{formik.errors.email}</FormFeedback>
-                    )}
-                  </div>
-
-                  <div className="mb-3">
-                    <Label>Customer Care Number</Label>
-                    <Input
-                      type="text"
-                      name="customerCareNumber"
-                      placeholder="Enter 10-digit number"
-                      {...formik.getFieldProps("customerCareNumber")}
-                      invalid={
-                        formik.touched.customerCareNumber &&
-                        formik.errors.customerCareNumber
-                      }
-                    />
-                    {formik.touched.customerCareNumber &&
-                      formik.errors.customerCareNumber && (
-                        <FormFeedback>
-                          {formik.errors.customerCareNumber}
-                        </FormFeedback>
-                      )}
-                  </div>
+                        {formik.errors.logo && formik.touched.logo && (
+                          <FormFeedback type="invalid" className="d-block">
+                            {formik.errors.logo}
+                          </FormFeedback>
+                        )}
+                        {uploadedImages && (
+                          <Card className="mt-1 mb-0 shadow-none border dz-processing dz-image-preview dz-success dz-complete">
+                            <div className="p-2">
+                              <Row className="d-flex justify-content-between align-items-center">
+                                <Col className="col-auto">
+                                  <img
+                                    height="100"
+                                    width="100"
+                                    className="avatar-md rounded bg-light"
+                                    alt="uploaded"
+                                    src={
+                                      uploadedImages[0]?.preview ||
+                                      uploadedImages[0]
+                                    }
+                                  />
+                                </Col>
+                                <Col className="col-auto">
+                                  <button
+                                    type="button"
+                                    className="btn btn-danger btn-sm"
+                                    onClick={() => setUploadedImages(null)}
+                                  >
+                                    Delete
+                                  </button>
+                                </Col>
+                              </Row>
+                            </div>
+                          </Card>
+                        )}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <div className="mb-3">
+                        <Label>Address Line</Label>
+                        <Input
+                          type="text"
+                          name="address"
+                          placeholder="Enter Address"
+                          {...formik.getFieldProps("address")}
+                          invalid={
+                            formik.touched.address && formik.errors.address
+                          }
+                        />
+                        {formik.touched.address && formik.errors.address && (
+                          <FormFeedback>{formik.errors.address}</FormFeedback>
+                        )}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <div className="mb-3">
+                        <Label>Email ID</Label>
+                        <Input
+                          type="email"
+                          name="email"
+                          placeholder="Enter Email"
+                          {...formik.getFieldProps("email")}
+                          invalid={formik.touched.email && formik.errors.email}
+                        />
+                        {formik.touched.email && formik.errors.email && (
+                          <FormFeedback>{formik.errors.email}</FormFeedback>
+                        )}
+                      </div>
+                    </Col>
+                    <Col md={6}>
+                      <div className="mb-3">
+                        <Label>Customer Care Number</Label>
+                        <Input
+                          type="text"
+                          name="customerCareNumber"
+                          placeholder="Enter 10-digit number"
+                          {...formik.getFieldProps("customerCareNumber")}
+                          invalid={
+                            formik.touched.customerCareNumber &&
+                            formik.errors.customerCareNumber
+                          }
+                        />
+                        {formik.touched.customerCareNumber &&
+                          formik.errors.customerCareNumber && (
+                            <FormFeedback>
+                              {formik.errors.customerCareNumber}
+                            </FormFeedback>
+                          )}
+                      </div>
+                    </Col>
+                  </Row>
 
                   <h5 className="mt-4">Social Media Links</h5>
                   {renderSocialMediaLinks()}
 
                   <h5 className="mt-4">Login Activation Duration</h5>
 
-                  <div className="mb-3">
-                    <Label>For Individual Customer (in Months)</Label>
-                    <Input
-                      type="number"
-                      name="individualDuration"
-                      placeholder="Enter duration in months"
-                      {...formik.getFieldProps("individualDuration")}
-                      invalid={
-                        formik.touched.individualDuration &&
-                        formik.errors.individualDuration
-                      }
-                    />
-                    {formik.touched.individualDuration &&
-                      formik.errors.individualDuration && (
-                        <FormFeedback>
-                          {formik.errors.individualDuration}
-                        </FormFeedback>
-                      )}
-                  </div>
-
-                  <div className="mb-3">
-                    <Label>For Corporate Customer (in Months)</Label>
-                    <Input
-                      type="number"
-                      name="corporateDuration"
-                      placeholder="Enter duration in months"
-                      {...formik.getFieldProps("corporateDuration")}
-                      invalid={
-                        formik.touched.corporateDuration &&
-                        formik.errors.corporateDuration
-                      }
-                    />
-                    {formik.touched.corporateDuration &&
-                      formik.errors.corporateDuration && (
-                        <FormFeedback>
-                          {formik.errors.corporateDuration}
-                        </FormFeedback>
-                      )}
-                  </div>
+                  <Row>
+                    <Col lg={6}>
+                      <div className="mb-3">
+                        <Label>For Individual Customer (in Months)</Label>
+                        <Input
+                          type="number"
+                          name="individualDuration"
+                          placeholder="Enter duration in months"
+                          {...formik.getFieldProps("individualDuration")}
+                          invalid={
+                            formik.touched.individualDuration &&
+                            formik.errors.individualDuration
+                          }
+                        />
+                        {formik.touched.individualDuration &&
+                          formik.errors.individualDuration && (
+                            <FormFeedback>
+                              {formik.errors.individualDuration}
+                            </FormFeedback>
+                          )}
+                      </div>
+                    </Col>
+                    <Col lg={6}>
+                      <div className="mb-3">
+                        <Label>For Corporate Customer (in Months)</Label>
+                        <Input
+                          type="number"
+                          name="corporateDuration"
+                          placeholder="Enter duration in months"
+                          {...formik.getFieldProps("corporateDuration")}
+                          invalid={
+                            formik.touched.corporateDuration &&
+                            formik.errors.corporateDuration
+                          }
+                        />
+                        {formik.touched.corporateDuration &&
+                          formik.errors.corporateDuration && (
+                            <FormFeedback>
+                              {formik.errors.corporateDuration}
+                            </FormFeedback>
+                          )}
+                      </div>
+                    </Col>
+                  </Row>
 
                   <h5 className="mt-4">Number Updates</h5>
                   {renderNumberUpdates()}

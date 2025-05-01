@@ -32,12 +32,14 @@ const EditProduct = () => {
   document.title = `Edit product - ${id} | Bieprocure`;
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
+  const otherImageInputRef = useRef(null);
 
   const [shortContent, setShortContent] = useState("");
   const [longContent, setLongContent] = useState("");
   const [uploadedImages, setUploadedImages] = useState([]);
   const [imageModel, setImageModel] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [otherImages, setOtherImages] = useState([]);
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [uploadedDataSheet, setUploadedDataSheet] = useState([]);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
@@ -64,11 +66,9 @@ const EditProduct = () => {
       subSubCategoryName: editData?.subSubCategoryName,
       brandName: editData?.productName,
       manufacturePartNumber: editData?.manufacturePartNumber,
-      minimumPurchasedQuantity: editData?.minimumPurchasedQuantity,
       minimumStockQuantityWarning: editData?.minimumStockQuantityWarning,
-      sellingPrice: editData?.sellingPrice,
-      mrp: editData?.sellingPrice,
-      displayQuantity: editData?.displayQuantity,
+      mrp: "",
+      reservedQuantity: editData?.reservedQuantity,
       CGST: editData?.CGST,
       SGST: editData?.SGST,
       IGST: editData?.IGST,
@@ -76,6 +76,9 @@ const EditProduct = () => {
       visibility: editData?.status,
       technicalDataSheets: uploadedDataSheet,
       images: uploadedImages,
+      purchasePrice: "",
+      margin: "",
+      loading: "",
       metaTitle: "",
       metaDescription: "",
       metaKeywords: "",
@@ -93,20 +96,14 @@ const EditProduct = () => {
       manufacturePartNumber: Yup.string().required(
         "Please enter the manufacturer part number"
       ),
-      minimumPurchasedQuantity: Yup.number()
-        .required("Please enter the minimum purchase quantity")
-        .positive("Must be a positive number"),
       minimumStockQuantityWarning: Yup.number()
         .required("Please enter the minimum stock quantity warning")
-        .positive("Must be a positive number"),
-      sellingPrice: Yup.number()
-        .required("Please enter the selling price")
         .positive("Must be a positive number"),
       mrp: Yup.number()
         .required("Please enter the MRP")
         .positive("Must be a positive number"),
-      displayQuantity: Yup.number()
-        .required("Please enter the display quantity")
+      reservedQuantity: Yup.number()
+        .required("Please enter the reserved quantity")
         .positive("Must be a positive number"),
       CGST: Yup.number()
         .required("Please enter the CGST percentage")
@@ -125,6 +122,17 @@ const EditProduct = () => {
         .max(100, "IGST cannot exceed 100%"),
       visibility: Yup.string().required("Please select the visibility"),
       status: Yup.string().required("Please select the status"),
+      purchasePrice: Yup.string().required("Please enter purchase Price"),
+      loading: Yup.number()
+        .required("Please enter loading percentage")
+        .positive("Must be a positive number")
+        .min(0, "loading must be at least 0%")
+        .max(100, "loading cannot exceed 100%"),
+      margin: Yup.number()
+        .required("Please enter margin percentage")
+        .positive("Must be a positive number")
+        .min(0, "margin must be at least 0%")
+        .max(100, "margin cannot exceed 100%"),
       images: Yup.array()
         .min(1, "Please upload at least one image")
         .max(3, "You can only upload a maximum of 3 images"),
@@ -175,6 +183,23 @@ const EditProduct = () => {
         alert("You can only upload a maximum of 3 images.");
       }
     }
+  };
+
+  const handleOtherImagesChange = (event) => {
+    const files = Array.from(event.target.files);
+
+    if (files.length + otherImages.length > 5) {
+      alert("You can only upload a maximum of 5 other images.");
+      return;
+    }
+
+    const newImages = files.map((file) => {
+      return Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+    });
+
+    setOtherImages([...otherImages, ...newImages]);
   };
 
   const toggleModal = () => {
@@ -476,36 +501,7 @@ const EditProduct = () => {
                           </FormFeedback>
                         ) : null}
                       </div>
-                      {selectedFeatures?.features && (
-                        <>
-                          <div className="mt-1">
-                            <h5>Feature List</h5>
-                            <table className="table table-bordered">
-                              <thead>
-                                <tr>
-                                  <th>Feature Name</th>
-                                  <th>Add specification about the product</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {selectedFeatures?.features?.map(
-                                  (feature, index) => (
-                                    <tr key={index}>
-                                      <td>{feature?.name}</td>
-                                      <td>
-                                        <Input
-                                          type="text"
-                                          value={feature?.value}
-                                        ></Input>
-                                      </td>
-                                    </tr>
-                                  )
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-                        </>
-                      )}
+
                       <div className="col-md-4 mb-3">
                         <Label className="form-label">
                           Manufacturer Part No.
@@ -531,31 +527,7 @@ const EditProduct = () => {
                           </FormFeedback>
                         ) : null}
                       </div>
-                      <div className="col-md-4 mb-3">
-                        <Label className="form-label">
-                          Minimum Purchase Quantity
-                        </Label>
-                        <Input
-                          name="minimumPurchasedQuantity"
-                          type="number"
-                          placeholder="Insert Purchase Quantity"
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          value={formik.values.minimumPurchasedQuantity}
-                          invalid={
-                            formik.touched.minimumPurchasedQuantity &&
-                            formik.errors.minimumPurchasedQuantity
-                              ? true
-                              : false
-                          }
-                        />
-                        {formik.touched.minimumPurchasedQuantity &&
-                        formik.errors.minimumPurchasedQuantity ? (
-                          <FormFeedback type="invalid">
-                            {formik.errors.minimumPurchasedQuantity}
-                          </FormFeedback>
-                        ) : null}
-                      </div>
+
                       <div className="col-md-4 mb-3">
                         <Label className="form-label">
                           Minimum Stock Qty. Warning
@@ -582,31 +554,6 @@ const EditProduct = () => {
                         ) : null}
                       </div>
                       <div className="col-md-4 mb-3">
-                        <Label className="form-label">
-                          Selling Price (Per Item)
-                        </Label>
-                        <Input
-                          name="sellingPrice"
-                          type="number"
-                          placeholder="Insert Selling Price"
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          value={formik.values.sellingPrice}
-                          invalid={
-                            formik.touched.sellingPrice &&
-                            formik.errors.sellingPrice
-                              ? true
-                              : false
-                          }
-                        />
-                        {formik.touched.sellingPrice &&
-                        formik.errors.sellingPrice ? (
-                          <FormFeedback type="invalid">
-                            {formik.errors.sellingPrice}
-                          </FormFeedback>
-                        ) : null}
-                      </div>
-                      <div className="col-md-4 mb-3">
                         <Label className="form-label">MRP (Per Item)</Label>
                         <Input
                           name="mrp"
@@ -628,25 +575,25 @@ const EditProduct = () => {
                         ) : null}
                       </div>
                       <div className="col-md-4 mb-3">
-                        <Label className="form-label">Display Quantity</Label>
+                        <Label className="form-label">Reserved Quantity</Label>
                         <Input
-                          name="displayQuantity"
+                          name="reservedQuantity"
                           type="number"
-                          placeholder="Insert Display Quantity"
+                          placeholder="Insert reserved quantity"
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
-                          value={formik.values.displayQuantity}
+                          value={formik.values.reservedQuantity}
                           invalid={
-                            formik.touched.displayQuantity &&
-                            formik.errors.displayQuantity
+                            formik.touched.reservedQuantity &&
+                            formik.errors.reservedQuantity
                               ? true
                               : false
                           }
                         />
-                        {formik.touched.displayQuantity &&
-                        formik.errors.displayQuantity ? (
+                        {formik.touched.reservedQuantity &&
+                        formik.errors.reservedQuantity ? (
                           <FormFeedback type="invalid">
-                            {formik.errors.displayQuantity}
+                            {formik.errors.reservedQuantity}
                           </FormFeedback>
                         ) : null}
                       </div>
@@ -722,9 +669,119 @@ const EditProduct = () => {
                           </FormFeedback>
                         ) : null}
                       </div>
+                      <div className="col-md-4 mb-3">
+                        <Label className="form-label" htmlFor="purchasePrice">
+                          Out of Stock
+                        </Label>
+                        <Input
+                          id="purchasePrice"
+                          name="purchasePrice"
+                          type="text"
+                          placeholder="enter purchase Price"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.purchasePrice}
+                          invalid={
+                            formik.touched.purchasePrice &&
+                            formik.errors.purchasePrice
+                              ? true
+                              : false
+                          }
+                        />
+                        {formik.touched.purchasePrice &&
+                        formik.errors.purchasePrice ? (
+                          <FormFeedback type="invalid">
+                            {formik.errors.purchasePrice}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
+                      <div className="col-md-4 mb-3">
+                        <Label className="form-label" htmlFor="loading">
+                          Loading (%)
+                        </Label>
+                        <Input
+                          id="loading"
+                          name="loading"
+                          type="number"
+                          placeholder="Enter out of stock status"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.loading}
+                          invalid={
+                            formik.touched.loading && formik.errors.loading
+                              ? true
+                              : false
+                          }
+                        />
+                        {formik.touched.loading && formik.errors.loading ? (
+                          <FormFeedback type="invalid">
+                            {formik.errors.loading}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
+                      <div className="col-md-4 mb-3">
+                        <Label className="form-label" htmlFor="margin">
+                          Margin (%)
+                        </Label>
+                        <Input
+                          id="margin"
+                          name="margin"
+                          type="number"
+                          placeholder="Enter margin"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.margin}
+                          invalid={
+                            formik.touched.margin && formik.errors.margin
+                              ? true
+                              : false
+                          }
+                        />
+                        {formik.touched.margin && formik.errors.margin ? (
+                          <FormFeedback type="invalid">
+                            {formik.errors.margin}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {selectedFeatures?.features && (
+                  <>
+                    <div
+                      className="card"
+                      style={{ border: "1px solid #e9ebec" }}
+                    >
+                      <div class="card-header">
+                        <div class="flex-grow-1">
+                          <h5 class="card-title mb-1">Feature List</h5>
+                        </div>
+                      </div>
+                      <table className="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Feature Name</th>
+                            <th>Add specification about the product</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedFeatures?.features?.map((feature, index) => (
+                            <tr key={index}>
+                              <td>{feature?.name}</td>
+                              <td>
+                                <Input
+                                  type="text"
+                                  value={feature?.value}
+                                ></Input>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
 
                 {/* For Add Product Description Row */}
                 <div className="card" style={{ border: "1px solid #e9ebec" }}>
@@ -994,6 +1051,80 @@ const EditProduct = () => {
                                       (_, i) => i !== index
                                     );
                                     setUploadedImages(newImages);
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </Col>
+                            </Row>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="card" style={{ border: "1px solid #e9ebec" }}>
+                  <div className="card-header">
+                    <h5 className="card-title">Other Images (Multiple)</h5>
+                  </div>
+                  <div className="card-body">
+                    <Input
+                      name="otherImages"
+                      type="file"
+                      accept="image/jpeg, image/png"
+                      onChange={handleOtherImagesChange}
+                      innerRef={otherImageInputRef}
+                      style={{ display: "none" }}
+                      invalid={
+                        formik.touched.otherImages && formik.errors.otherImages
+                          ? true
+                          : false
+                      }
+                    />
+                    <div className="custom-file-button" onClick={toggleModal}>
+                      <i
+                        class="bx bx-cloud-upload me-2"
+                        style={{ fontSize: "25px" }}
+                      ></i>
+                      Choose File
+                    </div>
+                    {formik.touched.otherImages && formik.errors.otherImages ? (
+                      <FormFeedback type="invalid" className="d-block">
+                        {formik.errors.otherImages}
+                      </FormFeedback>
+                    ) : null}
+                    <div>
+                      {otherImages.map((image, index) => (
+                        <Card
+                          key={index}
+                          className="mt-1 mb-0 shadow-none border"
+                        >
+                          <div className="p-2">
+                            <Row className="align-items-center">
+                              <Col className="col-auto">
+                                <img
+                                  src={image.preview}
+                                  alt="other image"
+                                  className="w-100"
+                                />
+                              </Col>
+                              <Col>
+                                <Link
+                                  to="#"
+                                  className="text-muted font-weight-bold"
+                                >
+                                  {image.name}
+                                </Link>
+                              </Col>
+                              <Col className="col-auto mt-4">
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-sm"
+                                  onClick={() => {
+                                    const newOtherImages = otherImages.filter(
+                                      (_, i) => i !== index
+                                    );
+                                    setOtherImages(newOtherImages);
                                   }}
                                 >
                                   Delete

@@ -2,28 +2,31 @@ import React, { useRef, useState } from "react";
 import MediaModel from "../../MediaUpload/MediaModel";
 import { Link, useNavigate } from "react-router-dom";
 import { cartProducts as initialCartProducts } from "../../../../common/data/MyFackData";
-import { useFormik } from "formik";
+import { Field, Formik, useFormik } from "formik";
 import * as Yup from "yup";
 import {
-    Badge,
-    Button,
-    Card,
-    CardBody,
-    CardText,
-    CardTitle,
-    Col,
-    Container,
-    FormFeedback,
-    Input,
-    Label,
-    Modal,
-    ModalBody,
-    ModalHeader,
-    Row,
-    Table,
-    UncontrolledTooltip,
-  } from "reactstrap";
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardText,
+  CardTitle,
+  Col,
+  Container,
+  Form,
+  FormFeedback,
+  FormGroup,
+  Input,
+  Label,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Row,
+  Table,
+  UncontrolledTooltip,
+} from "reactstrap";
 import Breadcrumbs from "../../../../components/Common/Breadcrumb";
+import toast from "react-hot-toast";
 
 const CorporateUserCartList = () => {
   const fileInputRef = useRef(null);
@@ -46,7 +49,7 @@ const CorporateUserCartList = () => {
 
   const handleUploadImage = (image) => {
     if (image) {
-      setUploadedImages([image?.image]);
+      setUploadedImages([image[0].image]);
     }
     toggleImageModal();
     setSelectedImage(null);
@@ -139,6 +142,77 @@ const CorporateUserCartList = () => {
     },
   });
 
+  const [paymentTerms, setPaymentTerms] = useState([
+    {
+      type: "Advance 30% - Order Confirmation",
+      dueDate: "Advance – Against Performa Invoice",
+      percentage: 50,
+      days: 30,
+      creditDays: 15,
+    },
+    {
+      type: "50% Performa Invoice Released",
+      dueDate: "Advance – Order Confirmation",
+      percentage: 30,
+      days: 60,
+      creditDays: 30,
+    },
+  ]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingTerm, setEditingTerm] = useState(null);
+
+  const dueDateOptions = [
+    "Advance – Order Confirmation",
+    "Advance – Against Performa Invoice",
+    "Day(s) after invoice date",
+  ];
+
+  const validationSchema = Yup.object({
+    type: Yup.string().required("Type is required"),
+    dueDate: Yup.string().required("Due Date is required"),
+    percentage: Yup.number().required("Percentage is required").min(1).max(100),
+    days: Yup.number().required("Days are required").min(1),
+    creditDays: Yup.number().required("Credit Days are required").min(1),
+  });
+
+  const handleSubmit = (values, { setSubmitting, resetForm }) => {
+    setSubmitting(true);
+
+    if (editingTerm) {
+      const updatedTerms = paymentTerms.map((term) =>
+        term === editingTerm ? values : term
+      );
+      setPaymentTerms(updatedTerms);
+      toast.success("Payment term updated successfully!");
+    } else {
+      setPaymentTerms([...paymentTerms, values]);
+      toast.success("Payment term added successfully!");
+    }
+
+    setSubmitting(false);
+    resetForm();
+    setModalOpen(false);
+    setEditingTerm(null);
+  };
+
+  const handleEdit = (term) => {
+    setEditingTerm(term);
+    setModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingTerm(null);
+    setModalOpen(true);
+  };
+
+  const handleDelete = (termToDelete) => {
+    const updatedTerms = paymentTerms.filter((term) => term !== termToDelete);
+    setPaymentTerms(updatedTerms);
+    toast.success("Payment term deleted successfully!");
+  };
+
+  const orderStatus = "Awaiting Quoted Price";
+
   return (
     <>
       <div className="page-content">
@@ -158,7 +232,7 @@ const CorporateUserCartList = () => {
                         type="button"
                         color="primary"
                         className="btn mb-2 me-2 d-flex align-items-center"
-                        onClick={() => navigate("/manage-request/cart/corporate-customers")}
+                        onClick={() => navigate(-1)}
                       >
                         <i class="bx bx-arrow-back me-1"></i>
                         Back to Cart
@@ -184,25 +258,55 @@ const CorporateUserCartList = () => {
                       <Row>
                         <Col md="6">
                           <CardText>
-                            <strong>User ID:</strong> #123
+                            <strong>Customer Name:</strong> ABC Corporation
                           </CardText>
                           <CardText>
-                            <strong>User Name:</strong> Testing purpose
+                            <strong>Customer ID:</strong> #123
                           </CardText>
-                          <CardText className="mb-3">
-                            <strong>Mobile Number:</strong> 7778889994
+                          <CardText>
+                            <strong>Quoted User:</strong> Animesh Soni (Sales
+                            Team)
+                          </CardText>
+                          <CardText>
+                            <strong>Cart User Name:</strong> Ankit Gandhi
+                            (Purchase Team)
+                          </CardText>
+                          <CardText>
+                            <strong>Communication:</strong> abc@xyz.com |
+                            7778889994
                           </CardText>
                         </Col>
+
                         <Col md="6">
                           <CardText>
-                            <strong>Email:</strong> testing123@gmail.com
+                            <strong>Cart ID:</strong> ORD-Q-10234-20250331{" "}
+                            <small>
+                              (FORMAT: ORD-CARTID-ORDERCREATED DATE)
+                            </small>
                           </CardText>
                           <CardText>
-                            <strong>Cart ID:</strong> #SKU123
+                            <strong>Cart Status:</strong>&nbsp;
+                            <Badge color="success">Order Confirmed</Badge>
                           </CardText>
                           <CardText>
-                            <strong>Order Status:</strong>{" "}
-                            <Badge>Pending</Badge>
+                            <strong>Delivery Scheduled:</strong> 8–10 Weeks{" "}
+                            <small>(Last Month: Jun-2025)</small>
+                          </CardText>
+                          <CardText>
+                            <strong>Part Shipment:</strong> Allowed
+                          </CardText>
+                          <CardText>
+                            <strong>Purchase Order (PO):</strong>
+                            <br />
+                            Uploaded By Customer (Ankit Gandhi) —{" "}
+                            <a href="#download-po.pdf">Download PDF</a>
+                            <br />
+                            Uploaded On: 31-Mar-2025, 04:45 PM
+                          </CardText>
+                          <CardText>
+                            <strong>Payment Terms:</strong>
+                            <br />
+                            Modified & Verified by Backend User: Rajesh Mehta
                           </CardText>
                         </Col>
                       </Row>
@@ -258,11 +362,13 @@ const CorporateUserCartList = () => {
                                         <button
                                           type="button"
                                           className="btn btn-primary"
-                                          // onClick={() => {
-                                          //   countUP(product.id, product.data_attr);
-                                          // }}
+                                          disabled={
+                                            orderStatus !==
+                                              "Awaiting Quoted Price" &&
+                                            orderStatus !== "Revised Cart"
+                                          }
                                         >
-                                          +
+                                          -
                                         </button>
                                       </div>
                                       <Input
@@ -276,14 +382,13 @@ const CorporateUserCartList = () => {
                                         <button
                                           type="button"
                                           className="btn btn-primary"
-                                          // onClick={() => {
-                                          //   countDown(
-                                          //     product.id,
-                                          //     product.data_attr
-                                          //   );
-                                          // }}
+                                          disabled={
+                                            orderStatus !==
+                                              "Awaiting Quoted Price" &&
+                                            orderStatus !== "Revised Cart"
+                                          }
                                         >
-                                          -
+                                          +
                                         </button>
                                       </div>
                                     </div>
@@ -296,8 +401,19 @@ const CorporateUserCartList = () => {
                                   <div className="d-flex gap-3 align-items-center">
                                     <Link
                                       to="#"
-                                      className="action-icon text-success"
-                                      onClick={() => handleEditClick(product)}
+                                      className={`action-icon ${
+                                        orderStatus ===
+                                          "Awaiting Quoted Price" ||
+                                        orderStatus === "Revised Cart"
+                                          ? "text-success"
+                                          : "text-muted"
+                                      }`}
+                                      onClick={() =>
+                                        (orderStatus ===
+                                          "Awaiting Quoted Price" ||
+                                          orderStatus === "Revised Cart") &&
+                                        handleEditClick(product)
+                                      }
                                     >
                                       <i
                                         className="mdi mdi-pencil font-size-18"
@@ -312,9 +428,19 @@ const CorporateUserCartList = () => {
                                     </Link>
                                     <Link
                                       to="#"
-                                      // onClick={() => removeCartItem(product.id)}
-                                      onClick={() => DeleteProduct(product.id)}
-                                      className="action-icon text-danger"
+                                      className={`action-icon ${
+                                        orderStatus ===
+                                          "Awaiting Quoted Price" ||
+                                        orderStatus === "Revised Cart"
+                                          ? "text-danger"
+                                          : "text-muted"
+                                      }`}
+                                      onClick={() =>
+                                        (orderStatus ===
+                                          "Awaiting Quoted Price" ||
+                                          orderStatus === "Revised Cart") &&
+                                        DeleteProduct(product.id)
+                                      }
                                     >
                                       <i
                                         className="mdi mdi-trash-can font-size-18"
@@ -345,7 +471,70 @@ const CorporateUserCartList = () => {
                 </CardBody>
               </Card>
             </Col>
-            <Col xl={8}></Col>
+            <Col xl={8}>
+              <Card>
+                <CardBody>
+                  <CardTitle className="mb-3">GST Declaration</CardTitle>
+                  <div className="table-responsive">
+                    <Table bordered>
+                      <thead className="table-light">
+                        <tr>
+                          <th>GST%</th>
+                          <th>Amount</th>
+                          <th>SGST</th>
+                          <th>CGST</th>
+                          <th>IGST</th>
+                          <th>Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>0%</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                        </tr>
+                        <tr>
+                          <td>3%</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                        </tr>
+                        <tr>
+                          <td>5%</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                        </tr>
+                        <tr>
+                          <td>12%</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                          <td>₹0.00</td>
+                        </tr>
+                        <tr>
+                          <td>18%</td>
+                          <td>₹2,80,000</td>
+                          <td>₹25,200</td>
+                          <td>₹25,200</td>
+                          <td>₹0.00</td>
+                          <td>₹3,30,400</td>
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </div>
+                </CardBody>
+              </Card>
+            </Col>
+
             <Col xl={4}>
               <Card>
                 <CardBody>
@@ -355,30 +544,156 @@ const CorporateUserCartList = () => {
                     <Table className="table mb-0">
                       <tbody>
                         <tr>
-                          <td>Grand Total :</td>
-                          <td>₹ 1,857</td>
+                          <td>Sub Total:</td>
+                          <td>₹ 2,80,000</td>
                         </tr>
                         <tr>
-                          <td>Discount : </td>
-                          <td>- ₹ 157</td>
+                          <td>GST:</td>
+                          <td>₹ 50,400</td>
                         </tr>
                         <tr>
-                          <td>Shipping Charge :</td>
-                          <td>₹ 25</td>
+                          <th>Total:</th>
+                          <th>₹ 3,30,400</th>
                         </tr>
+
+                        {/* Show this only if advance amount is required */}
                         <tr>
-                          <td>Estimated Tax : </td>
-                          <td>₹ 19.22</td>
+                          <td>Advance Against Order:</td>
+                          <td>₹ 32,500</td>
                         </tr>
+
                         <tr>
-                          <th>Total :</th>
-                          <th>₹ 1744.22</th>
+                          <td>Total Qty:</td>
+                          <td>3,000</td>
                         </tr>
                       </tbody>
                     </Table>
                   </div>
                 </CardBody>
               </Card>
+            </Col>
+            <Col xl={12}>
+              <div
+                style={{ border: "1px solid #ced4da " }}
+                className="p-2 mb-5"
+              >
+                <Row className="d-flex justify-content-between align-items-center mb-2">
+                  <Col lg="6">
+                    <h5 className="m-0">Payment Terms</h5>
+                  </Col>
+                  <Col lg="6">
+                    <div className="text-end d-flex justify-content-end align-items-center gap-2">
+                      <div className="d-flex justify-content-end align-items-center gap-2">
+                        <span>Remaining</span>
+                        <Input type="text" value="20%" disabled />
+                      </div>
+                      <div>
+                        <Button
+                          type="button"
+                          color="primary"
+                          className="btn"
+                          onClick={handleAdd}
+                        >
+                          <i className="mdi mdi-plus me-1" />
+                          Add Payment Term
+                        </Button>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+
+                <Row>
+                  <Col lg="12">
+                    <div className="table-responsive">
+                      <table
+                        className="table table-bordered"
+                        style={{
+                          backgroundColor: "#f8f9fa",
+                          border: "1px solid #ddd",
+                          borderRadius: "8px",
+                          width: "100%",
+                          marginBottom: "20px",
+                        }}
+                      >
+                        <thead>
+                          <tr>
+                            <th>Type Selection</th>
+                            <th>Due Date</th>
+                            <th>In Percentage</th>
+                            <th>Days</th>
+                            <th>Credit Days</th>
+                            <th className="text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paymentTerms?.length > 0 ? (
+                            <>
+                              {paymentTerms.map((term, index) => (
+                                <tr key={index}>
+                                  <td>{term.type}</td>
+                                  <td>{term.dueDate}</td>
+                                  <td>{term.percentage}%</td>
+                                  <td>{term.days || "-"}</td>
+                                  <td>{term.creditDays || "-"} </td>
+                                  <td>
+                                    <div className="d-flex gap-2 align-items-center text-center justify-content-center">
+                                      <Link
+                                        to="#"
+                                        className="text-success"
+                                        onClick={() => handleEdit(term)}
+                                      >
+                                        <i className="mdi mdi-pencil font-size-18" />
+                                      </Link>
+                                      <Link
+                                        to="#"
+                                        className="action-icon text-danger"
+                                        onClick={() => handleDelete(term)}
+                                      >
+                                        <i className="mdi mdi-trash-can font-size-18" />
+                                      </Link>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </>
+                          ) : (
+                            <tr>
+                              <td colSpan="6" className="text-center">
+                                <p
+                                  style={{ fontSize: "16px", color: "#6c757d" }}
+                                  className="m-0"
+                                >
+                                  No payment terms have been added yet. Please
+                                  add a payment term to get started.
+                                </p>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </Col>
+                </Row>
+
+                <Row>
+                  <Col lg="6">
+                    <h5 className="m-0">Other Terms</h5>
+                  </Col>
+                  <div className="py-3">
+                    <textarea
+                      name="metaDescription"
+                      placeholder="Add the Other Details by Admin"
+                      className="form-control"
+                      rows="5"
+                    />
+                  </div>
+                  <div className="text-end">
+                    <Button type="button" color="secondary" className="btn">
+                      Save
+                    </Button>
+                  </div>
+                </Row>
+              </div>
             </Col>
           </Row>
 
@@ -739,6 +1054,167 @@ const CorporateUserCartList = () => {
                 </div>
               </ModalBody>
             </div>
+          </Modal>
+
+          {/* Modal for Add/Edit Payment Term */}
+          <Modal
+            isOpen={modalOpen}
+            toggle={() => setModalOpen(!modalOpen)}
+            backdrop="static"
+            scrollable={true}
+          >
+            <ModalHeader toggle={() => setModalOpen(!modalOpen)}>
+              {editingTerm ? "Edit Payment Term" : "Add Payment Term"}
+            </ModalHeader>
+            <ModalBody>
+              <Formik
+                initialValues={{
+                  type: editingTerm ? editingTerm.type : "",
+                  dueDate: editingTerm ? editingTerm.dueDate : "",
+                  percentage: editingTerm ? editingTerm.percentage : "",
+                  days: editingTerm ? editingTerm.days : "",
+                  creditDays: editingTerm ? editingTerm.creditDays : "",
+                }}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({
+                  values,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  errors,
+                  touched,
+                }) => {
+                  const isAdvanceOrderConfirmation =
+                    values.dueDate === "Advance – Order Confirmation";
+                  return (
+                    <Form onSubmit={handleSubmit}>
+                      <Row>
+                        <Col lg="12">
+                          <FormGroup>
+                            <Label for="type">Type Selection</Label>
+                            <Field
+                              name="type"
+                              type="text"
+                              className={`form-control ${
+                                errors.type && touched.type ? "is-invalid" : ""
+                              }`}
+                              placeholder="Types..."
+                            />
+                            {errors.type && touched.type && (
+                              <div className="invalid-feedback">
+                                {errors.type}
+                              </div>
+                            )}
+                          </FormGroup>
+                        </Col>
+
+                        <Col lg="12">
+                          <FormGroup>
+                            <Label for="dueDate">Due Date</Label>
+                            <Field
+                              name="dueDate"
+                              as="select"
+                              className={`form-control ${
+                                errors.dueDate && touched.dueDate
+                                  ? "is-invalid"
+                                  : ""
+                              }`}
+                            >
+                              <option value="">Select Due Date</option>
+                              {dueDateOptions.map((option, index) => (
+                                <option key={index} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </Field>
+                            {errors.dueDate && touched.dueDate && (
+                              <div className="invalid-feedback">
+                                {errors.dueDate}
+                              </div>
+                            )}
+                          </FormGroup>
+                        </Col>
+
+                        <Col lg="12">
+                          <FormGroup>
+                            <Label for="percentage">In Percentage</Label>
+                            <Field
+                              type="number"
+                              name="percentage"
+                              className={`form-control ${
+                                errors.percentage && touched.percentage
+                                  ? "is-invalid"
+                                  : ""
+                              }`}
+                              placeholder="Percentage"
+                            />
+                            {errors.percentage && touched.percentage && (
+                              <div className="invalid-feedback">
+                                {errors.percentage}
+                              </div>
+                            )}
+                          </FormGroup>
+                        </Col>
+
+                        <Col lg="12">
+                          <FormGroup>
+                            <Label for="days">Days</Label>
+                            <Field
+                              type="number"
+                              name="days"
+                              className={`form-control ${
+                                errors.days && touched.days ? "is-invalid" : ""
+                              }`}
+                              placeholder="Days"
+                              disabled={isAdvanceOrderConfirmation}
+                            />
+                            {errors.days && touched.days && (
+                              <div className="invalid-feedback">
+                                {errors.days}
+                              </div>
+                            )}
+                          </FormGroup>
+                        </Col>
+
+                        <Col lg="12">
+                          <FormGroup>
+                            <Label for="creditDays">Credit Days</Label>
+                            <Field
+                              type="number"
+                              name="creditDays"
+                              className={`form-control ${
+                                errors.creditDays && touched.creditDays
+                                  ? "is-invalid"
+                                  : ""
+                              }`}
+                              placeholder="Credit Days"
+                              disabled={isAdvanceOrderConfirmation}
+                            />
+                            {errors.creditDays && touched.creditDays && (
+                              <div className="invalid-feedback">
+                                {errors.creditDays}
+                              </div>
+                            )}
+                          </FormGroup>
+                        </Col>
+
+                        <Col lg="12" className="text-end">
+                          <Button
+                            type="submit"
+                            color="primary"
+                            disabled={false}
+                          >
+                            {editingTerm ? "Save Changes" : "Add Payment Term"}
+                          </Button>
+                        </Col>
+                      </Row>
+                    </Form>
+                  );
+                }}
+              </Formik>
+            </ModalBody>
           </Modal>
 
           {/* Modal for select image */}

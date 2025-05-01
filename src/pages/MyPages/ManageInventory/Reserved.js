@@ -215,6 +215,7 @@ const Reserved = () => {
               <Link
                 to={`/manage-inventory/reserved/view-details/${row.original.id}`}
                 className="text-success"
+                target="_blank"
               >
                 <i
                   className="mdi mdi-eye-outline font-size-18"
