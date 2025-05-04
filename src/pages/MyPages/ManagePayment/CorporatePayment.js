@@ -1,12 +1,6 @@
-import React, { Fragment } from "react";
-import {
-  useTable,
-  useGlobalFilter,
-  useSortBy,
-  useExpanded,
-  usePagination,
-} from "react-table";
-import { Table, Row, Col, Button, Input } from "reactstrap";
+import React from "react";
+import { Row, Col, Button, Card, CardBody } from "reactstrap";
+import TableContainer from "../../../components/Common/TableContainer";
 
 const data = [
   {
@@ -96,7 +90,7 @@ const data = [
 ];
 
 const columns = [
-  { Header: "Sr.", accessor: "sr" },
+  { Header: "Sr.", accessor: "sr", disableFilters: true },
   { Header: "Order ID", accessor: "orderId" },
   { Header: "PI ID", accessor: "piId" },
   { Header: "Invoice ID", accessor: "invoiceId" },
@@ -109,33 +103,6 @@ const columns = [
 ];
 
 const CorporatePayment = () => {
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    page,
-    prepareRow,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageIndex: 0, pageSize: 50 },
-    },
-    useGlobalFilter,
-    useSortBy,
-    useExpanded,
-    usePagination
-  );
-
   return (
     <>
       <Row className="d-flex justify-content-between align-items-center">
@@ -151,96 +118,19 @@ const CorporatePayment = () => {
           </div>
         </Col>
       </Row>
-      <div className="table-responsive react-table mt-3">
-        <Table bordered hover {...getTableProps()}>
-          <thead className="table-light table-nowrap">
-            {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-                {headerGroup.headers.map((column) => (
-                  <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                    {column.render("Header")}
-                    <span style={{ marginLeft: "5px" }}>
-                      {column.isSorted
-                        ? column.isSortedDesc
-                          ? "🔽"
-                          : "🔼"
-                        : ""}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
 
-          <tbody {...getTableBodyProps()}>
-            {page.map((row) => {
-              prepareRow(row);
-              return (
-                <tr {...row.getRowProps()} key={row.id}>
-                  {row.cells.map((cell) => (
-                    <td {...cell.getCellProps()} key={cell.column.id}>
-                      {cell.render("Cell")}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-      </div>
-
-      <Row className="justify-content-md-end justify-content-center align-items-center mb-3">
-        <Col className="col-md-auto">
-          <div className="d-flex gap-1">
-            <Button
-              color="primary"
-              onClick={() => gotoPage(0)}
-              disabled={!canPreviousPage}
-            >
-              {"<<"}
-            </Button>
-            <Button
-              color="primary"
-              onClick={previousPage}
-              disabled={!canPreviousPage}
-            >
-              {"<"}
-            </Button>
-          </div>
-        </Col>
-        <Col className="col-md-auto d-none d-md-block">
-          Page{" "}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>
-        </Col>
-        <Col className="col-md-auto">
-          <Input
-            type="number"
-            min={1}
-            style={{ width: 70 }}
-            max={pageOptions.length}
-            defaultValue={pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
-              gotoPage(page);
-            }}
-          />
-        </Col>
-        <Col className="col-md-auto">
-          <div className="d-flex gap-1">
-            <Button color="primary" onClick={nextPage} disabled={!canNextPage}>
-              {">"}
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => gotoPage(pageCount - 1)}
-              disabled={!canNextPage}
-            >
-              {">>"}
-            </Button>
-          </div>
-        </Col>
+      <Row>
+        <Card>
+          <CardBody>
+            <TableContainer
+              columns={columns}
+              data={data}
+              isGlobalFilter={true}
+              customPageSize={10}
+              className="custom-header-css"
+            />
+          </CardBody>
+        </Card>
       </Row>
     </>
   );

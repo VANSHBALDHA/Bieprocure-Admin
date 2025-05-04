@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   Container,
@@ -18,11 +18,14 @@ import {
 } from "reactstrap";
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { corporateCustomer } from "../../../common/data/MyFackData";
-import CorporateCustomerCart from "../../../components/CorporateCart/CorporateCustomerCart";
+import CorporateCustomerCart from "../CorporateCart/CorporateCustomerCart";
 import CorporatePaymentTerms from "./CorporatePaymentTerms";
 import CorporateCustomerAdd from "./CorporateCustomerAdd";
 import CorporateShipment from "../ManageShipment/CorporateShipment";
 import CorporatePayment from "../ManagePayment/CorporatePayment";
+import CorporateInvoices from "../ManageInvoices/CorporateInvoices";
+import TableContainer from "../../../components/Common/TableContainer";
+import CorporateOrder from "./CorporateOrder";
 
 const CorporateDetail = () => {
   const { id } = useParams();
@@ -102,8 +105,6 @@ const CorporateDetail = () => {
     setCustomer(selectedCustomer);
   }, [id]);
 
-  if (!customer) return <div>Loading...</div>;
-
   const handleRegisterAsChange = (event) => {
     setNewRegisterAs(event.target.value);
     setSelectedRegisterAs(event.target.value);
@@ -114,6 +115,83 @@ const CorporateDetail = () => {
     console.log("newRegisterAs", newRegisterAs);
     setShowModal(false);
   };
+
+  const statusColors = {
+    Expired: "danger",
+    Revised: "warning",
+    Cart: "info",
+  };
+
+  const columns = useMemo(
+    () => [
+      { Header: "Quote Number", accessor: "quoteNumber", disableFilters: true },
+      { Header: "User Name", accessor: "userName" },
+      { Header: "Mobile Number", accessor: "mobileNumber" },
+      { Header: "Role", accessor: "role" },
+      { Header: "Quoted Date", accessor: "date" },
+      { Header: "Revised Quoted Date", accessor: "revisedDate" },
+      {
+        Header: "Status",
+        accessor: "status",
+        Cell: ({ row }) => {
+          const status = row.original.status;
+          return (
+            <Badge color={statusColors[status] || "secondary"}>{status}</Badge>
+          );
+        },
+      },
+      {
+        Header: "Actions",
+        accessor: "actions",
+        disableFilters: true,
+        Cell: ({ row }) => {
+          const quote = row.original;
+          const isExpired = quote.status === "Expired";
+          const icon = (
+            <span
+              className={isExpired ? "text-muted" : "text-success"}
+              style={{
+                cursor: isExpired ? "not-allowed" : "pointer",
+              }}
+            >
+              <i
+                className="mdi mdi-message-text-outline"
+                style={{
+                  fontSize: "20px",
+                  opacity: isExpired ? 0.5 : 1,
+                }}
+                id={`edit-${quote.quoteNumber}`}
+              />
+              <UncontrolledTooltip
+                placement="top"
+                target={`edit-${quote.quoteNumber}`}
+              >
+                {isExpired ? "Edit Disabled" : "Edit Quote"}
+              </UncontrolledTooltip>
+            </span>
+          );
+
+          return (
+            <div className="d-flex gap-3 align-items-center">
+              {isExpired ? (
+                icon
+              ) : (
+                <Link
+                  to={`/manage-corporate-customer-quote/${quote.quoteNumber}`}
+                  target="_blank"
+                >
+                  {icon}
+                </Link>
+              )}
+            </div>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  if (!customer) return <div>Loading...</div>;
 
   document.title = "Corporate customer details | Bieprocure";
 
@@ -364,110 +442,24 @@ const CorporateDetail = () => {
 
           {activeTab === "2" && (
             <TabPane tabId="2">
-              <Row className="d-flex justify-content-between align-items-center mb-2">
+              <Row className="d-flex justify-content-between align-items-center my-3">
                 <Col lg="6">
                   <h5 className="m-0">Manage Quotes</h5>
                 </Col>
               </Row>
               <Row>
                 <Col lg="12">
-                  <div className="table-responsive">
-                    <table
-                      className="table table-bordered"
-                      style={{
-                        backgroundColor: "#f8f9fa",
-                        border: "1px solid #ddd",
-                        borderRadius: "8px",
-                        width: "100%",
-                        marginBottom: "20px",
-                      }}
-                    >
-                      <thead>
-                        <tr>
-                          <th>Quote Number</th>
-                          <th>User Name</th>
-                          <th>Mobile Number</th>
-                          <th>Role</th>
-                          <th>Quoted Date</th>
-                          <th>Revised Quoted Date</th>
-                          <th>Status</th>
-                          <th className="text-center">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {quotes.map((customer) => {
-                          const statusColors = {
-                            Expired: "danger",
-                            Revised: "warning",
-                            Cart: "info",
-                          };
-                          return (
-                            <>
-                              <tr key={customer.quoteNumber}>
-                                <td>{customer.quoteNumber}</td>
-                                <td>{customer.userName}</td>
-                                <td>{customer.mobileNumber}</td>
-                                <td>{customer.role}</td>
-                                <td>{customer.date}</td>
-                                <td>{customer.revisedDate}</td>
-                                <td>
-                                  <Badge
-                                    color={
-                                      statusColors[customer.status] ||
-                                      "secondary"
-                                    }
-                                  >
-                                    {customer.status}
-                                  </Badge>
-                                </td>
-
-                                <td className="text-center">
-                                  <Link
-                                    to={`/manage-corporate-customer-quote/${customer.quoteNumber}`}
-                                    target="_blank"
-                                  >
-                                    <span
-                                      className={
-                                        customer.status === "Expired"
-                                          ? "text-muted"
-                                          : "text-success"
-                                      }
-                                      style={{
-                                        cursor:
-                                          customer.status === "Expired"
-                                            ? "not-allowed"
-                                            : "pointer",
-                                      }}
-                                    >
-                                      <i
-                                        className="mdi mdi-message-text-outline"
-                                        style={{
-                                          fontSize: "20px",
-                                          opacity:
-                                            customer.status === "Expired"
-                                              ? 0.5
-                                              : 1,
-                                        }}
-                                        id={`edit-${customer.quoteNumber}`}
-                                      />
-                                      <UncontrolledTooltip
-                                        placement="top"
-                                        target={`edit-${customer.quoteNumber}`}
-                                      >
-                                        {customer.status === "Expired"
-                                          ? "Edit Disabled"
-                                          : "Edit Quote"}
-                                      </UncontrolledTooltip>
-                                    </span>
-                                  </Link>
-                                </td>
-                              </tr>
-                            </>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                  <Card>
+                    <CardBody>
+                      <TableContainer
+                        columns={columns}
+                        data={quotes}
+                        isGlobalFilter={true}
+                        customPageSize={10}
+                        className="custom-header-css"
+                      />
+                    </CardBody>
+                  </Card>
                 </Col>
               </Row>
             </TabPane>
@@ -475,10 +467,12 @@ const CorporateDetail = () => {
 
           {activeTab === "3" && (
             <TabPane tabId="3">
-              <Row className="d-flex justify-content-between align-items-center mb-2">
+              <Row className="d-flex justify-content-between align-items-center my-3">
                 <Col lg="6">
                   <h5 className="m-0">Manage Carts</h5>
                 </Col>
+              </Row>
+              <Row>
                 <Col lg="12">
                   <CorporateCustomerCart />
                 </Col>
@@ -488,9 +482,14 @@ const CorporateDetail = () => {
 
           {activeTab === "4" && (
             <TabPane tabId="4">
-              <Row className="d-flex justify-content-between align-items-center mb-2">
+              <Row className="d-flex justify-content-between align-items-center my-3">
                 <Col lg="6">
                   <h5 className="m-0">Manage Orders</h5>
+                </Col>
+              </Row>
+              <Row>
+                <Col lg="12">
+                  <CorporateOrder />
                 </Col>
               </Row>
             </TabPane>
@@ -498,9 +497,9 @@ const CorporateDetail = () => {
 
           {activeTab === "5" && (
             <TabPane tabId="5">
-              <Row className="d-flex justify-content-between align-items-center mb-2">
-                <Col lg="6">
-                  <h5 className="m-0">Manage Invoices</h5>
+              <Row>
+                <Col lg="12">
+                  <CorporateInvoices />
                 </Col>
               </Row>
             </TabPane>

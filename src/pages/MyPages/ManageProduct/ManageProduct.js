@@ -18,8 +18,7 @@ import "react-quill/dist/quill.snow.css";
 const ManageProduct = () => {
   document.title = "Products | Bieprocure";
 
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => [
       {
         Header: "Product Code",
         accessor: "productCode",

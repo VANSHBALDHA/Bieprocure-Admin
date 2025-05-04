@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Container, Table, Button, Input } from "reactstrap";
+import { Badge, Button, Card, CardBody, Input, Row } from "reactstrap";
+import TableContainer from "../../../components/Common/TableContainer";
 
 const CorporateShipment = () => {
   const [shipments, setShipments] = useState([
@@ -27,67 +28,49 @@ const CorporateShipment = () => {
     { value: "cancelled", label: "Cancelled" },
   ];
 
-  const handleSelectChange = (e, index) => {
-    const updatedShipments = [...shipments];
-    updatedShipments[index].status = e.target.value;
-    setShipments(updatedShipments);
+  const statusColorMap = {
+    Pending: "warning",
+    Shipped: "info",
+    Delivered: "success",
+    "Modified Shipment": "primary",
+    Cancelled: "danger",
   };
+
+  const columns = [
+    { Header: "Sr.", accessor: "id", disableFilters: true },
+    { Header: "Invoice Number", accessor: "invoiceNumber" },
+    { Header: "Shipment Number", accessor: "shipmentNumber" },
+    {
+      Header: "Shipment Status",
+      accessor: "status",
+      Cell: ({ value }) => {
+        const status = statusOptions.find((opt) => opt.label === value);
+        const label = status ? status.label : value;
+        const color = statusColorMap[label] || "secondary";
+        return (
+          <Badge color={color} className="p-1" style={{ fontSize: "12px" }}>
+            {label}
+          </Badge>
+        );
+      },
+    },
+    { Header: "Date", accessor: "date" },
+    { Header: "Action", accessor: "action", disableFilters: true },
+  ];
 
   return (
     <>
-      <div className="table-responsive mt-3">
-        <table
-          className="table table-bordered"
-          style={{
-            backgroundColor: "#f8f9fa",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            width: "100%",
-            marginBottom: "20px",
-          }}
-        >
-          <thead>
-            <tr>
-              <th>Sr.</th>
-              <th>Invoice Number</th>
-              <th>Shipment Number</th>
-              <th>Shipment Status</th>
-              <th>Date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shipments.map((shipment, index) => (
-              <tr key={shipment.id}>
-                <td>{shipment.id}</td>
-                <td>{shipment.invoiceNumber}</td>
-                <td>{shipment.shipmentNumber}</td>
-                <td>
-                  <Input
-                    type="select"
-                    name="shipment_status"
-                    value={shipment.status}
-                    onChange={(e) => handleSelectChange(e, index)}
-                    className="form-control"
-                  >
-                    {statusOptions.map((opt) => (
-                      <option key={opt.value} value={opt.label}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </Input>
-                </td>
-                <td>{shipment.date}</td>
-                <td>
-                  <Button color="primary" size="sm">
-                    View
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Card>
+        <CardBody>
+          <TableContainer
+            columns={columns}
+            data={shipments}
+            isGlobalFilter={true}
+            customPageSize={10}
+            className="custom-header-css"
+          />
+        </CardBody>
+      </Card>
     </>
   );
 };

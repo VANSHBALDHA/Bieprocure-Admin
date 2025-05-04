@@ -124,7 +124,7 @@ const TableContainer = ({
         pageSize: customPageSize,
         sortBy: [
           {
-            desc: true,
+            desc: false,
           },
         ],
       },

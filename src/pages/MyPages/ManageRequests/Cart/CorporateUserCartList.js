@@ -29,7 +29,6 @@ import Breadcrumbs from "../../../../components/Common/Breadcrumb";
 import toast from "react-hot-toast";
 
 const CorporateUserCartList = () => {
-  const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -471,24 +470,81 @@ const CorporateUserCartList = () => {
                 </CardBody>
               </Card>
             </Col>
+
             <Col xl={8}>
               <Card>
                 <CardBody>
-                  <CardTitle className="mb-3">GST Declaration</CardTitle>
+                  <CardTitle
+                    className="mb-3"
+                    style={{
+                      color: "#2c3e50",
+                      backgroundColor: "#ecf0f1",
+                      padding: "10px",
+                      borderRadius: "5px",
+                    }}
+                  >
+                    GST Declaration
+                  </CardTitle>
+
                   <div className="table-responsive">
-                    <Table bordered>
-                      <thead className="table-light">
+                    <Table bordered style={{ borderCollapse: "collapse" }}>
+                      <thead
+                        className="table-light"
+                        style={{ backgroundColor: "#bdc3c7" }}
+                      >
                         <tr>
-                          <th>GST%</th>
-                          <th>Amount</th>
-                          <th>SGST</th>
-                          <th>CGST</th>
-                          <th>IGST</th>
-                          <th>Total</th>
+                          <th
+                            style={{
+                              backgroundColor: "#ecf0f1",
+                              color: "#2c3e50",
+                            }}
+                          >
+                            GST%
+                          </th>
+                          <th
+                            style={{
+                              backgroundColor: "#ecf0f1",
+                              color: "#2c3e50",
+                            }}
+                          >
+                            Amount
+                          </th>
+                          <th
+                            style={{
+                              backgroundColor: "#ecf0f1",
+                              color: "#2c3e50",
+                            }}
+                          >
+                            SGST
+                          </th>
+                          <th
+                            style={{
+                              backgroundColor: "#ecf0f1",
+                              color: "#2c3e50",
+                            }}
+                          >
+                            CGST
+                          </th>
+                          <th
+                            style={{
+                              backgroundColor: "#ecf0f1",
+                              color: "#2c3e50",
+                            }}
+                          >
+                            IGST
+                          </th>
+                          <th
+                            style={{
+                              backgroundColor: "#ecf0f1",
+                              color: "#2c3e50",
+                            }}
+                          >
+                            Total
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
+                        <tr style={{ backgroundColor: "#f9fafb" }}>
                           <td>0%</td>
                           <td>₹0.00</td>
                           <td>₹0.00</td>
@@ -496,7 +552,7 @@ const CorporateUserCartList = () => {
                           <td>₹0.00</td>
                           <td>₹0.00</td>
                         </tr>
-                        <tr>
+                        <tr style={{ backgroundColor: "#f9fafb" }}>
                           <td>3%</td>
                           <td>₹0.00</td>
                           <td>₹0.00</td>
@@ -504,7 +560,7 @@ const CorporateUserCartList = () => {
                           <td>₹0.00</td>
                           <td>₹0.00</td>
                         </tr>
-                        <tr>
+                        <tr style={{ backgroundColor: "#f9fafb" }}>
                           <td>5%</td>
                           <td>₹0.00</td>
                           <td>₹0.00</td>
@@ -512,7 +568,7 @@ const CorporateUserCartList = () => {
                           <td>₹0.00</td>
                           <td>₹0.00</td>
                         </tr>
-                        <tr>
+                        <tr style={{ backgroundColor: "#f9fafb" }}>
                           <td>12%</td>
                           <td>₹0.00</td>
                           <td>₹0.00</td>
@@ -520,7 +576,12 @@ const CorporateUserCartList = () => {
                           <td>₹0.00</td>
                           <td>₹0.00</td>
                         </tr>
-                        <tr>
+                        <tr
+                          style={{
+                            backgroundColor: "#ecf0f1",
+                            color: "#2980b9",
+                          }}
+                        >
                           <td>18%</td>
                           <td>₹2,80,000</td>
                           <td>₹25,200</td>
@@ -538,33 +599,119 @@ const CorporateUserCartList = () => {
             <Col xl={4}>
               <Card>
                 <CardBody>
-                  <CardTitle className="mb-3">Order Summary</CardTitle>
+                  <CardTitle
+                    className="mb-3"
+                    style={{
+                      color: "#2c3e50",
+                      backgroundColor: "#ecf0f1",
+                      padding: "10px",
+                      borderRadius: "5px",
+                    }}
+                  >
+                    Order Summary
+                  </CardTitle>
 
                   <div className="table-responsive">
-                    <Table className="table mb-0">
+                    <Table
+                      className="table mb-0"
+                      style={{
+                        borderCollapse: "separate",
+                        borderSpacing: "0 10px",
+                      }}
+                    >
                       <tbody>
                         <tr>
-                          <td>Sub Total:</td>
-                          <td>₹ 2,80,000</td>
+                          <td
+                            style={{
+                              backgroundColor: "#f9fafb",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Sub Total:
+                          </td>
+                          <td
+                            style={{
+                              backgroundColor: "#f9fafb",
+                              color: "#27ae60",
+                            }}
+                          >
+                            ₹ 2,80,000
+                          </td>
                         </tr>
                         <tr>
-                          <td>GST:</td>
-                          <td>₹ 50,400</td>
+                          <td
+                            style={{
+                              backgroundColor: "#f9fafb",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            GST:
+                          </td>
+                          <td
+                            style={{
+                              backgroundColor: "#f9fafb",
+                              color: "#f39c12",
+                            }}
+                          >
+                            ₹ 50,400
+                          </td>
                         </tr>
                         <tr>
-                          <th>Total:</th>
-                          <th>₹ 3,30,400</th>
+                          <th
+                            style={{
+                              backgroundColor: "#ecf0f1",
+                              color: "#2980b9",
+                            }}
+                          >
+                            Total:
+                          </th>
+                          <th
+                            style={{
+                              backgroundColor: "#ecf0f1",
+                              color: "#2980b9",
+                            }}
+                          >
+                            ₹ 3,30,400
+                          </th>
                         </tr>
 
                         {/* Show this only if advance amount is required */}
                         <tr>
-                          <td>Advance Against Order:</td>
-                          <td>₹ 32,500</td>
+                          <td
+                            style={{
+                              backgroundColor: "#f9fafb",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Advance Against Order:
+                          </td>
+                          <td
+                            style={{
+                              backgroundColor: "#f9fafb",
+                              color: "#e74c3c",
+                            }}
+                          >
+                            ₹ 32,500
+                          </td>
                         </tr>
 
                         <tr>
-                          <td>Total Qty:</td>
-                          <td>3,000</td>
+                          <td
+                            style={{
+                              backgroundColor: "#f9fafb",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Total Qty:
+                          </td>
+                          <td
+                            style={{
+                              backgroundColor: "#f9fafb",
+                              color: "#8e44ad",
+                            }}
+                          >
+                            3,000
+                          </td>
                         </tr>
                       </tbody>
                     </Table>
@@ -572,20 +719,35 @@ const CorporateUserCartList = () => {
                 </CardBody>
               </Card>
             </Col>
+
             <Col xl={12}>
               <div
-                style={{ border: "1px solid #ced4da " }}
-                className="p-2 mb-5"
+                style={{
+                  border: "1px solid #ced4da",
+                  borderRadius: "10px",
+                }}
+                className="p-3 mb-5"
               >
-                <Row className="d-flex justify-content-between align-items-center mb-2">
+                <Row className="d-flex justify-content-between align-items-center mb-3">
                   <Col lg="6">
-                    <h5 className="m-0">Payment Terms</h5>
+                    <h5 className="m-0" style={{ color: "#2c3e50" }}>
+                      Payment Terms
+                    </h5>
                   </Col>
                   <Col lg="6">
                     <div className="text-end d-flex justify-content-end align-items-center gap-2">
                       <div className="d-flex justify-content-end align-items-center gap-2">
-                        <span>Remaining</span>
-                        <Input type="text" value="20%" disabled />
+                        <span style={{ color: "#6c757d" }}>Remaining</span>
+                        <Input
+                          type="text"
+                          value="20%"
+                          disabled
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            borderColor: "#ced4da",
+                            color: "#495057",
+                          }}
+                        />
                       </div>
                       <div>
                         <Button
@@ -593,6 +755,10 @@ const CorporateUserCartList = () => {
                           color="primary"
                           className="btn"
                           onClick={handleAdd}
+                          style={{
+                            backgroundColor: "#007bff",
+                            borderColor: "#007bff",
+                          }}
                         >
                           <i className="mdi mdi-plus me-1" />
                           Add Payment Term
@@ -615,60 +781,127 @@ const CorporateUserCartList = () => {
                           marginBottom: "20px",
                         }}
                       >
-                        <thead>
+                        <thead
+                          style={{
+                            backgroundColor: "#e9ecef",
+                            color: "#343a40",
+                          }}
+                        >
                           <tr>
-                            <th>Type Selection</th>
-                            <th>Due Date</th>
-                            <th>In Percentage</th>
+                            <th>#</th>
+                            <th>Description</th>
+                            <th>In (%)</th>
                             <th>Days</th>
-                            <th>Credit Days</th>
+                            <th>Amount</th>
+                            <th>Against</th>
                             <th className="text-center">Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {paymentTerms?.length > 0 ? (
-                            <>
-                              {paymentTerms.map((term, index) => (
-                                <tr key={index}>
-                                  <td>{term.type}</td>
-                                  <td>{term.dueDate}</td>
-                                  <td>{term.percentage}%</td>
-                                  <td>{term.days || "-"}</td>
-                                  <td>{term.creditDays || "-"} </td>
-                                  <td>
-                                    <div className="d-flex gap-2 align-items-center text-center justify-content-center">
-                                      <Link
-                                        to="#"
-                                        className="text-success"
-                                        onClick={() => handleEdit(term)}
-                                      >
-                                        <i className="mdi mdi-pencil font-size-18" />
-                                      </Link>
-                                      <Link
-                                        to="#"
-                                        className="action-icon text-danger"
-                                        onClick={() => handleDelete(term)}
-                                      >
-                                        <i className="mdi mdi-trash-can font-size-18" />
-                                      </Link>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
-                            </>
-                          ) : (
-                            <tr>
-                              <td colSpan="6" className="text-center">
-                                <p
-                                  style={{ fontSize: "16px", color: "#6c757d" }}
-                                  className="m-0"
+                          <tr style={{ backgroundColor: "#f1f3f5" }}>
+                            <td>1</td>
+                            <td>Advance With Order Confirmation</td>
+                            <td>10%</td>
+                            <td>0</td>
+                            <td>₹ 32,500</td>
+                            <td>Order Confirmation</td>
+                            <td className="text-center">
+                              <div className="d-flex gap-2 align-items-center justify-content-center">
+                                <Link
+                                  to="#"
+                                  className="text-success"
+                                  onClick={() => handleEdit()}
                                 >
-                                  No payment terms have been added yet. Please
-                                  add a payment term to get started.
-                                </p>
-                              </td>
-                            </tr>
-                          )}
+                                  <i className="mdi mdi-pencil font-size-18" />
+                                </Link>
+                                <Link
+                                  to="#"
+                                  className="action-icon text-danger"
+                                  onClick={() => handleDelete()}
+                                >
+                                  <i className="mdi mdi-trash-can font-size-18" />
+                                </Link>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>2</td>
+                            <td>Advance Against PI on Readiness</td>
+                            <td>40%</td>
+                            <td>10 Days</td>
+                            <td>₹ 1,62,500</td>
+                            <td>Against PI</td>
+                            <td className="text-center">
+                              <div className="d-flex gap-2 align-items-center justify-content-center">
+                                <Link
+                                  to="#"
+                                  className="text-success"
+                                  onClick={() => handleEdit()}
+                                >
+                                  <i className="mdi mdi-pencil font-size-18" />
+                                </Link>
+                                <Link
+                                  to="#"
+                                  className="action-icon text-danger"
+                                  onClick={() => handleDelete()}
+                                >
+                                  <i className="mdi mdi-trash-can font-size-18" />
+                                </Link>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr style={{ backgroundColor: "#f1f3f5" }}>
+                            <td>3</td>
+                            <td>Mile Stone # 1</td>
+                            <td>10%</td>
+                            <td>30 Days</td>
+                            <td>₹ 32,500</td>
+                            <td>After Invoice</td>
+                            <td className="text-center">
+                              <div className="d-flex gap-2 align-items-center justify-content-center">
+                                <Link
+                                  to="#"
+                                  className="text-success"
+                                  onClick={() => handleEdit()}
+                                >
+                                  <i className="mdi mdi-pencil font-size-18" />
+                                </Link>
+                                <Link
+                                  to="#"
+                                  className="action-icon text-danger"
+                                  onClick={() => handleDelete()}
+                                >
+                                  <i className="mdi mdi-trash-can font-size-18" />
+                                </Link>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>4</td>
+                            <td>Mile Stone # 2</td>
+                            <td>40%</td>
+                            <td>45 Days</td>
+                            <td>₹ 1,62,500</td>
+                            <td>After Invoice</td>
+                            <td className="text-center">
+                              <div className="d-flex gap-2 align-items-center justify-content-center">
+                                <Link
+                                  to="#"
+                                  className="text-success"
+                                  onClick={() => handleEdit()}
+                                >
+                                  <i className="mdi mdi-pencil font-size-18" />
+                                </Link>
+                                <Link
+                                  to="#"
+                                  className="action-icon text-danger"
+                                  onClick={() => handleDelete()}
+                                >
+                                  <i className="mdi mdi-trash-can font-size-18" />
+                                </Link>
+                              </div>
+                            </td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -677,18 +910,34 @@ const CorporateUserCartList = () => {
 
                 <Row>
                   <Col lg="6">
-                    <h5 className="m-0">Other Terms</h5>
+                    <h5 className="m-0" style={{ color: "#2c3e50" }}>
+                      Other Terms
+                    </h5>
                   </Col>
-                  <div className="py-3">
+                  <Col lg="12" className="py-3">
                     <textarea
                       name="metaDescription"
                       placeholder="Add the Other Details by Admin"
                       className="form-control"
                       rows="5"
+                      style={{
+                        borderColor: "#ced4da",
+                        borderRadius: "5px",
+                        backgroundColor: "#f8f9fa",
+                        color: "#495057",
+                      }}
                     />
-                  </div>
+                  </Col>
                   <div className="text-end">
-                    <Button type="button" color="secondary" className="btn">
+                    <Button
+                      type="button"
+                      color="secondary"
+                      className="btn"
+                      style={{
+                        backgroundColor: "#6c757d",
+                        borderColor: "#6c757d",
+                      }}
+                    >
                       Save
                     </Button>
                   </div>

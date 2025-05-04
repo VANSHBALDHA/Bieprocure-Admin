@@ -83,6 +83,7 @@ import IndividualDetail from "../pages/MyPages/ManageCustomers/IndividualDetail"
 import CorporateDetail from "../pages/MyPages/ManageCustomers/CorporateDetail";
 import ReservedView from "../pages/MyPages/ManageInventory/ReservedView";
 import CorporateCustomerQuote from "../pages/MyPages/ManageQuotes/CorporateCustomerQuote";
+import CorporateOrderDetails from "../pages/MyPages/ManageCustomers/CorporateOrderDetails";
 
 const authProtectedRoutes = [
   { path: "/", exact: true, component: <Dashboard /> },
@@ -143,7 +144,14 @@ const authProtectedRoutes = [
     component: <IndividualDetail />,
   },
   { path: "/manage-customers/corporate", component: <Corporate /> },
-  { path: "/manage-corporate-customer-quote/:id", component: <CorporateCustomerQuote /> },
+  {
+    path: "/manage-corporate-customer-quote/:id",
+    component: <CorporateCustomerQuote />,
+  },
+  {
+    path: "/manage-customers/corporate/corporate-order-details/:id",
+    component: <CorporateOrderDetails />,
+  },
   {
     path: "/manage-customers/corporate/customer-details/:id",
     component: <CorporateDetail />,
