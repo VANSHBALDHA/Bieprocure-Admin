@@ -517,10 +517,7 @@ const CorporateDetail = () => {
 
           {activeTab === "7" && (
             <TabPane tabId="7">
-              <Row className="d-flex justify-content-between align-items-center mb-2">
-                <Col lg="6">
-                  <h5 className="m-0">Manage Shipment</h5>
-                </Col>
+              <Row>
                 <Col lg="12">
                   <CorporateShipment />
                 </Col>

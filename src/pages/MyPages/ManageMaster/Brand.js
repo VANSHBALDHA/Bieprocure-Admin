@@ -178,19 +178,19 @@ const Brand = () => {
     []
   );
 
+  const handleAddBrand = () => {
+    setCurrentBrand(null);
+    setIsEdit(false);
+    toggleModal();
+    setImagePreview("");
+  };
+
   const handleEditClick = (brand) => {
     console.log("brand", brand);
     setCurrentBrand(brand);
     setIsEdit(true);
     setImagePreview(brand.brandLogo || "");
     toggleModal();
-  };
-
-  const handleAddBrand = () => {
-    setCurrentBrand(null);
-    setIsEdit(false);
-    toggleModal();
-    setImagePreview("");
   };
 
   const quillModules = {

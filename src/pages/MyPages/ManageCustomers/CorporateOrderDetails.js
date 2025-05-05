@@ -9,8 +9,12 @@ import {
   CardTitle,
   Col,
   Container,
+  FormFeedback,
+  Input,
+  Label,
   Modal,
   ModalBody,
+  ModalHeader,
   Row,
   Table,
   UncontrolledTooltip,
@@ -18,6 +22,9 @@ import {
 import Breadcrumbs from "../../../components/Common/Breadcrumb";
 import { ordersData } from "../../../common/data/MyFackData";
 import TableContainer from "../../../components/Common/TableContainer";
+import toast from "react-hot-toast";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 const CorporateOrderDetails = () => {
   const { id } = useParams();
@@ -27,6 +34,11 @@ const CorporateOrderDetails = () => {
   const [showPaymentTerms, setShowPaymentTerms] = useState(false);
   const [createModal, setCreateModal] = useState(false);
   const [showPIDetails, setShowPIDetails] = useState(false);
+
+  const [editModal, setEditModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [orderToEdit, setOrderToEdit] = useState(null);
+  const [orderToDelete, setOrderToDelete] = useState(null);
 
   const order = ordersData.find((order) => order.orderId === id);
 
@@ -43,8 +55,60 @@ const CorporateOrderDetails = () => {
     paymentTermsBreakdown,
   } = order;
 
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      shippedQty: orderToEdit?.shippedQty || 0,
+      availableStocks: orderToEdit?.stock || 0,
+      quantity: orderToEdit?.quantity || 0,
+      price: orderToEdit?.price || 0,
+      total: orderToEdit?.total || 0,
+    },
+    validationSchema: Yup.object({
+      shippedQty: Yup.number()
+        .min(0, "Shipped quantity cannot be negative.")
+        .required("Shipped quantity is required.")
+        .max(
+          Yup.ref("availableStocks"),
+          "Shipped quantity cannot exceed available stocks."
+        ),
+      availableStocks: Yup.number()
+        .min(0, "Available stocks cannot be negative.")
+        .required("Available stocks are required."),
+      quantity: Yup.number()
+        .min(1, "Quantity must be greater than 0.")
+        .required("Quantity is required."),
+      price: Yup.number()
+        .min(0, "Price must be greater than or equal to 0.")
+        .required("Price is required."),
+      total: Yup.number()
+        .min(0, "Total must be greater than or equal to 0.")
+        .required("Total is required."),
+    }),
+    onSubmit: (values) => {
+      console.log("Updated Order Values", values);
+      setEditModal(false);
+    },
+  });
+
   const handleCreatePI = () => {
     console.log("Proforma Invoice created for Order ID:", orderId);
+  };
+
+  const handleEditOrder = (order) => {
+    setOrderToEdit(order);
+    setEditModal(true);
+  };
+
+  const handleDeleteOrder = (order) => {
+    setOrderToDelete(order);
+    setDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    console.log(`Order ID: ${orderToDelete.orderId} deleted`);
+    setDeleteModal(false);
+    toast.success("Order deleted successfully!");
   };
 
   const columns = useMemo(
@@ -761,135 +825,92 @@ const CorporateOrderDetails = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>1</td>
-                            <td>
-                              <img
-                                src="https://placehold.co/400x400"
-                                alt="Laptop"
-                                width="50"
-                              />
-                            </td>
-                            <td>
-                              Laptop
-                              <br />
-                              <small>Code: LP1234</small>
-                            </td>
-                            <td>500</td>
-                            <td>10</td>
-                            <td>
-                              <Button
-                                size="sm"
-                                color="secondary"
-                                className="me-2"
-                              >
-                                -
-                              </Button>
-                              10
-                              <Button
-                                size="sm"
-                                color="secondary"
-                                className="ms-2"
-                              >
-                                +
-                              </Button>
-                            </td>
-                            <td>₹90</td>
-                            <td>₹9,000</td>
-                            <td>
-                              <div className="d-flex gap-3">
-                                <Link to="#" className="text-success">
-                                  <i
-                                    className="mdi mdi-eye-outline font-size-18"
-                                    id="viewtooltip"
-                                  />
-                                  <UncontrolledTooltip
-                                    placement="top"
-                                    target="viewtooltip"
-                                  >
-                                    View
-                                  </UncontrolledTooltip>
-                                </Link>
-                                <Link to="#" className="text-success">
-                                  <i
-                                    className="bx bx-trash-alt font-size-20"
-                                    id="deletetooltip"
-                                  ></i>
-                                  <UncontrolledTooltip
-                                    placement="top"
-                                    target="deletetooltip"
-                                  >
-                                    Delete
-                                  </UncontrolledTooltip>
-                                </Link>
-                              </div>
-                            </td>
-                          </tr>
-
-                          <tr>
-                            <td>2</td>
-                            <td>
-                              <img
-                                src="https://placehold.co/400x400"
-                                alt="Laptop"
-                                width="50"
-                              />
-                            </td>
-                            <td>
-                              Laptop
-                              <br />
-                              <small>Code: LP1234</small>
-                            </td>
-                            <td>400</td>
-                            <td>10</td>
-                            <td>
-                              <Button
-                                size="sm"
-                                color="secondary"
-                                className="me-2"
-                              >
-                                -
-                              </Button>
-                              10
-                              <Button
-                                size="sm"
-                                color="secondary"
-                                className="ms-2"
-                              >
-                                +
-                              </Button>
-                            </td>
-                            <td>₹95</td>
-                            <td>₹4,000</td>
-                            <td>
-                              <div className="d-flex gap-3">
-                                <Link to="#" className="text-success">
-                                  <i
-                                    className="mdi mdi-eye-outline font-size-18"
-                                    id="viewtooltip"
-                                  />
-                                  <UncontrolledTooltip
-                                    placement="top"
-                                    target="viewtooltip"
-                                  >
-                                    View
-                                  </UncontrolledTooltip>
-                                </Link>
-                                <Link to="#" className="text-success">
-                                  <i
-                                    className="bx bx-trash-alt font-size-20"
-                                    id="deletetooltip"
-                                  ></i>
-                                  <UncontrolledTooltip
-                                    placement="top"
-                                    target="deletetooltip"
-                                  >
-                                    Delete
-                                  </UncontrolledTooltip>
-                                </Link>
-                              </div>
-                            </td>
-                          </tr>
+                          {products?.length > 0 && (
+                            <>
+                              {products?.map((product) => {
+                                return (
+                                  <>
+                                    <tr>
+                                      <td>1</td>
+                                      <td>
+                                        <img
+                                          src={product?.image}
+                                          alt="Laptop"
+                                          width="50"
+                                        />
+                                      </td>
+                                      <td>
+                                        {product?.name}
+                                        <br />
+                                        <small>Code: {product?.code}</small>
+                                      </td>
+                                      <td>{product?.shippedQty}</td>
+                                      <td>{product?.stock}</td>
+                                      <td>
+                                        <Button
+                                          size="sm"
+                                          color="secondary"
+                                          className="me-2"
+                                        >
+                                          -
+                                        </Button>
+                                        {product?.quantity}
+                                        <Button
+                                          size="sm"
+                                          color="secondary"
+                                          className="ms-2"
+                                        >
+                                          +
+                                        </Button>
+                                      </td>
+                                      <td>₹{product?.price}</td>
+                                      <td>₹{product?.total}</td>
+                                      <td>
+                                        <div className="d-flex gap-3">
+                                          <Link
+                                            to="#"
+                                            className="text-success"
+                                            onClick={() =>
+                                              handleEditOrder(product)
+                                            }
+                                          >
+                                            <i
+                                              className="mdi mdi-pencil font-size-18"
+                                              id="viewtooltip"
+                                            />
+                                            <UncontrolledTooltip
+                                              placement="top"
+                                              target="viewtooltip"
+                                            >
+                                              Edit
+                                            </UncontrolledTooltip>
+                                          </Link>
+                                          <Link
+                                            to="#"
+                                            className="text-success"
+                                            onClick={() =>
+                                              handleDeleteOrder(product)
+                                            }
+                                          >
+                                            <i
+                                              className="bx bx-trash-alt font-size-20"
+                                              id="deletetooltip"
+                                            ></i>
+                                            <UncontrolledTooltip
+                                              placement="top"
+                                              target="deletetooltip"
+                                            >
+                                              Delete
+                                            </UncontrolledTooltip>
+                                          </Link>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  </>
+                                );
+                              })}
+                            </>
+                          )}
                         </tbody>
                       </Table>
                     </div>
@@ -901,9 +922,8 @@ const CorporateOrderDetails = () => {
                     <Card>
                       <CardBody>
                         <CardTitle
-                          className="mb-3"
+                          className="mb-3 text-primary"
                           style={{
-                            color: "#2c3e50",
                             backgroundColor: "#ecf0f1",
                             padding: "10px",
                             borderRadius: "5px",
@@ -1220,6 +1240,7 @@ const CorporateOrderDetails = () => {
                     </Card>
                   </Col>
                 </Row>
+
                 <Row>
                   <Col lg="12">
                     <Card className="mb-4">
@@ -1345,6 +1366,183 @@ const CorporateOrderDetails = () => {
                 }}
               >
                 Yes
+              </button>
+            </div>
+          </ModalBody>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={editModal}
+        toggle={() => setEditModal(false)}
+        centered
+        backdrop="static"
+        keyboard={false}
+        size="md"
+        scrollable={true}
+      >
+        <ModalHeader toggle={() => setEditModal(false)} tag="h4">
+          Edit Order
+        </ModalHeader>
+        <div className="modal-content">
+          <ModalBody>
+            <form onSubmit={formik.handleSubmit}>
+              <div className="mb-3">
+                <Label className="form-label">Shipped Qty</Label>
+                <Input
+                  name="shippedQty"
+                  type="number"
+                  placeholder="Enter shipped quantity"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.shippedQty || ""}
+                  invalid={
+                    formik.touched.shippedQty && formik.errors.shippedQty
+                      ? true
+                      : false
+                  }
+                />
+                {formik.touched.shippedQty && formik.errors.shippedQty ? (
+                  <FormFeedback type="invalid">
+                    {formik.errors.shippedQty}
+                  </FormFeedback>
+                ) : null}
+              </div>
+
+              <div className="mb-3">
+                <Label className="form-label">Available Stocks</Label>
+                <Input
+                  name="availableStocks"
+                  type="number"
+                  placeholder="Enter available stocks"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.availableStocks || ""}
+                  invalid={
+                    formik.touched.availableStocks &&
+                    formik.errors.availableStocks
+                      ? true
+                      : false
+                  }
+                />
+                {formik.touched.availableStocks &&
+                formik.errors.availableStocks ? (
+                  <FormFeedback type="invalid">
+                    {formik.errors.availableStocks}
+                  </FormFeedback>
+                ) : null}
+              </div>
+
+              <div className="mb-3">
+                <Label className="form-label">Quantity</Label>
+                <Input
+                  name="quantity"
+                  type="number"
+                  placeholder="Enter quantity"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.quantity || ""}
+                  invalid={
+                    formik.touched.quantity && formik.errors.quantity
+                      ? true
+                      : false
+                  }
+                />
+                {formik.touched.quantity && formik.errors.quantity ? (
+                  <FormFeedback type="invalid">
+                    {formik.errors.quantity}
+                  </FormFeedback>
+                ) : null}
+              </div>
+
+              <div className="mb-3">
+                <Label className="form-label">Price</Label>
+                <Input
+                  name="price"
+                  type="number"
+                  placeholder="Enter price"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.price || ""}
+                  invalid={
+                    formik.touched.price && formik.errors.price ? true : false
+                  }
+                />
+                {formik.touched.price && formik.errors.price ? (
+                  <FormFeedback type="invalid">
+                    {formik.errors.price}
+                  </FormFeedback>
+                ) : null}
+              </div>
+
+              <div className="mb-3">
+                <Label className="form-label">Total</Label>
+                <Input
+                  name="total"
+                  type="number"
+                  placeholder="Enter total"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.total || ""}
+                  invalid={
+                    formik.touched.total && formik.errors.total ? true : false
+                  }
+                />
+                {formik.touched.total && formik.errors.total ? (
+                  <FormFeedback type="invalid">
+                    {formik.errors.total}
+                  </FormFeedback>
+                ) : null}
+              </div>
+
+              <Col>
+                <div className="text-end">
+                  <Button type="submit" color="success">
+                    Update
+                  </Button>
+                </div>
+              </Col>
+            </form>
+          </ModalBody>
+        </div>
+      </Modal>
+
+      <Modal
+        size="sm"
+        isOpen={deleteModal}
+        toggle={() => setDeleteModal(false)}
+        centered
+      >
+        <div className="modal-content">
+          <ModalBody className="px-4 py-5 text-center">
+            <button
+              type="button"
+              onClick={() => setDeleteModal(false)}
+              className="btn-close position-absolute end-0 top-0 m-3"
+            ></button>
+            <div className="avatar-sm mb-4 mx-auto">
+              <div className="avatar-title bg-danger text-danger bg-opacity-10 font-size-20 rounded-3">
+                <i className="mdi mdi-trash-can-outline"></i>
+              </div>
+            </div>
+            <p className="text-muted font-size-16 mb-4">
+              Are you sure you want to delete this order?
+            </p>
+
+            <div className="hstack gap-2 justify-content-center mb-0">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setDeleteModal(false)}
+              >
+                No
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleConfirmDelete}
+              >
+                Yes, Delete
               </button>
             </div>
           </ModalBody>

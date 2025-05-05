@@ -23,20 +23,6 @@ const InvoiceDetails = () => {
                 <CardBody>
                   <div className="invoice-title">
                     <h4 className="float-end font-size-16">Order # 12345</h4>
-                    {/* <div className="mb-4">
-                      <img
-                        src={logo}
-                        alt="logo-dark"
-                        className="logo-dark-element"
-                        height="20"
-                      />
-                      <img
-                        src={logoLight}
-                        alt="logo-light"
-                        className="logo-light-element"
-                        height="20"
-                      />
-                    </div> */}
                   </div>
                   <hr />
                   <Row>

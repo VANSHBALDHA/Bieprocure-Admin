@@ -1928,6 +1928,7 @@ const ordersData = [
         total: 90000,
         stock: 10,
         deliverySchedule: "6 - 8 Weeks",
+        shippedQty: 500,
       },
       {
         id: 2,
@@ -1939,6 +1940,7 @@ const ordersData = [
         total: 190000,
         stock: 10,
         deliverySchedule: "8 - 10 Weeks",
+        shippedQty: 500,
       },
     ],
     summary: {
@@ -1956,9 +1958,9 @@ const ordersData = [
     invoiceData: [
       {
         piNumber: "O-10235-20250402/001/PRO-1",
-        piCreatedDate: "02-Apr-2025", // null if not created
+        piCreatedDate: "02-Apr-2025",
         invoiceNumber: "O-10235-20250430/001/INV-1",
-        invoiceCreatedDate: "30-Apr-2025", // null if not created
+        invoiceCreatedDate: "30-Apr-2025",
         qty: 150,
         billAmount: 140400.0,
         receivedAmount: 14400.0,
@@ -2061,6 +2063,7 @@ const ordersData = [
         total: 60000,
         stock: 15,
         deliverySchedule: "5 - 7 Weeks",
+        shippedQty: 500,
       },
       {
         id: 2,
@@ -2072,6 +2075,7 @@ const ordersData = [
         total: 80000,
         stock: 20,
         deliverySchedule: "6 - 8 Weeks",
+        shippedQty: 500,
       },
     ],
     summary: {
